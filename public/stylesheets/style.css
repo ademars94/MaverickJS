@@ -8,10 +8,28 @@ a {
 }
 
 #canvas {
-	border: 1px solid red;
+	background-color: #F6F6F6;
+	border: 10px solid #E1E2E4;
+	border-radius: 5px;
 	position: absolute;
 	top: -480px;
 	left: -360px;
 	margin-top: 50%;
 	margin-left: 50%;
+	display: block;
+}
+
+input {
+	background-color: #3498db;
+	color: white;
+	border: none;
+	border-radius: 5px;
+	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+	padding: 10px;
+	width: 200px;
+	position: absolute;
+	left: -100px;
+	margin-top: 50%;
+	margin-left: 50%;
+	margin-bottom: 200px;
 }

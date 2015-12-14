@@ -14,6 +14,8 @@ var speed = 5;
 var angle = 0;
 var mod = 0.5;
 
+window.addEventListener("keydown", keypress_handler, false);
+
 // Images
 
 var spitfire = new Image();
@@ -30,7 +32,7 @@ blueSq.src = '/images/light-blue-square.png';
 var map = {
 	cols: 10,
 	rows: 10,
-	tsize: 500,
+	tileSize: 500,
 	layers: [0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
 					 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
 					 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
@@ -54,8 +56,8 @@ function Camera(map, width, height) {
 	this.y = 0;
 	this.width = width;
 	this.height = height;
-	this.maxX = map.cols * map.tsize - width;
-	this.maxY = map.rows * map.tsize - height;
+	this.maxX = map.cols * map.tileSize - width;
+	this.maxY = map.rows * map.tileSize - height;
 }
 
 Camera.prototype.move = function(delta, dirX, dirY) {
@@ -79,19 +81,18 @@ Maverick.run = function (context) {
 };
 
 Maverick.tick = function (elapsed) {
-	console.log('tick');
-    window.requestAnimationFrame(this.tick);
+  window.requestAnimationFrame(this.tick);
 
-    // clear previous frame
-    this.ctx.clearRect(0, 0, 720, 480);
+  // clear previous frame
+  this.ctx.clearRect(0, 0, 720, 480);
 
-    // compute delta time in seconds -- also cap it
-    var delta = (elapsed - this._previousElapsed) / 1000.0;
-    delta = Math.min(delta, 0.25); // maximum delta of 250 ms
-    this._previousElapsed = elapsed;
+  // compute delta time in seconds -- also cap it
+  var delta = (elapsed - this._previousElapsed) / 1000.0;
+  delta = Math.min(delta, 0.25); // maximum delta of 250 ms
+  this._previousElapsed = elapsed;
 
-    this.update(delta);
-    this.render();
+  this.update(delta);
+  this.render();
 }.bind(Maverick);
 
 Maverick.init = function() {
@@ -108,25 +109,25 @@ Maverick.update = function(delta) {
 // Maverick._drawLayer = function (layer) {
 // 	// This is the code responsible for rendering only the 
 // 	// portion of the map that is in the viewport
-//   var startCol = Math.floor(this.camera.x / map.tsize);
-//   var endCol = startCol + (this.camera.width / map.tsize);
-//   var startRow = Math.floor(this.camera.y / map.tsize);
-//   var endRow = startRow + (this.camera.height / map.tsize);
-//   var offsetX = -this.camera.x + startCol * map.tsize;
-//   var offsetY = -this.camera.y + startRow * map.tsize;
+//   var startCol = Math.floor(this.camera.x / map.tileSize);
+//   var endCol = startCol + (this.camera.width / map.tileSize);
+//   var startRow = Math.floor(this.camera.y / map.tileSize);
+//   var endRow = startRow + (this.camera.height / map.tileSize);
+//   var offsetX = -this.camera.x + startCol * map.tileSize;
+//   var offsetY = -this.camera.y + startRow * map.tileSize;
 
 //   for (var c = startCol; c <= endCol; c++) {
 //     for (var r = startRow; r <= endRow; r++) {
 //       var tile = map.getTile(c, r);
-//       var x = (c - startCol) * map.tsize + offsetX;
-//       var y = (r - startRow) * map.tsize + offsetY;
+//       var x = (c - startCol) * map.tileSize + offsetX;
+//       var y = (r - startRow) * map.tileSize + offsetY;
 //       if (tile !== 0) { // 0 => empty tile
 //         this.ctx.drawImage(
 // 	        graySq,
 //         	Math.round(x),  // target x
 //         	Math.round(y), // target y
-//         	map.tsize, // target width
-//         	map.tsize // target height
+//         	map.tileSize, // target width
+//         	map.tileSize // target height
 //         );
 //       }
 //     }
@@ -134,41 +135,32 @@ Maverick.update = function(delta) {
 // };
 
 Maverick._drawGrid = function () {
-    var width = map.cols * map.tsize;
-    var height = map.rows * map.tsize;
+    var width = map.cols * map.tileSize;
+    var height = map.rows * map.tileSize;
     var x, y;
     for (var r = 0; r < map.rows; r++) {
         x = - this.camera.x;
-        y = r * map.tsize - this.camera.y;
+        y = r * map.tileSize - this.camera.y;
         this.ctx.beginPath();
+        this.ctx.strokeStyle = '#E6E6E6';
+        this.ctx.lineWidth = 5;
         this.ctx.moveTo(x, y);
         this.ctx.lineTo(width, y);
         this.ctx.stroke();
     }
     for (var c = 0; c < map.cols; c++) {
-        x = c * map.tsize - this.camera.x;
+        x = c * map.tileSize - this.camera.x;
         y = - this.camera.y;
         this.ctx.beginPath();
+        this.ctx.strokeStyle = '#E6E6E6';
+        this.ctx.lineWidth = 5;
         this.ctx.moveTo(x, y);
         this.ctx.lineTo(x, height);
         this.ctx.stroke();
     }
 };
 
-Maverick.render = function () {
-    // draw map background layer
-    // this._drawLayer(0);
-    this._drawGrid();
-    drawPlane();
-};
-
-
-
-
-
-window.addEventListener("keydown", keypress_handler, false);
-
-function drawPlane() {
+Maverick.drawPlane = function() {
 
     planeX += (speed * mod) * Math.sin(Math.PI / 180 * angle);
     planeY += -(speed * mod) * Math.cos(Math.PI / 180 * angle);
@@ -178,7 +170,14 @@ function drawPlane() {
     ctx.rotate(Math.PI / 180 * angle);
     ctx.drawImage(spitfire, -60, -60, 120, 120);
     ctx.restore();
-}
+};
+
+Maverick.render = function () {
+    // draw map background layer
+    // this._drawLayer(0);
+    this._drawGrid();
+    this.drawPlane();
+};
 
 function keypress_handler(event) {
     console.log(event.keyCode);
@@ -190,7 +189,9 @@ function keypress_handler(event) {
     }
 }
 
-$('#canvas').on('click', function () {
+// Run the game when the canvas is clicked!
+
+$('#start').on('click', function () {
     var context = canvas.getContext('2d');
     Maverick.run(context);
 });
