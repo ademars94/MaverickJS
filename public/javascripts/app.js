@@ -15,6 +15,7 @@ var planeY = 2500;
 var speed = 20;
 var angle = 0;
 var mod = 0.5;
+var player = {};
 
 window.addEventListener("keydown", keypress_handler, false);
 
@@ -164,10 +165,12 @@ Maverick.render = function () {
 function keypress_handler(event) {
     console.log(event.keyCode);
     if (event.keyCode == 65) {
-        angle -= 5;
+      socket.emit('leftPressed');
+      // angle -= 5;
     }
     if (event.keyCode == 68) {
-        angle += 5;
+      socket.emit('rightPressed');
+      // angle += 5;
     }
 }
 
@@ -175,7 +178,14 @@ function keypress_handler(event) {
 
 $('#start').on('click', function () {
     var context = canvas.getContext('2d');
-    Maverick.run(context);
+    // Maverick.run(context);
+
+    player.name = $('#name').val();
+    socket.emit('respawn', player);
+});
+
+socket.on('angleChange', function(angle) {
+  console.log(angle);
 });
 
 // Maverick._drawLayer = function (layer) {
