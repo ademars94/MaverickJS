@@ -11,12 +11,15 @@ a {
 	background-color: #F6F6F6;
 	border: 10px solid #E1E2E4;
 	border-radius: 5px;
+	position: relative;
+}
+
+#game {
+	width: 1280px;
+	height: 720px;
 	position: absolute;
-	top: -480px;
-	left: -360px;
-	margin-top: 50%;
+	left: -640px;
 	margin-left: 50%;
-	display: block;
 }
 
 input {
@@ -28,8 +31,8 @@ input {
 	padding: 10px;
 	width: 200px;
 	position: absolute;
-	left: -100px;
-	margin-top: 50%;
+  left: -100px;
+  margin-top: 10px;
 	margin-left: 50%;
 	margin-bottom: 200px;
 }

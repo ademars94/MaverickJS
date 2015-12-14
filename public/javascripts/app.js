@@ -84,7 +84,7 @@ Maverick.tick = function (elapsed) {
   window.requestAnimationFrame(this.tick);
 
   // clear previous frame
-  this.ctx.clearRect(0, 0, 720, 480);
+  this.ctx.clearRect(0, 0, 1280, 720);
 
   // compute delta time in seconds -- also cap it
   var delta = (elapsed - this._previousElapsed) / 1000.0;
