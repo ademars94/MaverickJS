@@ -12,13 +12,18 @@ var planeX = canvas.width / 2;
 var planeY = canvas.height / 2;
 var speed = 5;
 var angle = 0;
-var mod = 1;
+var mod = 0.5;
 
 // Images
 
-var spitfire,
-		graySq,
-		blueSq;
+var spitfire = new Image();
+spitfire.src = '/images/spitfire.png';
+
+var graySq = new Image();
+graySq.src = '/images/gray-square.png';
+
+var blueSq = new Image();
+blueSq.src = '/images/light-blue-square.png';
 
 // Map Matrix
 
@@ -37,8 +42,8 @@ var map = {
 					 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
 					 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
 					],
-	getTile: function(layer, col, row) {
-		return this.layers[layer][row * map.cols + col];
+	getTile: function(col, row) {
+		return this.layers[row * map.cols + col];
 	}
 };
 
@@ -54,8 +59,8 @@ function Camera(map, width, height) {
 }
 
 Camera.prototype.move = function(delta, dirX, dirY) {
-	this.x = planeX * 1;
-  this.y = planeY * 1;
+	this.x = planeX;
+  this.y = planeY;
   // this.x = Math.max(0, Math.min(this.x, this.maxX));
   // this.y = Math.max(0, Math.min(this.y, this.maxY));
 }
@@ -63,17 +68,6 @@ Camera.prototype.move = function(delta, dirX, dirY) {
 // Game Functions
 
 var Maverick = {};
-
-
-spitfire = new Image();
-spitfire.src = '/images/spitfire.png';
-
-graySq = new Image();
-graySq.src = '/images/gray-square.png';
-
-blueSq = new Image();
-blueSq.src = '/images/light-blue-square.png';
-
 
 Maverick.run = function (context) {
     this.ctx = context;
@@ -111,40 +105,61 @@ Maverick.update = function(delta) {
 	this.camera.move(delta, dirX, dirY)
 }
 
-Maverick._drawLayer = function (layer) {
-  var startCol = Math.floor(this.camera.x / map.tsize);
-  var endCol = startCol + (this.camera.width / map.tsize);
-  var startRow = Math.floor(this.camera.y / map.tsize);
-  var endRow = startRow + (this.camera.height / map.tsize);
-  var offsetX = -this.camera.x + startCol * map.tsize;
-  var offsetY = -this.camera.y + startRow * map.tsize;
+// Maverick._drawLayer = function (layer) {
+// 	// This is the code responsible for rendering only the 
+// 	// portion of the map that is in the viewport
+//   var startCol = Math.floor(this.camera.x / map.tsize);
+//   var endCol = startCol + (this.camera.width / map.tsize);
+//   var startRow = Math.floor(this.camera.y / map.tsize);
+//   var endRow = startRow + (this.camera.height / map.tsize);
+//   var offsetX = -this.camera.x + startCol * map.tsize;
+//   var offsetY = -this.camera.y + startRow * map.tsize;
 
-  for (var c = startCol; c <= endCol; c++) {
-    for (var r = startRow; r <= endRow; r++) {
-      var tile = map.getTile(layer, c, r);
-      var x = (c - startCol) * map.tsize + offsetX;
-      var y = (r - startRow) * map.tsize + offsetY;
-      if (tile !== 0) { // 0 => empty tile
-        this.ctx.drawImage(
-        	graySq, // image
-        	0, // source x
-        	0, // source y
-        	500, // source width
-        	500, // source height
-        	Math.round(x),  // target x
-        	Math.round(y), // target y
-        	map.tsize, // target width
-        	map.tsize // target height
-        );
-      }
+//   for (var c = startCol; c <= endCol; c++) {
+//     for (var r = startRow; r <= endRow; r++) {
+//       var tile = map.getTile(c, r);
+//       var x = (c - startCol) * map.tsize + offsetX;
+//       var y = (r - startRow) * map.tsize + offsetY;
+//       if (tile !== 0) { // 0 => empty tile
+//         this.ctx.drawImage(
+// 	        graySq,
+//         	Math.round(x),  // target x
+//         	Math.round(y), // target y
+//         	map.tsize, // target width
+//         	map.tsize // target height
+//         );
+//       }
+//     }
+//   }
+// };
+
+Maverick._drawGrid = function () {
+    var width = map.cols * map.tsize;
+    var height = map.rows * map.tsize;
+    var x, y;
+    for (var r = 0; r < map.rows; r++) {
+        x = - this.camera.x;
+        y = r * map.tsize - this.camera.y;
+        this.ctx.beginPath();
+        this.ctx.moveTo(x, y);
+        this.ctx.lineTo(width, y);
+        this.ctx.stroke();
     }
-  }
-  drawPlane();
+    for (var c = 0; c < map.cols; c++) {
+        x = c * map.tsize - this.camera.x;
+        y = - this.camera.y;
+        this.ctx.beginPath();
+        this.ctx.moveTo(x, y);
+        this.ctx.lineTo(x, height);
+        this.ctx.stroke();
+    }
 };
 
 Maverick.render = function () {
     // draw map background layer
-    this._drawLayer(0);
+    // this._drawLayer(0);
+    this._drawGrid();
+    drawPlane();
 };
 
 
@@ -161,7 +176,7 @@ function drawPlane() {
     ctx.save();
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.rotate(Math.PI / 180 * angle);
-    ctx.drawImage(spitfire, -90, -90, 180, 180);
+    ctx.drawImage(spitfire, -60, -60, 120, 120);
     ctx.restore();
 }
 
