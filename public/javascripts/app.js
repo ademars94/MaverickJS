@@ -116,7 +116,7 @@ Maverick._drawGrid = function () {
         this.ctx.strokeStyle = '#E6E6E6';
         this.ctx.lineWidth = 5;
         this.ctx.moveTo(x, y);
-        this.ctx.lineTo(1280+(5000-this.camera.x), y);
+        this.ctx.lineTo(height, y);
         this.ctx.closePath();
         this.ctx.stroke();
     }
