@@ -3,6 +3,19 @@ var io = require('socket.io')();
 var angle = 0;
 var sockets = {};
 
+var planeX = 2500;
+var planeY = 2500;
+var speed = 20;
+var mod = 0.5;
+
+
+
+
+
+
+
+// Socket Stuff
+
 io.on('connection', function(socket) {
 	console.log('Client connected to socket.io!');
 

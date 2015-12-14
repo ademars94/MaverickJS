@@ -73,10 +73,10 @@ Camera.prototype.move = function(delta, dirX, dirY) {
 var Maverick = {};
 
 Maverick.run = function (context) {
-    this.ctx = context;
-    this._previousElapsed = 0;
-    this.init();
-    window.requestAnimationFrame(this.tick);
+  this.ctx = context;
+  this._previousElapsed = 0;
+  this.init();
+  window.requestAnimationFrame(this.tick);
 };
 
 Maverick.tick = function (elapsed) {
@@ -107,31 +107,32 @@ Maverick.update = function(delta) {
 
 
 Maverick._drawGrid = function () {
-    var width = map.cols * map.tileSize;
-    var height = map.rows * map.tileSize;
-    var x, y;
-    for (var r = 0; r <= map.rows; r++) {
-        x = - this.camera.x;
-        y = r * map.tileSize - this.camera.y;
-        this.ctx.beginPath();
-        this.ctx.strokeStyle = '#E6E6E6';
-        this.ctx.lineWidth = 5;
-        this.ctx.moveTo(x, y);
-        this.ctx.lineTo(height, y);
-        this.ctx.closePath();
-        this.ctx.stroke();
-    }
-    for (var c = 0; c <= map.cols; c++) {
-        x = c * map.tileSize - this.camera.x;
-        y = - this.camera.y;
-        this.ctx.beginPath();
-        this.ctx.strokeStyle = '#E6E6E6';
-        this.ctx.lineWidth = 5;
-        this.ctx.moveTo(x, y);
-        this.ctx.lineTo(x, width);
-        this.ctx.closePath();
-        this.ctx.stroke();
-    }
+  var width = map.cols * map.tileSize;
+  var height = map.rows * map.tileSize;
+  var x, y;
+
+  for (var r = 0; r <= map.rows; r++) {
+    x = - this.camera.x;
+    y = r * map.tileSize - this.camera.y;
+    this.ctx.beginPath();
+    this.ctx.strokeStyle = '#E6E6E6';
+    this.ctx.lineWidth = 5;
+    this.ctx.moveTo(x, y);
+    this.ctx.lineTo(height, y);
+    this.ctx.closePath();
+    this.ctx.stroke();
+  }
+  for (var c = 0; c <= map.cols; c++) {
+    x = c * map.tileSize - this.camera.x;
+    y = - this.camera.y;
+    this.ctx.beginPath();
+    this.ctx.strokeStyle = '#E6E6E6';
+    this.ctx.lineWidth = 5;
+    this.ctx.moveTo(x, y);
+    this.ctx.lineTo(x, width);
+    this.ctx.closePath();
+    this.ctx.stroke();
+  }
 };
 
 Maverick.drawPlane = function() {
@@ -163,29 +164,32 @@ Maverick.render = function () {
 };
 
 function keypress_handler(event) {
-    console.log(event.keyCode);
-    if (event.keyCode == 65) {
-      socket.emit('leftPressed');
-      // angle -= 5;
-    }
-    if (event.keyCode == 68) {
-      socket.emit('rightPressed');
-      // angle += 5;
-    }
+  console.log(event.keyCode);
+  if (event.keyCode == 65) {
+    socket.emit('leftPressed');
+    // angle -= 5;
+  }
+  if (event.keyCode == 68) {
+    socket.emit('rightPressed');
+    // angle += 5;
+  }
 }
 
 // Run the game when the canvas is clicked!
 
 $('#start').on('click', function () {
-    var context = canvas.getContext('2d');
-    // Maverick.run(context);
+  var context = canvas.getContext('2d');
+  // Maverick.run(context);
 
-    player.name = $('#name').val();
-    socket.emit('respawn', player);
+  player.name = $('#name').val();
+  socket.emit('respawn', player);
 });
 
-socket.on('angleChange', function(angle) {
-  console.log(angle);
+// Socket stuff
+
+socket.on('angleChange', function(newAngle) {
+  angle = newAngle; 
+  console.log(newAngle);
 });
 
 // Maverick._drawLayer = function (layer) {
