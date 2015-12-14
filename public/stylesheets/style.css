@@ -1,0 +1,17 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+#canvas {
+	border: 1px solid red;
+	position: absolute;
+	top: -480px;
+	left: -360px;
+	margin-top: 50%;
+	margin-left: 50%;
+}
