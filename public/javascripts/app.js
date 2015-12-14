@@ -8,9 +8,11 @@ var ctx = canvas.getContext('2d');
 
 // Global Vars from Racing Game example
 
-var planeX = canvas.width / 2;
-var planeY = canvas.height / 2;
-var speed = 5;
+// var planeX = canvas.width / 2;
+// var planeY = canvas.height / 2;
+var planeX = 2500;
+var planeY = 2500;
+var speed = 20;
 var angle = 0;
 var mod = 0.5;
 
@@ -61,10 +63,8 @@ function Camera(map, width, height) {
 }
 
 Camera.prototype.move = function(delta, dirX, dirY) {
-	this.x = planeX;
-  this.y = planeY;
-  // this.x = Math.max(0, Math.min(this.x, this.maxX));
-  // this.y = Math.max(0, Math.min(this.y, this.maxY));
+	this.x = planeX -640;
+  this.y = planeY -360;
 }
 
 // Game Functions
@@ -74,8 +74,6 @@ var Maverick = {};
 Maverick.run = function (context) {
     this.ctx = context;
     this._previousElapsed = 0;
-    console.log(this.ctx);
-    
     this.init();
     window.requestAnimationFrame(this.tick);
 };
@@ -106,8 +104,82 @@ Maverick.update = function(delta) {
 	this.camera.move(delta, dirX, dirY)
 }
 
+
+Maverick._drawGrid = function () {
+    var width = map.cols * map.tileSize;
+    var height = map.rows * map.tileSize;
+    var x, y;
+    for (var r = 0; r <= map.rows; r++) {
+        x = - this.camera.x;
+        y = r * map.tileSize - this.camera.y;
+        this.ctx.beginPath();
+        this.ctx.strokeStyle = '#E6E6E6';
+        this.ctx.lineWidth = 5;
+        this.ctx.moveTo(x, y);
+        this.ctx.lineTo(1280+(5000-this.camera.x), y);
+        this.ctx.closePath();
+        this.ctx.stroke();
+    }
+    for (var c = 0; c <= map.cols; c++) {
+        x = c * map.tileSize - this.camera.x;
+        y = - this.camera.y;
+        this.ctx.beginPath();
+        this.ctx.strokeStyle = '#E6E6E6';
+        this.ctx.lineWidth = 5;
+        this.ctx.moveTo(x, y);
+        this.ctx.lineTo(x, width);
+        this.ctx.closePath();
+        this.ctx.stroke();
+    }
+};
+
+Maverick.drawPlane = function() {
+  ctx.save();
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+  ctx.rotate(Math.PI / 180 * angle);
+  ctx.drawImage(spitfire, -60, -60, 120, 120);
+  ctx.restore();
+};
+
+Maverick.movePlane = function() {
+  var newPlaneX = planeX + (speed * mod) * Math.sin(Math.PI / 180 * angle);
+  var newPlaneY = planeY + -(speed * mod) * Math.cos(Math.PI / 180 * angle);
+
+  if (newPlaneX >= 0 && newPlaneX <= 5000) {
+    planeX = newPlaneX;
+  }
+  if (newPlaneY >= 0 && newPlaneY <= 5000) {
+    planeY = newPlaneY;
+  }
+};
+
+Maverick.render = function () {
+  // draw map background layer
+  // this._drawLayer(0);
+  this._drawGrid();
+  this.movePlane();
+  this.drawPlane();
+};
+
+function keypress_handler(event) {
+    console.log(event.keyCode);
+    if (event.keyCode == 65) {
+        angle -= 5;
+    }
+    if (event.keyCode == 68) {
+        angle += 5;
+    }
+}
+
+// Run the game when the canvas is clicked!
+
+$('#start').on('click', function () {
+    var context = canvas.getContext('2d');
+    Maverick.run(context);
+});
+
 // Maverick._drawLayer = function (layer) {
-// 	// This is the code responsible for rendering only the 
+// 	// This is the code responsible for rendering only the
 // 	// portion of the map that is in the viewport
 //   var startCol = Math.floor(this.camera.x / map.tileSize);
 //   var endCol = startCol + (this.camera.width / map.tileSize);
@@ -133,65 +205,3 @@ Maverick.update = function(delta) {
 //     }
 //   }
 // };
-
-Maverick._drawGrid = function () {
-    var width = map.cols * map.tileSize;
-    var height = map.rows * map.tileSize;
-    var x, y;
-    for (var r = 0; r < map.rows; r++) {
-        x = - this.camera.x;
-        y = r * map.tileSize - this.camera.y;
-        this.ctx.beginPath();
-        this.ctx.strokeStyle = '#E6E6E6';
-        this.ctx.lineWidth = 5;
-        this.ctx.moveTo(x, y);
-        this.ctx.lineTo(width, y);
-        this.ctx.stroke();
-    }
-    for (var c = 0; c < map.cols; c++) {
-        x = c * map.tileSize - this.camera.x;
-        y = - this.camera.y;
-        this.ctx.beginPath();
-        this.ctx.strokeStyle = '#E6E6E6';
-        this.ctx.lineWidth = 5;
-        this.ctx.moveTo(x, y);
-        this.ctx.lineTo(x, height);
-        this.ctx.stroke();
-    }
-};
-
-Maverick.drawPlane = function() {
-
-    planeX += (speed * mod) * Math.sin(Math.PI / 180 * angle);
-    planeY += -(speed * mod) * Math.cos(Math.PI / 180 * angle);
-
-    ctx.save();
-    ctx.translate(canvas.width / 2, canvas.height / 2);
-    ctx.rotate(Math.PI / 180 * angle);
-    ctx.drawImage(spitfire, -60, -60, 120, 120);
-    ctx.restore();
-};
-
-Maverick.render = function () {
-    // draw map background layer
-    // this._drawLayer(0);
-    this._drawGrid();
-    this.drawPlane();
-};
-
-function keypress_handler(event) {
-    console.log(event.keyCode);
-    if (event.keyCode == 65) {
-        angle -= 5;
-    }
-    if (event.keyCode == 68) {
-        angle += 5;
-    }
-}
-
-// Run the game when the canvas is clicked!
-
-$('#start').on('click', function () {
-    var context = canvas.getContext('2d');
-    Maverick.run(context);
-});
