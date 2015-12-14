@@ -164,7 +164,7 @@ Maverick.render = function () {
 };
 
 function keypress_handler(event) {
-  console.log(event.keyCode);
+  // console.log(event.keyCode);
   if (event.keyCode == 65) {
     socket.emit('leftPressed');
     // angle -= 5;
@@ -182,14 +182,20 @@ $('#start').on('click', function () {
   // Maverick.run(context);
 
   player.name = $('#name').val();
+  player.id = socket.id;
   socket.emit('respawn', player);
 });
 
 // Socket stuff
 
+socket.on('startGame', function () {
+  var context = canvas.getContext('2d');
+  Maverick.run(context);
+});
+
 socket.on('angleChange', function(newAngle) {
   angle = newAngle; 
-  console.log(newAngle);
+  console.log(angle);
 });
 
 // Maverick._drawLayer = function (layer) {
