@@ -143,23 +143,8 @@ Maverick.drawPlane = function() {
   ctx.restore();
 };
 
-Maverick.movePlane = function() {
-  var newPlaneX = planeX + (speed * mod) * Math.sin(Math.PI / 180 * angle);
-  var newPlaneY = planeY + -(speed * mod) * Math.cos(Math.PI / 180 * angle);
-
-  if (newPlaneX >= 0 && newPlaneX <= 5000) {
-    planeX = newPlaneX;
-  }
-  if (newPlaneY >= 0 && newPlaneY <= 5000) {
-    planeY = newPlaneY;
-  }
-};
-
 Maverick.render = function () {
-  // draw map background layer
-  // this._drawLayer(0);
   this._drawGrid();
-  this.movePlane();
   this.drawPlane();
 };
 
@@ -199,6 +184,12 @@ socket.on('joinGame', function (playerSettings) {
 
 socket.on('angleChange', function(currentPlayer) {
   angle = currentPlayer.angle;
+});
+
+socket.on('updateClients', function(playerData) {
+  console.log(playerData);
+  planeX = playerData.planeX;
+  planeY = playerData.planeY;
 });
 
 // Maverick._drawLayer = function (layer) {

@@ -49,7 +49,6 @@ io.on('connection', function(socket) {
   socket.on('rightPressed', function(player) {
     currentPlayer.angle += 5;
     socket.emit('angleChange', currentPlayer);
-    console.log(players);
   });
 });
 
@@ -64,6 +63,8 @@ function movePlane() {
     if (newPlaneY >= 0 && newPlaneY <= 5000) {
       player.planeY = newPlaneY;
     }
+    sockets[player.id].emit('updateClients', player);
+    // console.log(player);
   });
 };
 
