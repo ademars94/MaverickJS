@@ -63,7 +63,7 @@ function Camera(map, width, height) {
 	this.maxY = map.rows * map.tileSize - height;
 }
 
-Camera.prototype.move = function(delta, dirX, dirY) {
+Camera.prototype.move = function(delta, camX, camY) {
 	this.x = planeX -640;
   this.y = planeY -360;
 }
@@ -100,9 +100,9 @@ Maverick.init = function() {
 
 Maverick.update = function(delta) {
 	// debugger;
-	var dirX = planeX;
-	var dirY = planeY;
-	this.camera.move(delta, dirX, dirY)
+	var camX = planeX;
+	var camY = planeY;
+	this.camera.move(delta, camX, camY)
 }
 
 
@@ -166,11 +166,11 @@ Maverick.render = function () {
 function keypress_handler(event) {
   // console.log(event.keyCode);
   if (event.keyCode == 65) {
-    socket.emit('leftPressed');
+    socket.emit('leftPressed', player.id);
     // angle -= 5;
   }
   if (event.keyCode == 68) {
-    socket.emit('rightPressed');
+    socket.emit('rightPressed', player.id);
     // angle += 5;
   }
 }
@@ -188,14 +188,17 @@ $('#start').on('click', function () {
 
 // Socket stuff
 
-socket.on('joinGame', function (users) {
+socket.on('joinGame', function (playerSettings) {
   var context = canvas.getContext('2d');
   Maverick.run(context);
+
+  player = playerSettings;
+
+  console.log(player);
 });
 
-socket.on('angleChange', function(newAngle) {
-  angle = newAngle; 
-  console.log(angle);
+socket.on('angleChange', function(currentPlayer) {
+  angle = currentPlayer.angle;
 });
 
 // Maverick._drawLayer = function (layer) {
