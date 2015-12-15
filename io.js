@@ -1,18 +1,19 @@
 var io = require('socket.io')();
 
-var angle = 0;
-var sockets = {};
-var users = [];
-
-var planeX = 2500;
-var planeY = 2500;
-var speed = 20;
-var mod = 0.5;
-
 // Socket Stuff
 
 io.on('connection', function(socket) {
 	console.log('Client connected to socket.io!');
+  var angle = 0;
+  var sockets = {};
+  var users = [];
+
+  var planeX = 2500;
+  var planeY = 2500;
+  var speed = 10;
+  var mod = 0.5;
+
+  var currentPlayer = {};
 
   function keypress_handler(event) {
     console.log(event.keyCode);
@@ -40,7 +41,14 @@ io.on('connection', function(socket) {
     if (!sockets[player.id]) {
       sockets[player.id] = socket;
       console.log(player.name, player.id);
-      socket.emit('startGame');
+
+      player.planeX = 2500;
+      player.planeY = 2500;
+
+      currentPlayer = player;
+      users.push(currentPlayer);
+
+      socket.emit('joinGame', users);
     }
     console.log(sockets);
   });

@@ -12,7 +12,7 @@ var ctx = canvas.getContext('2d');
 // var planeY = canvas.height / 2;
 var planeX = 2500;
 var planeY = 2500;
-var speed = 20;
+var speed = 10;
 var angle = 0;
 var mod = 0.5;
 var player = {};
@@ -188,7 +188,7 @@ $('#start').on('click', function () {
 
 // Socket stuff
 
-socket.on('startGame', function () {
+socket.on('joinGame', function (users) {
   var context = canvas.getContext('2d');
   Maverick.run(context);
 });
