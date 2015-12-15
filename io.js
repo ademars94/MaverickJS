@@ -3,6 +3,8 @@
 // *************************** Game Server ****************************
 // ********************************************************************
 
+// Global Variables
+
 var io = require('socket.io')();
 var players = [];
 var sockets = {};
@@ -16,6 +18,7 @@ var mod = 0.5;
 io.on('connection', function(socket) {
 	console.log('Client connected to socket.io!');
 
+  // Initialize the new player
   var currentPlayer = {
     id: socket.id,
     planeX: 2500,
@@ -41,10 +44,10 @@ io.on('connection', function(socket) {
     console.log(players);
   });
 
+  // Event Listeners
   socket.on('leftPressed', function(player) {
     currentPlayer.angle -= 5;
   });
-
   socket.on('rightPressed', function(player) {
     currentPlayer.angle += 5;
   });

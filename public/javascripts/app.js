@@ -1,7 +1,15 @@
 console.log('Maverick 2D!');
 
+// ********************************************************************
+// *************************** Maverick 2D ****************************
+// ********************************************************************
+
+// Global Variables
+
 var socket = io();
 console.log(socket);
+
+var Maverick = {};
 
 var canvas = $('#canvas')[0];
 var ctx = canvas.getContext('2d');
@@ -11,8 +19,6 @@ var planeY = 2500;
 var angle = 0;
 var player = {};
 var players = [];
-
-var Maverick = {};
 
 window.addEventListener("keydown", keypress_handler, false);
 
@@ -25,7 +31,7 @@ function keypress_handler(event) {
   }
 }
 
-// Images
+// Image Stuff
 
 var spitfire = new Image();
 spitfire.src = '/images/spitfire.png';
@@ -33,32 +39,12 @@ spitfire.src = '/images/spitfire.png';
 var zero = new Image();
 zero.src = '/images/zero.png';
 
-// var graySq = new Image();
-// graySq.src = '/images/gray-square.png';
-
-// var blueSq = new Image();
-// blueSq.src = '/images/light-blue-square.png';
-
-// Map Matrix
+// Map Stuff
 
 var map = {
 	cols: 10,
 	rows: 10,
-	tileSize: 500,
-	layers: [0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-					 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
-					 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-					 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
-					 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-					 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
-					 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-					 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
-					 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
-					 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
-					],
-	getTile: function(col, row) {
-		return this.layers[row * map.cols + col];
-	}
+	tileSize: 500
 };
 
 // ********************************************************************
@@ -82,7 +68,6 @@ Maverick.init = function() {
 }
 
 Maverick.update = function(delta) {
-  // debugger;
   var camX = planeX;
   var camY = planeY;
   this.camera.move(delta, camX, camY)
@@ -165,8 +150,7 @@ Maverick.drawEnemies = function() {
   });
 }
 
-// Run the game when the canvas is clicked!
-
+// Join the game when the start button is clicked!
 $('#start').on('click', function () {
   player.name = $('#name').val();
   player.id = socket.id;
