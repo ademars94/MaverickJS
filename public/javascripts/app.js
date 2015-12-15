@@ -1,4 +1,4 @@
-console.log('hello world');
+console.log('Maverick 2D!');
 
 var socket = io();
 console.log(socket);
@@ -6,15 +6,24 @@ console.log(socket);
 var canvas = $('#canvas')[0];
 var ctx = canvas.getContext('2d');
 
-// Global Vars from Racing Game example
-
 var planeX = 2500;
 var planeY = 2500;
 var angle = 0;
 var player = {};
-var users = [];
+var players = [];
+
+var Maverick = {};
 
 window.addEventListener("keydown", keypress_handler, false);
+
+function keypress_handler(event) {
+  if (event.keyCode == 65) {
+    socket.emit('leftPressed', player.id);
+  }
+  if (event.keyCode == 68) {
+    socket.emit('rightPressed', player.id);
+  }
+}
 
 // Images
 
@@ -52,15 +61,15 @@ var map = {
 	}
 };
 
-// Camera Stuff
+// ********************************************************************
+// *************************** Camera Stuff ***************************
+// ********************************************************************
 
 function Camera(map, width, height) {
 	this.x = 0;
 	this.y = 0;
 	this.width = width;
 	this.height = height;
-	this.maxX = map.cols * map.tileSize - width;
-	this.maxY = map.rows * map.tileSize - height;
 }
 
 Camera.prototype.move = function(delta, camX, camY) {
@@ -68,9 +77,20 @@ Camera.prototype.move = function(delta, camX, camY) {
   this.y = planeY -360;
 }
 
-// Game Functions
+Maverick.init = function() {
+  this.camera = new Camera(map, canvas.width, canvas.height);
+}
 
-var Maverick = {};
+Maverick.update = function(delta) {
+  // debugger;
+  var camX = planeX;
+  var camY = planeY;
+  this.camera.move(delta, camX, camY)
+}
+
+// ********************************************************************
+// **************************** Game Stuff ****************************
+// ********************************************************************
 
 Maverick.run = function (context) {
   this.ctx = context;
@@ -94,17 +114,14 @@ Maverick.tick = function (elapsed) {
   this.render();
 }.bind(Maverick);
 
-Maverick.init = function() {
-	this.camera = new Camera(map, canvas.width, canvas.height);
-}
+Maverick.render = function () {
+  this._drawGrid();
+  this.drawPlane();
+};
 
-Maverick.update = function(delta) {
-	// debugger;
-	var camX = planeX;
-	var camY = planeY;
-	this.camera.move(delta, camX, camY)
-}
-
+// ********************************************************************
+// *************************** Canvas Stuff ***************************
+// ********************************************************************
 
 Maverick._drawGrid = function () {
   var width = map.cols * map.tileSize;
@@ -144,39 +161,22 @@ Maverick.drawPlane = function() {
 };
 
 Maverick.drawEnemies = function() {
-
-}
-
-Maverick.render = function () {
-  this._drawGrid();
-  this.drawPlane();
-};
-
-function keypress_handler(event) {
-  // console.log(event.keyCode);
-  if (event.keyCode == 65) {
-    socket.emit('leftPressed', player.id);
-    // angle -= 5;
-  }
-  if (event.keyCode == 68) {
-    socket.emit('rightPressed', player.id);
-    // angle += 5;
-  }
+  players.forEach(function(player) {
+  });
 }
 
 // Run the game when the canvas is clicked!
 
 $('#start').on('click', function () {
-  var context = canvas.getContext('2d');
-  // Maverick.run(context);
-
   player.name = $('#name').val();
   player.id = socket.id;
   socket.emit('respawn', player);
   console.log(player.name + " has entered the game!");
 });
 
-// Socket stuff
+// ********************************************************************
+// *************************** Socket Stuff ***************************
+// ********************************************************************
 
 socket.on('joinGame', function (playerSettings) {
   var context = canvas.getContext('2d');
@@ -188,36 +188,11 @@ socket.on('joinGame', function (playerSettings) {
 });
 
 socket.on('movePlane', function(playerData) {
-  console.log(playerData);
   planeX = playerData.planeX;
   planeY = playerData.planeY;
   angle = playerData.angle;
 });
 
-// Maverick._drawLayer = function (layer) {
-// 	// This is the code responsible for rendering only the
-// 	// portion of the map that is in the viewport
-//   var startCol = Math.floor(this.camera.x / map.tileSize);
-//   var endCol = startCol + (this.camera.width / map.tileSize);
-//   var startRow = Math.floor(this.camera.y / map.tileSize);
-//   var endRow = startRow + (this.camera.height / map.tileSize);
-//   var offsetX = -this.camera.x + startCol * map.tileSize;
-//   var offsetY = -this.camera.y + startRow * map.tileSize;
-
-//   for (var c = startCol; c <= endCol; c++) {
-//     for (var r = startRow; r <= endRow; r++) {
-//       var tile = map.getTile(c, r);
-//       var x = (c - startCol) * map.tileSize + offsetX;
-//       var y = (r - startRow) * map.tileSize + offsetY;
-//       if (tile !== 0) { // 0 => empty tile
-//         this.ctx.drawImage(
-// 	        graySq,
-//         	Math.round(x),  // target x
-//         	Math.round(y), // target y
-//         	map.tileSize, // target width
-//         	map.tileSize // target height
-//         );
-//       }
-//     }
-//   }
-// };
+socket.on('updateAllPlayers', function(players) {
+  console.log(players);
+});

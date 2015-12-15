@@ -1,7 +1,7 @@
 
-//*****************************************************
-//******************** Game Server ********************
-//*****************************************************
+// ********************************************************************
+// *************************** Game Server ****************************
+// ********************************************************************
 
 var io = require('socket.io')();
 var players = [];
@@ -9,7 +9,9 @@ var sockets = {};
 var speed = 10;
 var mod = 0.5;
 
-// Socket Stuff
+// ********************************************************************
+// *************************** Socket Stuff ***************************
+// ********************************************************************
 
 io.on('connection', function(socket) {
 	console.log('Client connected to socket.io!');
@@ -30,11 +32,9 @@ io.on('connection', function(socket) {
       player.planeY = 2500;
       player.angle = 0;
 
-      currentPlayer = player;
-
-      players.push(currentPlayer);
-
       var playerSettings = player;
+      currentPlayer = player;
+      players.push(currentPlayer);
 
       socket.emit('joinGame', playerSettings);
     }
@@ -43,14 +43,22 @@ io.on('connection', function(socket) {
 
   socket.on('leftPressed', function(player) {
     currentPlayer.angle -= 5;
-    // socket.emit('angleChange', currentPlayer);
   });
 
   socket.on('rightPressed', function(player) {
     currentPlayer.angle += 5;
-    // socket.emit('angleChange', currentPlayer);
   });
 });
+
+// ********************************************************************
+// *************************** Move Logic *****************************
+// ********************************************************************
+
+function updateAllPlayers() {
+  if (players.length > 0) {
+    io.emit('updateAllPlayers', players);
+  };
+}
 
 function movePlane() {
   players.forEach(function(player) {
@@ -64,10 +72,11 @@ function movePlane() {
       player.planeY = newPlaneY;
     }
     sockets[player.id].emit('movePlane', player);
-    // console.log(player);
   });
 };
 
-setInterval(movePlane, 1000/60);  
+setInterval(movePlane, 1000/60);
+setInterval(updateAllPlayers, 1000/30);
+
 
 module.exports = io;
