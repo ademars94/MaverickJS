@@ -8,14 +8,11 @@ var ctx = canvas.getContext('2d');
 
 // Global Vars from Racing Game example
 
-// var planeX = canvas.width / 2;
-// var planeY = canvas.height / 2;
 var planeX = 2500;
 var planeY = 2500;
-var speed = 10;
 var angle = 0;
-var mod = 0.5;
 var player = {};
+var users = [];
 
 window.addEventListener("keydown", keypress_handler, false);
 
@@ -24,11 +21,14 @@ window.addEventListener("keydown", keypress_handler, false);
 var spitfire = new Image();
 spitfire.src = '/images/spitfire.png';
 
-var graySq = new Image();
-graySq.src = '/images/gray-square.png';
+var zero = new Image();
+zero.src = '/images/zero.png';
 
-var blueSq = new Image();
-blueSq.src = '/images/light-blue-square.png';
+// var graySq = new Image();
+// graySq.src = '/images/gray-square.png';
+
+// var blueSq = new Image();
+// blueSq.src = '/images/light-blue-square.png';
 
 // Map Matrix
 
@@ -143,6 +143,10 @@ Maverick.drawPlane = function() {
   ctx.restore();
 };
 
+Maverick.drawEnemies = function() {
+
+}
+
 Maverick.render = function () {
   this._drawGrid();
   this.drawPlane();
@@ -169,6 +173,7 @@ $('#start').on('click', function () {
   player.name = $('#name').val();
   player.id = socket.id;
   socket.emit('respawn', player);
+  console.log(player.name + " has entered the game!");
 });
 
 // Socket stuff
@@ -182,14 +187,11 @@ socket.on('joinGame', function (playerSettings) {
   console.log(player);
 });
 
-socket.on('angleChange', function(currentPlayer) {
-  angle = currentPlayer.angle;
-});
-
-socket.on('updateClients', function(playerData) {
+socket.on('movePlane', function(playerData) {
   console.log(playerData);
   planeX = playerData.planeX;
   planeY = playerData.planeY;
+  angle = playerData.angle;
 });
 
 // Maverick._drawLayer = function (layer) {

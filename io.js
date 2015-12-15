@@ -43,12 +43,12 @@ io.on('connection', function(socket) {
 
   socket.on('leftPressed', function(player) {
     currentPlayer.angle -= 5;
-    socket.emit('angleChange', currentPlayer);
+    // socket.emit('angleChange', currentPlayer);
   });
 
   socket.on('rightPressed', function(player) {
     currentPlayer.angle += 5;
-    socket.emit('angleChange', currentPlayer);
+    // socket.emit('angleChange', currentPlayer);
   });
 });
 
@@ -63,7 +63,7 @@ function movePlane() {
     if (newPlaneY >= 0 && newPlaneY <= 5000) {
       player.planeY = newPlaneY;
     }
-    sockets[player.id].emit('updateClients', player);
+    sockets[player.id].emit('movePlane', player);
     // console.log(player);
   });
 };
