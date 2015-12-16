@@ -22,17 +22,22 @@ a {
 	margin-left: 50%;
 }
 
-input {
-	background-color: #3498db;
+#name {
+	background-color: #bdc3c7;
 	color: white;
 	border: none;
 	border-radius: 5px;
 	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 	padding: 10px;
-	width: 200px;
-	position: absolute;
-  left: -100px;
-  margin-top: 10px;
-	margin-left: 50%;
-	margin-bottom: 200px;
+}
+
+#start {
+	background-color: #27ae60;
+	color: white;
+	border: none;
+	border-radius: 5px;
+	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+	padding: 10px;
+	margin: 10px;
+
 }
