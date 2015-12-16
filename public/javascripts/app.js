@@ -33,11 +33,14 @@ var mapTopBound = 0;
 window.addEventListener("keydown", keypress_handler, false);
 
 function keypress_handler(event) {
-  if (event.keyCode == 65) {
-    socket.emit('leftPressed', player.id);
+  if (event.keyCode == 65 || event.keyCode == 37) {
+    socket.emit('leftPressed', player);
   }
-  if (event.keyCode == 68) {
-    socket.emit('rightPressed', player.id);
+  if (event.keyCode == 68 || event.keyCode == 39) {
+    socket.emit('rightPressed', player);
+  }
+  if (event.keyCode == 16) {
+    socket.emit('shiftPressed', player);
   }
 }
 
@@ -102,7 +105,7 @@ Maverick.tick = function(elapsed) {
   window.requestAnimationFrame(this.tick);
 
   // clear previous frame
-  this.ctx.clearRect(0, 0, 1280, 720);
+  this.ctx.clearRect(0, 0, 1280, 960);
 
   // compute delta time in seconds -- also cap it
   var delta = (elapsed - this._previousElapsed) / 1000.0;
@@ -163,9 +166,9 @@ Maverick.drawPlane = function() {
 Maverick.drawEnemies = function() {
   players.forEach(function(p) {
     if (p.id !== player.id) {
-      if (p.planeX < camRightBound 
+      if (p.planeX < camRightBound
       && p.planeX > camLeftBound
-      && p.planeY < camBottomBound 
+      && p.planeY < camBottomBound
       && p.planeY > camTopBound) {
         ctx.save();
         ctx.translate(p.planeX - camLeftBound, p.planeY - camTopBound);
@@ -173,18 +176,6 @@ Maverick.drawEnemies = function() {
         ctx.drawImage(zero, -60, -60, 120, 120);
         ctx.restore();
       }
-      // if (p.planeY < camBottomBound && p.planeY > camTopBound) {
-      //   console.log('------------------------');
-      //   console.log('Enemy plane spotted at:', p.planeX, p.planeY);
-      //   console.log('Our plane is at:', planeX, planeY);
-      //   console.log('Enemy plane in viewport:', p.planeX - camLeftBound, p.planeY - camTopBound);
-      //   ctx.save();
-      //   ctx.translate(p.planeX - camLeftBound, p.planeY - camTopBound);
-      //   ctx.rotate(Math.PI / 180 * p.angle);
-      //   ctx.drawImage(spitfire, -60, -60, 120, 120);
-      //   ctx.restore();
-      // }
-
     }
   });
 };
@@ -193,8 +184,9 @@ Maverick.drawEnemies = function() {
 $('#start').on('click', function () {
   player.name = $('#name').val();
   player.id = socket.id;
-  socket.emit('respawn', player);
-  console.log(player.name + " has entered the game!");
+  newPlayer = player;
+  socket.emit('respawn', newPlayer);
+  // console.log(player.name + " has entered the game!");
 });
 
 // ********************************************************************
@@ -207,7 +199,7 @@ socket.on('joinGame', function (playerSettings) {
 
   player = playerSettings;
 
-  console.log(player);
+  console.log(player.name + " has entered the game!");
 });
 
 socket.on('movePlane', function(playerData) {
@@ -220,9 +212,9 @@ socket.on('updateAllPlayers', function(otherPlayers) {
   players = otherPlayers;
 });
 
-socket.on('disconnect', player);
-
-socket.on()
+socket.on('shotFired', function(player) {
+  console.log(player.name, 'is firing!');
+});
 
 
 
