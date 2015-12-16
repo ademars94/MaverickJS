@@ -96,7 +96,7 @@ function movePlane() {
 
 setInterval(movePlane, 1000/60);
 setInterval(updateAllPlayers, 1000/30);
-setInterval(logThatShit, 5000);
+// setInterval(logThatShit, 5000);
 
 
 module.exports = io;
