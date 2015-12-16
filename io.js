@@ -7,6 +7,7 @@
 
 var io = require('socket.io')();
 var players = [];
+var bulletData = [];
 var sockets = {};
 var speed = 10;
 var mod = 0.5;
@@ -44,7 +45,7 @@ function logThatShit() {
 function movePlane() {
   players.forEach(function(player) {
     var newPlaneX = player.planeX + (speed * mod) * Math.sin(Math.PI / 180 * player.angle);
-    var newPlaneY = player.planeY + -(speed * mod) * Math.cos(Math.PI / 180 * player.angle);
+    var newPlaneY = player.planeY -(speed * mod) * Math.cos(Math.PI / 180 * player.angle);
 
     if (newPlaneX >= 0 && newPlaneX <= 2560) {
       player.planeX = newPlaneX;
@@ -56,7 +57,36 @@ function movePlane() {
   });
 };
 
+function moveBullets() {
+  bulletData.forEach(function(bullet) {
+    var newBulletX = bullet.x + (bullet.speed * mod) * Math.sin(Math.PI / 180 * bullet.angle);
+    var newBulletY = bullet.y -(bullet.speed * mod) * Math.cos(Math.PI / 180 * bullet.angle);
+    if (newBulletX >= 10 && newBulletX <= 2550) {
+      bullet.x = newBulletX;
+      console.log(bulletData);
+    }
+    else {
+      bulletData = bulletData.filter(function(bullet) {
+        return bullet.id !== bullet.id;
+      });
+      console.log(bulletData);
+    }
+    if (newBulletY >= 10 && newBulletY <= 2550) {
+      bullet.y = newBulletY;
+    }
+    else {
+      bulletData = bulletData.filter(function(bullet) {
+        return bullet.id !== bullet.id;
+      });
+      console.log(bulletData);
+    }
+    console.log(bullet.x, bullet.y);
+  });
+  io.emit('moveBullets', bulletData);
+}
+
 setInterval(movePlane, 1000/60);
+setInterval(moveBullets, 1000/60);
 setInterval(updateAllPlayers, 1000/30);
 // setInterval(logThatShit, 5000);
 
@@ -70,19 +100,34 @@ io.on('connection', function(socket) {
   // Initialize the new player
   var currentPlayer;
 
+  // Creates new players with constructor
   socket.on('respawn', function(newPlayer) {
     if (!sockets[newPlayer.id]) {
       sockets[newPlayer.id] = socket;
       console.log(newPlayer);
 
       currentPlayer = new Player(newPlayer.name, socket.id, 1280, 1280, 0)
-      var playerSettings = currentPlayer;
       players.push(currentPlayer);
 
+      var playerSettings = currentPlayer;
       socket.emit('joinGame', playerSettings);
     }
     console.log(players);
   });
+
+  // Creates new bulletData with constructor on shift press
+  socket.on('shiftPressed', function(player) {
+    console.log(player.name, 'is firing!');
+    var bullet = new Bullet(
+      currentPlayer.planeX,
+      currentPlayer.planeY,
+      currentPlayer.id,
+      speed * 2,
+      currentPlayer.angle
+    );
+    bulletData.push(bullet);
+    io.emit('shotFired', currentPlayer);
+  })
 
   socket.on('leftPressed', function(player) {
     currentPlayer.angle -= 7;
@@ -91,11 +136,6 @@ io.on('connection', function(socket) {
   socket.on('rightPressed', function(player) {
     currentPlayer.angle += 7;
   });
-
-  socket.on('shiftPressed', function(player) {
-    console.log(player.name, 'is firing!');
-    io.emit('shotFired', currentPlayer);
-  })
 
   socket.on('disconnect', function(player) {
     console.log(socket.id);

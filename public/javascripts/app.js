@@ -19,6 +19,7 @@ var planeY = 1280;
 var angle = 0;
 var player = {};
 var players = [];
+var bullets = [];
 
 var camLeftBound;
 var camRightBound;
@@ -29,8 +30,6 @@ var mapRightBound = 0;
 var mapLeftBound = 2560;
 var mapBottomBound = 2560;
 var mapTopBound = 0;
-
-window.addEventListener("keydown", keypress_handler, false);
 
 function keypress_handler(event) {
   if (event.keyCode == 65 || event.keyCode == 37) {
@@ -182,6 +181,8 @@ Maverick.drawEnemies = function() {
 
 // Join the game when the start button is clicked!
 $('#start').on('click', function () {
+  // Add key listeners only when the game is running to prevent errors!
+  window.addEventListener("keydown", keypress_handler, false);
   player.name = $('#name').val();
   player.id = socket.id;
   newPlayer = player;
@@ -206,6 +207,11 @@ socket.on('movePlane', function(playerData) {
   planeX = playerData.planeX;
   planeY = playerData.planeY;
   angle = playerData.angle;
+});
+
+socket.on('moveBullets', function(bulletData) {
+  console.log(bulletData);
+  bullets = bulletData;
 });
 
 socket.on('updateAllPlayers', function(otherPlayers) {
