@@ -131,7 +131,6 @@ Maverick._drawGrid = function () {
   for (var r = 0; r <= map.rows; r++) {
     x = - this.camera.x;
     y = r * map.tileSize - this.camera.y;
-    console.log( -this.camera.x);
     this.ctx.beginPath();
     this.ctx.strokeStyle = '#E6E6E6';
     this.ctx.lineWidth = 2;
