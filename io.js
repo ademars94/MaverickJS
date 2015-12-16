@@ -44,12 +44,24 @@ io.on('connection', function(socket) {
     console.log(players);
   });
 
-  // Event Listeners
   socket.on('leftPressed', function(player) {
     currentPlayer.angle -= 5;
   });
+
   socket.on('rightPressed', function(player) {
     currentPlayer.angle += 5;
+  });
+
+  socket.on('disconnect', function(player) {
+    console.log(socket.id);
+    players = players.filter(function(p) {
+      return p.id !== socket.id;
+    })
+    // players.forEach(function(p) {
+    //   if (p.id === player.id) {
+    //     players.splice();
+    //   }
+    // });
   });
 });
 
@@ -84,7 +96,7 @@ function movePlane() {
 
 setInterval(movePlane, 1000/60);
 setInterval(updateAllPlayers, 1000/30);
-setInterval(logThatShit, 1000);
+setInterval(logThatShit, 5000);
 
 
 module.exports = io;

@@ -39,7 +39,7 @@ function keypress_handler(event) {
 // Image Stuff
 
 var spitfire = new Image();
-spitfire.src = '/images/spitfire.png';
+spitfire.src = '/images/mustang.png';
 
 var zero = new Image();
 zero.src = '/images/zero.png';
@@ -64,8 +64,8 @@ function Camera(map, width, height) {
 }
 
 Camera.prototype.move = function(delta, camX, camY) {
-	this.x = planeX -640;
-  this.y = planeY -360;
+	this.x = planeX - canvas.width / 2;
+  this.y = planeY - canvas.height / 2;
 }
 
 Maverick.init = function() {
@@ -110,8 +110,8 @@ Maverick.tick = function(elapsed) {
 
 Maverick.render = function() {
   this._drawGrid();
-  this.drawPlane();
   this.drawEnemies();
+  this.drawPlane();
 };
 
 // ********************************************************************
@@ -158,30 +158,32 @@ Maverick.drawPlane = function() {
 Maverick.drawEnemies = function() {
   players.forEach(function(p) {
     if (p.id !== player.id) {
-      if (p.planeX < planeX && p.planeX > camLeftBound) {
-        console.log("----------------------")
+      if (p.planeX < camRightBound 
+      && p.planeX > camLeftBound
+      && p.planeY < camBottomBound 
+      && p.planeY > camTopBound) {
+        console.log('------------------------');
         console.log('Enemy plane spotted at:', p.planeX, p.planeY);
         console.log('Our plane is at:', planeX, planeY);
         console.log('Enemy plane in viewport:', p.planeX - camLeftBound, p.planeY - camTopBound);
-        console.log('Our plane in viewport:', canvas.width / 2, canvas.height / 2);
         ctx.save();
         ctx.translate(p.planeX - camLeftBound, p.planeY - camTopBound);
         ctx.rotate(Math.PI / 180 * p.angle);
-        ctx.drawImage(spitfire, -60, -60, 120, 120);
+        ctx.drawImage(zero, -60, -60, 120, 120);
         ctx.restore();
       }
-      if (p.planeY < planeY && p.planeY > camTopBound) {
-        console.log("----------------------")
-        console.log('Enemy plane spotted at:', p.planeX, p.planeY);
-        console.log('Our plane is at:', planeX, planeY);
-        console.log('Enemy plane in viewport:', p.planeX - camLeftBound, p.planeY - camTopBound);
-        console.log('Our plane in viewport:', canvas.width / 2, canvas.height / 2);
-        ctx.save();
-        ctx.translate(p.planeX - camLeftBound, p.planeY - camTopBound);
-        ctx.rotate(Math.PI / 180 * p.angle);
-        ctx.drawImage(spitfire, -60, -60, 120, 120);
-        ctx.restore();
-      }
+      // if (p.planeY < camBottomBound && p.planeY > camTopBound) {
+      //   console.log('------------------------');
+      //   console.log('Enemy plane spotted at:', p.planeX, p.planeY);
+      //   console.log('Our plane is at:', planeX, planeY);
+      //   console.log('Enemy plane in viewport:', p.planeX - camLeftBound, p.planeY - camTopBound);
+      //   ctx.save();
+      //   ctx.translate(p.planeX - camLeftBound, p.planeY - camTopBound);
+      //   ctx.rotate(Math.PI / 180 * p.angle);
+      //   ctx.drawImage(spitfire, -60, -60, 120, 120);
+      //   ctx.restore();
+      // }
+
     }
   });
 };
@@ -216,3 +218,17 @@ socket.on('movePlane', function(playerData) {
 socket.on('updateAllPlayers', function(otherPlayers) {
   players = otherPlayers;
 });
+
+socket.on('disconnect', player);
+
+socket.on()
+
+
+
+
+
+
+
+
+
+
