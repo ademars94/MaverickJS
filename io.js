@@ -21,8 +21,8 @@ io.on('connection', function(socket) {
   // Initialize the new player
   var currentPlayer = {
     id: socket.id,
-    planeX: 2500,
-    planeY: 2500,
+    planeX: 1280,
+    planeY: 1280,
     angle: 0
   }
 
@@ -31,8 +31,8 @@ io.on('connection', function(socket) {
       sockets[player.id] = socket;
       console.log(player.name, player.id);
 
-      player.planeX = 2500;
-      player.planeY = 2500;
+      player.planeX = 1280;
+      player.planeY = 1280;
       player.angle = 0;
 
       var playerSettings = player;
@@ -45,11 +45,11 @@ io.on('connection', function(socket) {
   });
 
   socket.on('leftPressed', function(player) {
-    currentPlayer.angle -= 5;
+    currentPlayer.angle -= 7;
   });
 
   socket.on('rightPressed', function(player) {
-    currentPlayer.angle += 5;
+    currentPlayer.angle += 7;
   });
 
   socket.on('disconnect', function(player) {
@@ -84,10 +84,10 @@ function movePlane() {
     var newPlaneX = player.planeX + (speed * mod) * Math.sin(Math.PI / 180 * player.angle);
     var newPlaneY = player.planeY + -(speed * mod) * Math.cos(Math.PI / 180 * player.angle);
 
-    if (newPlaneX >= 0 && newPlaneX <= 5000) {
+    if (newPlaneX >= 0 && newPlaneX <= 2560) {
       player.planeX = newPlaneX;
     }
-    if (newPlaneY >= 0 && newPlaneY <= 5000) {
+    if (newPlaneY >= 0 && newPlaneY <= 2560) {
       player.planeY = newPlaneY;
     }
     sockets[player.id].emit('movePlane', player);

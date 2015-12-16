@@ -14,8 +14,8 @@ var Maverick = {};
 var canvas = $('#canvas')[0];
 var ctx = canvas.getContext('2d');
 
-var planeX = 2500;
-var planeY = 2500;
+var planeX = 1280;
+var planeY = 1280;
 var angle = 0;
 var player = {};
 var players = [];
@@ -24,6 +24,11 @@ var camLeftBound;
 var camRightBound;
 var camTopBound;
 var camBottomBound;
+
+var mapRightBound = 0;
+var mapLeftBound = 2560;
+var mapBottomBound = 2560;
+var mapTopBound = 0;
 
 window.addEventListener("keydown", keypress_handler, false);
 
@@ -47,9 +52,9 @@ zero.src = '/images/zero.png';
 // Map Stuff
 
 var map = {
-	cols: 10,
-	rows: 10,
-	tileSize: 500
+	cols: 40,
+	rows: 40,
+	tileSize: 64
 };
 
 // ********************************************************************
@@ -126,9 +131,10 @@ Maverick._drawGrid = function () {
   for (var r = 0; r <= map.rows; r++) {
     x = - this.camera.x;
     y = r * map.tileSize - this.camera.y;
+    console.log( -this.camera.x);
     this.ctx.beginPath();
     this.ctx.strokeStyle = '#E6E6E6';
-    this.ctx.lineWidth = 5;
+    this.ctx.lineWidth = 2;
     this.ctx.moveTo(x, y);
     this.ctx.lineTo(height, y);
     this.ctx.closePath();
@@ -139,7 +145,7 @@ Maverick._drawGrid = function () {
     y = - this.camera.y;
     this.ctx.beginPath();
     this.ctx.strokeStyle = '#E6E6E6';
-    this.ctx.lineWidth = 5;
+    this.ctx.lineWidth = 2;
     this.ctx.moveTo(x, y);
     this.ctx.lineTo(x, width);
     this.ctx.closePath();
