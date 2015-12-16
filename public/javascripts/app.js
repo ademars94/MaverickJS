@@ -167,10 +167,6 @@ Maverick.drawEnemies = function() {
       && p.planeX > camLeftBound
       && p.planeY < camBottomBound 
       && p.planeY > camTopBound) {
-        console.log('------------------------');
-        console.log('Enemy plane spotted at:', p.planeX, p.planeY);
-        console.log('Our plane is at:', planeX, planeY);
-        console.log('Enemy plane in viewport:', p.planeX - camLeftBound, p.planeY - camTopBound);
         ctx.save();
         ctx.translate(p.planeX - camLeftBound, p.planeY - camTopBound);
         ctx.rotate(Math.PI / 180 * p.angle);
