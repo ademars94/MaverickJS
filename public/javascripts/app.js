@@ -20,6 +20,11 @@ var angle = 0;
 var player = {};
 var players = [];
 
+var camLeftBound;
+var camRightBound;
+var camTopBound;
+var camBottomBound;
+
 window.addEventListener("keydown", keypress_handler, false);
 
 function keypress_handler(event) {
@@ -67,9 +72,13 @@ Maverick.init = function() {
   this.camera = new Camera(map, canvas.width, canvas.height);
 }
 
-Maverick.update = function(delta) {
+Maverick.updateCam = function(delta) {
   var camX = planeX;
   var camY = planeY;
+  camLeftBound = planeX - (canvas.width / 2);
+  camRightBound = planeX + (canvas.width / 2);
+  camTopBound = planeY - (canvas.height / 2);
+  camBottomBound = planeY + (canvas.height / 2);
   this.camera.move(delta, camX, camY)
 }
 
@@ -77,14 +86,14 @@ Maverick.update = function(delta) {
 // **************************** Game Stuff ****************************
 // ********************************************************************
 
-Maverick.run = function (context) {
+Maverick.run = function(context) {
   this.ctx = context;
   this._previousElapsed = 0;
   this.init();
   window.requestAnimationFrame(this.tick);
 };
 
-Maverick.tick = function (elapsed) {
+Maverick.tick = function(elapsed) {
   window.requestAnimationFrame(this.tick);
 
   // clear previous frame
@@ -95,13 +104,14 @@ Maverick.tick = function (elapsed) {
   delta = Math.min(delta, 0.25); // maximum delta of 250 ms
   this._previousElapsed = elapsed;
 
-  this.update(delta);
+  this.updateCam(delta);
   this.render();
 }.bind(Maverick);
 
-Maverick.render = function () {
+Maverick.render = function() {
   this._drawGrid();
   this.drawPlane();
+  this.drawEnemies();
 };
 
 // ********************************************************************
@@ -146,9 +156,35 @@ Maverick.drawPlane = function() {
 };
 
 Maverick.drawEnemies = function() {
-  players.forEach(function(player) {
+  players.forEach(function(p) {
+    if (p.id !== player.id) {
+      if (p.planeX < planeX && p.planeX > camLeftBound) {
+        console.log("----------------------")
+        console.log('Enemy plane spotted at:', p.planeX, p.planeY);
+        console.log('Our plane is at:', planeX, planeY);
+        console.log('Enemy plane in viewport:', p.planeX - camLeftBound, p.planeY - camTopBound);
+        console.log('Our plane in viewport:', canvas.width / 2, canvas.height / 2);
+        ctx.save();
+        ctx.translate(p.planeX - camLeftBound, p.planeY - camTopBound);
+        ctx.rotate(Math.PI / 180 * p.angle);
+        ctx.drawImage(spitfire, -60, -60, 120, 120);
+        ctx.restore();
+      }
+      if (p.planeY < planeY && p.planeY > camTopBound) {
+        console.log("----------------------")
+        console.log('Enemy plane spotted at:', p.planeX, p.planeY);
+        console.log('Our plane is at:', planeX, planeY);
+        console.log('Enemy plane in viewport:', p.planeX - camLeftBound, p.planeY - camTopBound);
+        console.log('Our plane in viewport:', canvas.width / 2, canvas.height / 2);
+        ctx.save();
+        ctx.translate(p.planeX - camLeftBound, p.planeY - camTopBound);
+        ctx.rotate(Math.PI / 180 * p.angle);
+        ctx.drawImage(spitfire, -60, -60, 120, 120);
+        ctx.restore();
+      }
+    }
   });
-}
+};
 
 // Join the game when the start button is clicked!
 $('#start').on('click', function () {
@@ -177,6 +213,6 @@ socket.on('movePlane', function(playerData) {
   angle = playerData.angle;
 });
 
-socket.on('updateAllPlayers', function(players) {
-  console.log(players);
+socket.on('updateAllPlayers', function(otherPlayers) {
+  players = otherPlayers;
 });

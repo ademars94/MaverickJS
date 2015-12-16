@@ -63,6 +63,10 @@ function updateAllPlayers() {
   };
 }
 
+function logThatShit() {
+  console.log(players);
+}
+
 function movePlane() {
   players.forEach(function(player) {
     var newPlaneX = player.planeX + (speed * mod) * Math.sin(Math.PI / 180 * player.angle);
@@ -80,6 +84,7 @@ function movePlane() {
 
 setInterval(movePlane, 1000/60);
 setInterval(updateAllPlayers, 1000/30);
+setInterval(logThatShit, 1000);
 
 
 module.exports = io;
