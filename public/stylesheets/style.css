@@ -1,6 +1,7 @@
 body {
-  padding: 50px;
+  padding: 10px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background-color: #34495e;
 }
 
 a {
@@ -8,10 +9,27 @@ a {
 }
 
 #canvas {
-	background-color: #F6F6F6;
-	border: 10px solid #E1E2E4;
+	background-color: #86E2D5;
 	border-radius: 5px;
-	position: relative;
+	position: absolute;
+}
+
+#menu {
+	position: absolute;
+	left: 320px;
+	top: 240px;
+	z-index: 2;
+	width: 640px;
+	height: 480px;
+	background-color: #34495e;
+	border: 10px solid #2c3e50;
+	border-radius: 8px;
+	text-align: center;
+}
+
+#logo {
+	margin-top: 96px;
+	width: 560px;
 }
 
 #game {
@@ -20,11 +38,12 @@ a {
 	position: absolute;
 	left: -640px;
 	margin-left: 50%;
+	z-index: 1;
 }
 
 #name {
-	background-color: #bdc3c7;
-	color: white;
+	background-color: white;
+	color: #2c3e50;
 	border: none;
 	border-radius: 5px;
 	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
@@ -39,5 +58,9 @@ a {
 	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 	padding: 10px;
 	margin: 10px;
+}
 
+#controls {
+	margin-top: 0px;
+	color: white;
 }

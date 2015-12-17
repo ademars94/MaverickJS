@@ -58,9 +58,9 @@ bulletImg.src = '/images/bullet.png';
 // Map Stuff
 
 var map = {
-	cols: 40,
-	rows: 40,
-	tileSize: 64
+	cols: 16,
+	rows: 16,
+	tileSize: 160
 };
 
 // ********************************************************************
@@ -140,7 +140,7 @@ Maverick.drawGrid = function () {
     x = - this.camera.x;
     y = r * map.tileSize - this.camera.y;
     this.ctx.beginPath();
-    this.ctx.strokeStyle = '#E6E6E6';
+    this.ctx.strokeStyle = '#F2F1EF';
     this.ctx.lineWidth = 2;
     this.ctx.moveTo(x, y);
     this.ctx.lineTo(height, y);
@@ -151,7 +151,7 @@ Maverick.drawGrid = function () {
     x = c * map.tileSize - this.camera.x;
     y = - this.camera.y;
     this.ctx.beginPath();
-    this.ctx.strokeStyle = '#E6E6E6';
+    this.ctx.strokeStyle = '#F2F1EF';
     this.ctx.lineWidth = 2;
     this.ctx.moveTo(x, y);
     this.ctx.lineTo(x, width);
@@ -194,28 +194,11 @@ Maverick.drawBullets = function() {
       ctx.save();
       ctx.translate(bullet.x - camLeftBound, bullet.y - camTopBound);
       ctx.rotate(Math.PI / 180 * bullet.angle);
-      ctx.drawImage(bulletImg, -16, -16, 32, 32);
+      ctx.drawImage(bulletImg, -8, -8, 16, 16);
       ctx.restore();
     }
   });
 };
-
-// Maverick.checkCollision = function() {
-//   bullets.forEach(function(b) {
-//     players.forEach(function(p) {
-//       if (p.id !== player.id) {
-//         if (b.x > p.planeX - 32
-//         && b.x < p.planeX + 32
-//         && b.y > p.planeY - 32
-//         && b.y < p.planeY + 32) {
-//           socket.emit('playerHit', p);
-//           console.log(p.name, 'has been hit! Location was', p.planeX, p.planeY);
-//           console.log(b.id, 'was the bullet ID at coordinates', b.x, b.y)
-//         }
-//       }
-//     });
-//   });
-// };
 
 // Join the game when the start button is clicked!
 $('#start').on('click', function () {
@@ -235,10 +218,11 @@ $('#start').on('click', function () {
 socket.on('joinGame', function (playerSettings) {
   var context = canvas.getContext('2d');
   Maverick.run(context);
+  $('#menu').hide();
 
   player = playerSettings;
 
-  console.log(player.name + " has entered the game!");
+  console.log(player.id + " has entered the game!");
 });
 
 socket.on('movePlane', function(playerData) {
@@ -260,8 +244,15 @@ socket.on('updateAllPlayers', function(otherPlayers) {
   players = otherPlayers;
 });
 
-socket.on('shotFired', function(player) {
-  console.log(player.name, 'is firing!');
+socket.on('shotFired', function(playerData) {
+  console.log(playerData.name, 'is firing!');
+});
+
+socket.on('playerDie', function(playerData) {
+  console.log(playerData.name, 'was shot down!');
+  if (playerData.id === player.id) {
+    $('#menu').show();
+  }
 });
 
 
