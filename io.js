@@ -66,7 +66,7 @@ function moveBullets() {
     var newBulletY = bullet.y -(bullet.speed * mod) * Math.cos(Math.PI / 180 * bullet.angle);
     if (newBulletX >= 10 && newBulletX <= 2550) {
       bullet.x = newBulletX;
-      console.log(Math.floor(bullet.x), Math.floor(bullet.y));
+      // console.log(Math.floor(bullet.x), Math.floor(bullet.y));
     }
     else {
       bulletData = bulletData.filter(function(b) {
