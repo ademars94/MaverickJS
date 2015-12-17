@@ -133,11 +133,11 @@ io.on('connection', function(socket) {
   })
 
   socket.on('leftPressed', function(player) {
-    currentPlayer.angle -= 7;
+    currentPlayer.angle -= 10;
   });
 
   socket.on('rightPressed', function(player) {
-    currentPlayer.angle += 7;
+    currentPlayer.angle += 10;
   });
 
   socket.on('disconnect', function(player) {
