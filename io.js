@@ -85,9 +85,31 @@ function moveBullets() {
   io.emit('moveBullets', bulletData);
 }
 
+function checkCollisions() {
+  bulletData.forEach(function(b) {
+    players.forEach(function(p) {
+      if (b.playerId !== p.id
+      && b.x > p.planeX - 32
+      && b.x < p.planeX + 32
+      && b.y > p.planeY - 32
+      && b.y < p.planeY + 32) {
+        io.emit('playerHit', p);
+        p.health --;
+        if (p.health < 1) {
+          io.emit('playerDie', p)
+          players = players.filter(function(p2) {
+            return p2.id !== p.id;
+          });
+        }
+      }
+    });
+  });
+}
+
 setInterval(movePlane, 1000/60);
 setInterval(moveBullets, 1000/60);
-setInterval(updateAllPlayers, 1000/30);
+setInterval(checkCollisions, 1000/60);
+setInterval(updateAllPlayers, 1000/60);
 // setInterval(logThatShit, 5000);
 
 // ********************************************************************

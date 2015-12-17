@@ -124,7 +124,7 @@ Maverick.render = function() {
   this.drawEnemies();
   this.drawBullets();
   this.drawPlane();
-  this.checkCollision();
+  // this.checkCollision();
 };
 
 // ********************************************************************
@@ -200,21 +200,22 @@ Maverick.drawBullets = function() {
   });
 };
 
-Maverick.checkCollision = function() {
-  bullets.forEach(function(b) {
-    players.forEach(function(p) {
-      if (p.id !== player.id) {
-        if (b.x > p.planeX - 32
-        && b.x < p.planeX + 32
-        && b.y > p.planeY - 32
-        && b.y < p.planeY + 32) {
-          socket.emit('playerHit', p);
-        console.log(p, 'has been hit!')
-        }
-      }
-    });
-  });
-};
+// Maverick.checkCollision = function() {
+//   bullets.forEach(function(b) {
+//     players.forEach(function(p) {
+//       if (p.id !== player.id) {
+//         if (b.x > p.planeX - 32
+//         && b.x < p.planeX + 32
+//         && b.y > p.planeY - 32
+//         && b.y < p.planeY + 32) {
+//           socket.emit('playerHit', p);
+//           console.log(p.name, 'has been hit! Location was', p.planeX, p.planeY);
+//           console.log(b.id, 'was the bullet ID at coordinates', b.x, b.y)
+//         }
+//       }
+//     });
+//   });
+// };
 
 // Join the game when the start button is clicked!
 $('#start').on('click', function () {
@@ -244,6 +245,10 @@ socket.on('movePlane', function(playerData) {
   planeX = playerData.planeX;
   planeY = playerData.planeY;
   angle = playerData.angle;
+});
+
+socket.on('playerHit', function(playerData) {
+  console.log(playerData.name, 'has been hit!');
 });
 
 socket.on('moveBullets', function(bulletData) {
