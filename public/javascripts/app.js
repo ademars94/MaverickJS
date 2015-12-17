@@ -209,6 +209,7 @@ Maverick.checkCollision = function() {
         && b.y > p.planeY - 32
         && b.y < p.planeY + 32) {
           socket.emit('playerHit', p);
+        console.log(p, 'has been hit!')
         }
       }
     });

@@ -17,12 +17,13 @@ var bulletId = 0;
 // *************************** Move Logic *****************************
 // ********************************************************************
 
-var Player = function(name, id, planeX, planeY, angle) {
+var Player = function(name, id, planeX, planeY, angle, health) {
   this.name = name;
   this.id = id;
   this.planeX = planeX;
   this.planeY = planeY;
   this.angle = angle;
+  this.health = health;
 };
 
 var Bullet = function(x, y, id, playerId, speed, angle) {
@@ -65,13 +66,12 @@ function moveBullets() {
     var newBulletY = bullet.y -(bullet.speed * mod) * Math.cos(Math.PI / 180 * bullet.angle);
     if (newBulletX >= 10 && newBulletX <= 2550) {
       bullet.x = newBulletX;
-      console.log(bulletData);
+      console.log(Math.floor(bullet.x), Math.floor(bullet.y));
     }
     else {
-      bulletData = bulletData.filter(function(  b) {
+      bulletData = bulletData.filter(function(b) {
         return bullet.id !== b.id;
       });
-      console.log(bulletData);
     }
     if (newBulletY >= 10 && newBulletY <= 2550) {
       bullet.y = newBulletY;
@@ -80,7 +80,6 @@ function moveBullets() {
       bulletData = bulletData.filter(function(b) {
         return bullet.id !== b.id;
       });
-      console.log(bulletData);
     }
   });
   io.emit('moveBullets', bulletData);
@@ -107,7 +106,7 @@ io.on('connection', function(socket) {
       sockets[newPlayer.id] = socket;
       console.log(newPlayer);
 
-      currentPlayer = new Player(newPlayer.name, socket.id, 1280, 1280, 0)
+      currentPlayer = new Player(newPlayer.name, socket.id, 1280, 1280, 0, 1);
       players.push(currentPlayer);
 
       var playerSettings = currentPlayer;
@@ -141,7 +140,21 @@ io.on('connection', function(socket) {
   });
 
   socket.on('playerHit', function(player) {
-    console.log(player);
+    player.health --;
+    if (player.health < 1) {
+      socket.emit('playerDie', player)
+      players = players.filter(function(p) {
+        return p.id !== socket.id;
+      });
+    }
+  });
+
+  socket.on('bulletRemove', function(b) {
+    console.log(bulletData);
+    bulletData = bulletData.filter(function(bullet) {
+      return bullet.id !== b.id;
+    });
+    console.log(bulletData);
   });
 
   socket.on('disconnect', function(player) {
