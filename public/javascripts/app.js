@@ -9,15 +9,12 @@ console.log('Maverick 2D!');
 var socket = io();
 console.log(socket);
 
-var Maverick = {};
-
 var canvas = $('#canvas')[0];
 var ctx = canvas.getContext('2d');
-
+var player = {};
 var planeX = 1280;
 var planeY = 1280;
 var angle = 0;
-var player = {};
 var players = [];
 var bullets = [];
 
@@ -74,52 +71,81 @@ function Camera(map, width, height) {
 	this.height = height;
 }
 
+function Player(name, id) {
+  this.name = name;
+  this.id = id;
+  this.planeX = 0;
+  this.planeY = 0;
+};
+
 Camera.prototype.move = function(delta, camX, camY) {
 	this.x = planeX - canvas.width / 2;
   this.y = planeY - canvas.height / 2;
 }
 
-Maverick.init = function() {
-  this.camera = new Camera(map, canvas.width, canvas.height);
+function Maverick(context, camera, player) {
+  this.ctx    = context;
+  this.camera = camera;
+  this.player = player;
 }
 
-Maverick.updateCam = function(delta) {
+// game = new Maverick(
+//  canvas.getContext('2d'),
+//  new Camera(map, canvas.width, canvas.height),
+//  new Player("phil", "12345")
+// );
+//
+// game.run();
+
+Maverick.prototype.updateCam = function(delta) {
+  this.camLeftBound   = planeX - (canvas.width / 2);
+  this.camRightBound  = planeX + (canvas.width / 2);
+  this.camTopBound    = planeY - (canvas.height / 2);
+  this.camBottomBound = planeY + (canvas.height / 2);
+
+  // TODO: store plane coords in a Player object
+  // that is initialized along with the game (Maverick)
+  // object
   var camX = planeX;
   var camY = planeY;
-  camLeftBound = planeX - (canvas.width / 2);
-  camRightBound = planeX + (canvas.width / 2);
-  camTopBound = planeY - (canvas.height / 2);
-  camBottomBound = planeY + (canvas.height / 2);
-  this.camera.move(delta, camX, camY)
+  this.camera.move(delta, camX, camY);
 }
 
 // ********************************************************************
 // **************************** Game Stuff ****************************
 // ********************************************************************
 
-Maverick.run = function(context) {
-  this.ctx = context;
-  this._previousElapsed = 0;
-  this.init();
-  window.requestAnimationFrame(this.tick);
+Maverick.prototype.run = function() {
+  window.requestAnimationFrame(this.tick.bind(this));
+
+  setInterval( () => {
+    // console.log("Game:", game);
+
+    if (bullets.length > 0) {
+      console.log("Bullet:",    bullets[0]);
+      console.log("CamBounds:", {
+        camLeftBound:   this.camLeftBound
+      , camRightBound:  this.camRightBound
+      , camTopBound:    this.camTopBound
+      , camBottomBound: this.camBottomBound
+      });
+    }
+  }, 500);
 };
 
-Maverick.tick = function(elapsed) {
-  window.requestAnimationFrame(this.tick);
+// Maverick.prototype.requestAnimationFrame = window.requestAnimationFrame;
+
+Maverick.prototype.tick = function(elapsed) {
+  window.requestAnimationFrame(this.tick.bind(this));
 
   // clear previous frame
   this.ctx.clearRect(0, 0, 1280, 960);
 
-  // compute delta time in seconds -- also cap it
-  var delta = (elapsed - this._previousElapsed) / 1000.0;
-  delta = Math.min(delta, 0.25); // maximum delta of 250 ms
-  this._previousElapsed = elapsed;
-
-  this.updateCam(delta);
   this.render();
-}.bind(Maverick);
+}
 
-Maverick.render = function() {
+Maverick.prototype.render = function() {
+  this.updateCam();
   this.drawGrid();
   this.drawEnemies();
   this.drawBullets();
@@ -131,7 +157,7 @@ Maverick.render = function() {
 // *************************** Canvas Stuff ***************************
 // ********************************************************************
 
-Maverick.drawGrid = function () {
+Maverick.prototype.drawGrid = function () {
   var width = map.cols * map.tileSize;
   var height = map.rows * map.tileSize;
   var x, y;
@@ -139,7 +165,7 @@ Maverick.drawGrid = function () {
   for (var r = 0; r <= map.rows; r++) {
     x = - this.camera.x;
     y = r * map.tileSize - this.camera.y;
-    console.log(y);
+    // console.log(y);
     this.ctx.beginPath();
     this.ctx.strokeStyle = '#F2F1EF';
     this.ctx.lineWidth = 2;
@@ -161,42 +187,48 @@ Maverick.drawGrid = function () {
   }
 };
 
-Maverick.drawPlane = function() {
-  ctx.save();
-  ctx.translate(canvas.width / 2, canvas.height / 2);
-  ctx.rotate(Math.PI / 180 * angle);
-  ctx.drawImage(spitfire, -60, -60, 120, 120);
-  ctx.restore();
+Maverick.prototype.drawPlane = function() {
+  this.ctx.save();
+  this.ctx.translate(canvas.width / 2, canvas.height / 2);
+  this.ctx.rotate(Math.PI / 180 * angle);
+  this.ctx.drawImage(spitfire, -60, -60, 120, 120);
+  this.ctx.restore();
 };
 
-Maverick.drawEnemies = function() {
-  players.forEach(function(p) {
+// Maverick.players = players;
+
+Maverick.prototype.drawEnemies = function() {
+  players.forEach((p) => {
     if (p.id !== player.id) {
-      if (p.planeX < camRightBound
-      && p.planeX > camLeftBound
-      && p.planeY < camBottomBound
-      && p.planeY > camTopBound) {
-        ctx.save();
-        ctx.translate(p.planeX - camLeftBound, p.planeY - camTopBound);
-        ctx.rotate(Math.PI / 180 * p.angle);
-        ctx.drawImage(zero, -60, -60, 120, 120);
-        ctx.restore();
+      if (
+         p.planeX < this.camRightBound
+      && p.planeX > this.camLeftBound
+      && p.planeY < this.camBottomBound
+      && p.planeY > this.camTopBound
+      ) {
+        this.ctx.save();
+        this.ctx.translate(p.planeX - this.camLeftBound, p.planeY - this.camTopBound);
+        this.ctx.rotate(Math.PI / 180 * p.angle);
+        this.ctx.drawImage(zero, -60, -60, 120, 120);
+        this.ctx.restore();
       }
     }
   });
 };
 
-Maverick.drawBullets = function() {
-  bullets.forEach(function(bullet) {
-    if (bullet.x < camRightBound
-    && bullet.x > camLeftBound
-    && bullet.y < camBottomBound
-    && bullet.y > camTopBound) {
-      ctx.save();
-      ctx.translate(bullet.x - camLeftBound, bullet.y - camTopBound);
-      ctx.rotate(Math.PI / 180 * bullet.angle);
-      ctx.drawImage(bulletImg, -8, -8, 16, 16);
-      ctx.restore();
+Maverick.prototype.drawBullets = function() {
+  bullets.forEach((bullet) => {
+    if (
+      bullet.x < this.camRightBound  &&
+      bullet.x > this.camLeftBound   &&
+      bullet.y < this.camBottomBound &&
+      bullet.y > this.camTopBound
+    ) {
+      this.ctx.save();
+      this.ctx.translate(bullet.x - this.camLeftBound, bullet.y - this.camTopBound);
+      this.ctx.rotate(Math.PI / 180 * bullet.angle);
+      this.ctx.drawImage(bulletImg, -12, -12, 24, 24);
+      this.ctx.restore();
     }
   });
 };
@@ -218,7 +250,16 @@ $('#start').on('click', function () {
 
 socket.on('joinGame', function (playerSettings) {
   var context = canvas.getContext('2d');
-  Maverick.run(context);
+  // Maverick.run(context);
+
+  game = new Maverick(
+    canvas.getContext('2d')
+  , new Camera(map, canvas.width, canvas.height)
+  // , new Player(playerSettings.name, playerSettings.id)
+  );
+
+  game.run();
+
   $('#menu').hide();
 
   player = playerSettings;
@@ -255,13 +296,3 @@ socket.on('playerDie', function(playerData) {
     $('#menu').show();
   }
 });
-
-
-
-
-
-
-
-
-
-

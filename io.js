@@ -156,11 +156,11 @@ io.on('connection', function(socket) {
   })
 
   socket.on('leftPressed', function(player) {
-    currentPlayer.angle -= 10;
+    currentPlayer.angle -= 7.5;
   });
 
   socket.on('rightPressed', function(player) {
-    currentPlayer.angle += 10;
+    currentPlayer.angle += 7.5;
   });
 
   socket.on('disconnect', function(player) {
