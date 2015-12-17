@@ -164,24 +164,6 @@ io.on('connection', function(socket) {
     currentPlayer.angle += 10;
   });
 
-  socket.on('playerHit', function(player) {
-    player.health --;
-    if (player.health < 1) {
-      socket.emit('playerDie', player)
-      players = players.filter(function(p) {
-        return p.id !== socket.id;
-      });
-    }
-  });
-
-  socket.on('bulletRemove', function(b) {
-    console.log(bulletData);
-    bulletData = bulletData.filter(function(bullet) {
-      return bullet.id !== b.id;
-    });
-    console.log(bulletData);
-  });
-
   socket.on('disconnect', function(player) {
     console.log(socket.id);
     players = players.filter(function(p) {

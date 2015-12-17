@@ -46,7 +46,7 @@ function keypress_handler(event) {
 // Image Stuff
 
 var spitfire = new Image();
-spitfire.src = '/images/mustang.png';
+spitfire.src = '/images/spitfire.png';
 
 var zero = new Image();
 zero.src = '/images/zero.png';
