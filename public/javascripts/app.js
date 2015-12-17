@@ -140,7 +140,7 @@ Maverick.prototype.tick = function(elapsed) {
 
   // clear previous frame
   this.ctx.clearRect(0, 0, 1280, 960);
-
+  // render next frame
   this.render();
 }
 
@@ -150,7 +150,6 @@ Maverick.prototype.render = function() {
   this.drawEnemies();
   this.drawBullets();
   this.drawPlane();
-  // this.checkCollision();
 };
 
 // ********************************************************************
@@ -165,7 +164,6 @@ Maverick.prototype.drawGrid = function () {
   for (var r = 0; r <= map.rows; r++) {
     x = - this.camera.x;
     y = r * map.tileSize - this.camera.y;
-    // console.log(y);
     this.ctx.beginPath();
     this.ctx.strokeStyle = '#F2F1EF';
     this.ctx.lineWidth = 2;
@@ -250,7 +248,6 @@ $('#start').on('click', function () {
 
 socket.on('joinGame', function (playerSettings) {
   var context = canvas.getContext('2d');
-  // Maverick.run(context);
 
   game = new Maverick(
     canvas.getContext('2d')
@@ -278,7 +275,6 @@ socket.on('playerHit', function(playerData) {
 });
 
 socket.on('moveBullets', function(bulletData) {
-  // console.log(bulletData);
   bullets = bulletData;
 });
 
