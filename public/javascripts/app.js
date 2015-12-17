@@ -124,6 +124,7 @@ Maverick.render = function() {
   this.drawEnemies();
   this.drawBullets();
   this.drawPlane();
+  this.checkCollision();
 };
 
 // ********************************************************************
@@ -199,6 +200,21 @@ Maverick.drawBullets = function() {
   });
 };
 
+Maverick.checkCollision = function() {
+  bullets.forEach(function(b) {
+    players.forEach(function(p) {
+      if (p.id !== player.id) {
+        if (b.x > p.planeX - 32
+        && b.x < p.planeX + 32
+        && b.y > p.planeY - 32
+        && b.y < p.planeY + 32) {
+          socket.emit('playerHit', p);
+        }
+      }
+    });
+  });
+};
+
 // Join the game when the start button is clicked!
 $('#start').on('click', function () {
   // Add key listeners only when the game is running to prevent errors!
@@ -230,7 +246,7 @@ socket.on('movePlane', function(playerData) {
 });
 
 socket.on('moveBullets', function(bulletData) {
-  console.log(bulletData);
+  // console.log(bulletData);
   bullets = bulletData;
 });
 

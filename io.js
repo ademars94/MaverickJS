@@ -140,6 +140,10 @@ io.on('connection', function(socket) {
     currentPlayer.angle += 10;
   });
 
+  socket.on('playerHit', function(player) {
+    console.log(player);
+  });
+
   socket.on('disconnect', function(player) {
     console.log(socket.id);
     players = players.filter(function(p) {
