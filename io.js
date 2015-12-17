@@ -11,6 +11,7 @@ var bulletData = [];
 var sockets = {};
 var speed = 10;
 var mod = 0.5;
+var bulletId = 0;
 
 // ********************************************************************
 // *************************** Move Logic *****************************
@@ -24,9 +25,10 @@ var Player = function(name, id, planeX, planeY, angle) {
   this.angle = angle;
 };
 
-var Bullet = function(x, y, playerId, speed, angle) {
+var Bullet = function(x, y, id, playerId, speed, angle) {
   this.x = x;
   this.y = y;
+  this.id = id;
   this.playerId = playerId;
   this.speed = speed;
   this.angle = angle;
@@ -66,8 +68,8 @@ function moveBullets() {
       console.log(bulletData);
     }
     else {
-      bulletData = bulletData.filter(function(bullet) {
-        return bullet.id !== bullet.id;
+      bulletData = bulletData.filter(function(  b) {
+        return bullet.id !== b.id;
       });
       console.log(bulletData);
     }
@@ -75,12 +77,11 @@ function moveBullets() {
       bullet.y = newBulletY;
     }
     else {
-      bulletData = bulletData.filter(function(bullet) {
-        return bullet.id !== bullet.id;
+      bulletData = bulletData.filter(function(b) {
+        return bullet.id !== b.id;
       });
       console.log(bulletData);
     }
-    console.log(bullet.x, bullet.y);
   });
   io.emit('moveBullets', bulletData);
 }
@@ -118,11 +119,13 @@ io.on('connection', function(socket) {
   // Creates new bulletData with constructor on shift press
   socket.on('shiftPressed', function(player) {
     console.log(player.name, 'is firing!');
+    bulletId += 1;
     var bullet = new Bullet(
       currentPlayer.planeX,
       currentPlayer.planeY,
-      currentPlayer.id,
-      speed * 2,
+      bulletId,
+      player.id,
+      speed * 3,
       currentPlayer.angle
     );
     bulletData.push(bullet);

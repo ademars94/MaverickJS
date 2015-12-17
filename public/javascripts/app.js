@@ -51,6 +51,10 @@ spitfire.src = '/images/mustang.png';
 var zero = new Image();
 zero.src = '/images/zero.png';
 
+var bulletImg = new Image();
+bulletImg.src = '/images/bullet.png';
+
+
 // Map Stuff
 
 var map = {
@@ -116,8 +120,9 @@ Maverick.tick = function(elapsed) {
 }.bind(Maverick);
 
 Maverick.render = function() {
-  this._drawGrid();
+  this.drawGrid();
   this.drawEnemies();
+  this.drawBullets();
   this.drawPlane();
 };
 
@@ -125,7 +130,7 @@ Maverick.render = function() {
 // *************************** Canvas Stuff ***************************
 // ********************************************************************
 
-Maverick._drawGrid = function () {
+Maverick.drawGrid = function () {
   var width = map.cols * map.tileSize;
   var height = map.rows * map.tileSize;
   var x, y;
@@ -175,6 +180,21 @@ Maverick.drawEnemies = function() {
         ctx.drawImage(zero, -60, -60, 120, 120);
         ctx.restore();
       }
+    }
+  });
+};
+
+Maverick.drawBullets = function() {
+  bullets.forEach(function(bullet) {
+    if (bullet.x < camRightBound
+    && bullet.x > camLeftBound
+    && bullet.y < camBottomBound
+    && bullet.y > camTopBound) {
+      ctx.save();
+      ctx.translate(bullet.x - camLeftBound, bullet.y - camTopBound);
+      ctx.rotate(Math.PI / 180 * bullet.angle);
+      ctx.drawImage(bulletImg, -32, -32, 64, 64);
+      ctx.restore();
     }
   });
 };
