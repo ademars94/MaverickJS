@@ -193,7 +193,7 @@ Maverick.drawBullets = function() {
       ctx.save();
       ctx.translate(bullet.x - camLeftBound, bullet.y - camTopBound);
       ctx.rotate(Math.PI / 180 * bullet.angle);
-      ctx.drawImage(bulletImg, -32, -32, 64, 64);
+      ctx.drawImage(bulletImg, -16, -16, 32, 32);
       ctx.restore();
     }
   });
