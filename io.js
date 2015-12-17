@@ -142,7 +142,6 @@ io.on('connection', function(socket) {
 
   // Creates new bulletData with constructor on shift press
   socket.on('shiftPressed', function(player) {
-    console.log(player.name, 'is firing!');
     bulletId += 1;
     var bullet = new Bullet(
       currentPlayer.planeX,
