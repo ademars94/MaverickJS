@@ -95,6 +95,9 @@ function checkCollisions() {
       && b.y < p.planeY + 32) {
         io.emit('playerHit', p);
         p.health --;
+        bulletData = bulletData.filter(function(bullet) {
+          return bullet.id !== b.id;
+        });
         if (p.health < 1) {
           io.emit('playerDie', p)
           players = players.filter(function(p2) {
