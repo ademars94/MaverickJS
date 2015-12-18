@@ -24,11 +24,11 @@ a {
 	background-color: #34495e;
 	border: 10px solid #2c3e50;
 	border-radius: 8px;
-	text-align: center;
 }
 
 #logo {
-	margin-top: 96px;
+	margin-top: 72px;
+	margin-left: 45px;
 	width: 560px;
 }
 
@@ -45,26 +45,42 @@ a {
 	background-color: white;
 	color: #2c3e50;
 	border: none;
-	border-radius: 5px;
+	border-radius: 6px;
 	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 	padding: 10px;
+	margin-left: 80px;
 }
 
 #start {
 	background-color: #27ae60;
 	color: white;
 	border: none;
-	border-radius: 5px;
+	border-radius: 6px;
 	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 	padding: 10px;
 	margin: 10px;
+}
+
+#select {
+	background-color: white;
+	color: #2c3e50;
+	width: 150px;
+	height: 40px;
+	border: none;
+	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+	padding: 10px;
+	margin-left: 80px;
+}
+
+#reload-container {
+	text-align: center;
 }
 
 #reload {
 	background-color: #27ae60;
 	color: white;
 	border: none;
-	border-radius: 5px;
+	border-radius: 6px;
 	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 	padding: 10px;
 	margin: 10px;
@@ -72,6 +88,7 @@ a {
 
 #controls {
 	color: white;
+	margin-left: 80px;
 }
 
 .hide {

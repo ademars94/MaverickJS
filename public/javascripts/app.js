@@ -13,11 +13,10 @@ console.log(socket);
 var canvas = $('#canvas')[0];
 var ctx = canvas.getContext('2d');
 var client;
-var planeX = 1280;
-var planeY = 1280;
 var angle = 0;
 var players = [];
 var bullets = [];
+var plane;
 
 var camLeftBound;
 var camRightBound;
@@ -52,6 +51,8 @@ zero.src = '/images/zero.png';
 var mustang = new Image();
 mustang.src = '/images/mustang.png';
 
+var planes = [spitfire, zero, mustang];
+
 var bulletImg = new Image();
 bulletImg.src = '/images/bullet.png';
 
@@ -85,8 +86,9 @@ Camera.prototype.move = function(x, y) {
 // **************************** Game Stuff ****************************
 // ********************************************************************
 
-function Client(name, id, x, y, angle, health) {
+function Client(name, plane, id, x, y, angle, health) {
   this.name = name;
+  this.plane = plane;
   this.id = id;
   this.x = x;
   this.y = y;
@@ -176,7 +178,7 @@ Maverick.prototype.drawPlane = function() {
   this.ctx.fillStyle = 'grey';
   this.ctx.fillText(client.name, 0, -72);
   this.ctx.rotate(Math.PI / 180 * this.client.angle);
-  this.ctx.drawImage(spitfire, -60, -60, 120, 120);
+  this.ctx.drawImage(planes[client.plane], -60, -60, 120, 120);
   this.ctx.restore();
 };
 
@@ -198,7 +200,7 @@ Maverick.prototype.drawEnemies = function() {
           this.ctx.fillStyle = 'red';
           this.ctx.fillText(p.name, 0, -72);
           this.ctx.rotate(Math.PI / 180 * p.angle);
-          this.ctx.drawImage(zero, -60, -60, 120, 120);
+          this.ctx.drawImage(planes[p.plane], -60, -60, 120, 120);
           this.ctx.restore();
         }
       }
@@ -231,9 +233,11 @@ Maverick.prototype.setGlobal = function() {
 
 // Join the game when the start button is clicked!
 $('#start').on('click', function () {
+  plane = $('#select').val();
+  console.log('Plane:', plane);
   // Add key listeners only when the game is running to prevent errors!
   window.addEventListener("keydown", keypress_handler, false);
-  client = new Client($('#name').val(), socket.id);
+  client = new Client($('#name').val(), plane, socket.id);
   socket.emit('respawn', client);
 });
 
@@ -248,6 +252,7 @@ socket.on('joinGame', function (updatedSettings) {
     canvas.getContext('2d')
     , new Camera(map, canvas.width, canvas.height)
     , new Client(updatedSettings.name
+    , updatedSettings.plane
     , updatedSettings.id
     , updatedSettings.x
     , updatedSettings.y
@@ -284,6 +289,7 @@ socket.on('playerDie', function(playerData) {
   if (playerData.id === mav.client.id) {
     $('#inputs').hide();
     $('#controls').hide();
+    $('#select').hide();
     $('#reload').show();
     $('#menu').show();
 

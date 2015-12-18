@@ -11,12 +11,20 @@
 
       <div id="menu">
         <img id="logo" src="/images/logo.png" alt="Maverick 2D">
+        <select id="select">
+            <option value="0">Spitfire</option>
+            <option value="1">Zero</option>
+            <option value="2">Mustang</option>
+        </select>
         <div id="inputs">
           <input type="text" id="name" placeholder="Input name!">
           <input type="button" id="start" value="Start Game">
         </div>
-        <input type="button" id="reload" class="hide" value="Play Again?">
-        <div id="controls">Use either the arrow keys or A and D to turn.  Press shift to fire bullets!</div>
+        <div id="reload-container">
+          <input type="button" id="reload" class="hide" value="Play Again?">
+        </div>
+        <div id="controls">Use either the arrow keys or A and D to turn.
+        <br>Press shift to fire bullets!</div>
       </div>
 
     </div>

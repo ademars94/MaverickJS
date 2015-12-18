@@ -19,8 +19,9 @@ var bulletId = 0;
 // *************************** Move Logic *****************************
 // ********************************************************************
 
-var Player = function(name, id, x, y, angle, health) {
+var Player = function(name, plane, id, x, y, angle, health) {
   this.name = name;
+  this.plane = plane;
   this.id = id;
   this.x = x;
   this.y = y;
@@ -101,11 +102,9 @@ function checkCollisions() {
         });
         if (p.health < 1) {
           io.emit('playerDie', p)
-          console.log('Players before:', players);
           players = players.filter(function(p2) {
             return p2.id !== p.id;
           });
-          console.log('Players after: ', players);
         }
       }
     });
@@ -134,7 +133,7 @@ io.on('connection', function(socket) {
       sockets[client.id] = socket;
       console.log('Player joined:', client);
 
-      currentPlayer = new Player(client.name, socket.id, 1280, 1280, 0, 1);
+      currentPlayer = new Player(client.name, client.plane, socket.id, 1280, 1280, 0, 1);
       players.push(currentPlayer);
 
       var updatedSettings = currentPlayer;
