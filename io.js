@@ -13,15 +13,17 @@ var speed = 10;
 var mod = 0.5;
 var bulletId = 0;
 
+setInterval(logThatShit, 3000);
+
 // ********************************************************************
 // *************************** Move Logic *****************************
 // ********************************************************************
 
-var Player = function(name, id, planeX, planeY, angle, health) {
+var Player = function(name, id, x, y, angle, health) {
   this.name = name;
   this.id = id;
-  this.planeX = planeX;
-  this.planeY = planeY;
+  this.x = x;
+  this.y = y;
   this.angle = angle;
   this.health = health;
 };
@@ -42,19 +44,21 @@ function updateAllPlayers() {
 }
 
 function logThatShit() {
-  console.log(players);
+  console.log('These players are in the players array:', players);
 }
 
 function movePlane() {
   players.forEach(function(player) {
-    var newPlaneX = player.planeX + (speed * mod) * Math.sin(Math.PI / 180 * player.angle);
-    var newPlaneY = player.planeY -(speed * mod) * Math.cos(Math.PI / 180 * player.angle);
+    console.log(player.name, 'is at', player.x, '(x).')
+    console.log(player.name, 'is at', player.y, '(y).')
+    var newPlaneX = player.x + (speed * mod) * Math.sin(Math.PI / 180 * player.angle);
+    var newPlaneY = player.y -(speed * mod) * Math.cos(Math.PI / 180 * player.angle);
 
     if (newPlaneX >= 0 && newPlaneX <= 2560) {
-      player.planeX = newPlaneX;
+      player.x = newPlaneX;
     }
     if (newPlaneY >= 0 && newPlaneY <= 2560) {
-      player.planeY = newPlaneY;
+      player.y = newPlaneY;
     }
     sockets[player.id].emit('movePlane', player);
   });
@@ -89,10 +93,10 @@ function checkCollisions() {
   bulletData.forEach(function(b) {
     players.forEach(function(p) {
       if (b.playerId !== p.id
-      && b.x > p.planeX - 32
-      && b.x < p.planeX + 32
-      && b.y > p.planeY - 32
-      && b.y < p.planeY + 32) {
+      && b.x > p.x - 32
+      && b.x < p.x + 32
+      && b.y > p.y - 32
+      && b.y < p.y + 32) {
         io.emit('playerHit', p);
         p.health --;
         bulletData = bulletData.filter(function(bullet) {
@@ -100,9 +104,11 @@ function checkCollisions() {
         });
         if (p.health < 1) {
           io.emit('playerDie', p)
+          console.log('Players before:', players);
           players = players.filter(function(p2) {
             return p2.id !== p.id;
           });
+          console.log('Players after: ', players);
         }
       }
     });
@@ -129,7 +135,7 @@ io.on('connection', function(socket) {
   socket.on('respawn', function(client) {
     if (!sockets[client.id]) {
       sockets[client.id] = socket;
-      console.log(client);
+      console.log('Player joined:', client);
 
       currentPlayer = new Player(client.name, socket.id, 1280, 1280, 0, 1);
       players.push(currentPlayer);
@@ -137,18 +143,17 @@ io.on('connection', function(socket) {
       var updatedSettings = currentPlayer;
       socket.emit('joinGame', updatedSettings);
     }
-    console.log(players);
   });
 
   // Creates new bulletData with constructor on shift press
   socket.on('shiftPressed', function(player) {
     bulletId += 1;
     var bullet = new Bullet(
-      currentPlayer.planeX,
-      currentPlayer.planeY,
+      currentPlayer.x,
+      currentPlayer.y,
       bulletId,
       player.id,
-      speed * 3,
+      speed * 6,
       currentPlayer.angle
     );
     bulletData.push(bullet);
@@ -164,12 +169,14 @@ io.on('connection', function(socket) {
   });
 
   socket.on('playAgain', function(player) {
+    console.log('Playing again:', player);
     players.push(player);
-    socket.emit('joinGame');
+    console.log('Updated players array:', players);
+    console.log('-------------------------------------------------------------------');
   });
 
   socket.on('disconnect', function(player) {
-    console.log(socket.id);
+    console.log('Socket with this id disconnected:', socket.id);
     players = players.filter(function(p) {
       return p.id !== socket.id;
     });

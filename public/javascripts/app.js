@@ -48,6 +48,9 @@ spitfire.src = '/images/spitfire.png';
 var zero = new Image();
 zero.src = '/images/zero.png';
 
+var mustang = new Image();
+mustang.src = '/images/mustang.png';
+
 var bulletImg = new Image();
 bulletImg.src = '/images/bullet.png';
 
@@ -71,10 +74,10 @@ function Camera(map, width, height) {
 	this.height = height;
 };
 
-Camera.prototype.move = function(delta, camX, camY) {
+Camera.prototype.move = function(x, y) {
   // debugger;
-	this.x = mav.client.x - canvas.width / 2;
-  this.y = mav.client.y - canvas.height / 2;
+	this.x = x;
+  this.y = y;
 };
 
 // ********************************************************************
@@ -99,11 +102,11 @@ function Maverick(context, camera, client, players, bullets) {
 }
 
 Maverick.prototype.updateCam = function(delta) {
-  this.camLeftBound   = mav.client.x - (canvas.width / 2);
-  this.camRightBound  = mav.client.x + (canvas.width / 2);
-  this.camTopBound    = mav.client.y - (canvas.height / 2);
-  this.camBottomBound = mav.client.y + (canvas.height / 2);
-  this.camera.move(mav.client.x, mav.client.y);
+  this.camLeftBound   = this.client.x - (canvas.width / 2);
+  this.camRightBound  = this.client.x + (canvas.width / 2);
+  this.camTopBound    = this.client.y - (canvas.height / 2);
+  this.camBottomBound = this.client.y + (canvas.height / 2);
+  this.camera.move(this.client.x, this.client.y);
 }
 
 Maverick.prototype.run = function() {
@@ -118,15 +121,14 @@ Maverick.prototype.tick = function(elapsed) {
   // clear previous frame
   this.ctx.clearRect(0, 0, 1280, 960);
   // render next frame
+  this.setGlobal();
   this.render();
 }
 
 Maverick.prototype.render = function() {
   this.updateCam();
   this.drawGrid();
-  if (Maverick.players.length) {
-    this.drawEnemies();
-  }
+  this.drawEnemies();
   this.drawBullets();
   this.drawPlane();
 };
@@ -141,8 +143,8 @@ Maverick.prototype.drawGrid = function () {
   var x, y;
 
   for (var r = 0; r <= map.rows; r++) {
-    x = - this.camera.x;
-    y = r * map.tileSize - this.camera.y;
+    x = - this.camLeftBound;
+    y = r * map.tileSize - this.camTopBound;
     this.ctx.beginPath();
     this.ctx.strokeStyle = '#F2F1EF';
     this.ctx.lineWidth = 2;
@@ -152,8 +154,8 @@ Maverick.prototype.drawGrid = function () {
     this.ctx.stroke();
   }
   for (var c = 0; c <= map.cols; c++) {
-    x = c * map.tileSize - this.camera.x;
-    y = - this.camera.y;
+    x = c * map.tileSize - this.camLeftBound;
+    y = - this.camTopBound;
     this.ctx.beginPath();
     this.ctx.strokeStyle = '#F2F1EF';
     this.ctx.lineWidth = 2;
@@ -167,45 +169,63 @@ Maverick.prototype.drawGrid = function () {
 Maverick.prototype.drawPlane = function() {
   this.ctx.save();
   this.ctx.translate(canvas.width / 2, canvas.height / 2);
-  this.ctx.rotate(Math.PI / 180 * mav.client.angle);
+  this.ctx.textAlign = 'center';
+  this.ctx.textBaseline = 'bottom';
+  this.ctx.font = "18px 'Lucida Grande'";
+  this.ctx.fillStyle = 'grey';
+  this.ctx.fillText(client.name, 0, -72);
+  this.ctx.rotate(Math.PI / 180 * this.client.angle);
   this.ctx.drawImage(spitfire, -60, -60, 120, 120);
   this.ctx.restore();
 };
 
 Maverick.prototype.drawEnemies = function() {
-  Maverick.players.forEach( (p) => {
-    if (p.id !== mav.client.id) {
-      if (
-         p.planeX < this.camRightBound
-      && p.planeX > this.camLeftBound
-      && p.planeY < this.camBottomBound
-      && p.planeY > this.camTopBound
-      ) {
-        this.ctx.save();
-        this.ctx.translate(p.planeX - this.camLeftBound, p.planeY - this.camTopBound);
-        this.ctx.rotate(Math.PI / 180 * p.angle);
-        this.ctx.drawImage(zero, -60, -60, 120, 120);
-        this.ctx.restore();
+  if (players.length > 1) {
+    players.forEach( (p) => {
+      if (p.id !== this.client.id) {
+        if (
+           p.x < this.camRightBound
+        && p.x > this.camLeftBound
+        && p.y < this.camBottomBound
+        && p.y > this.camTopBound
+        ) {
+          this.ctx.save();
+          this.ctx.translate(p.x - this.camLeftBound, p.y - this.camTopBound);
+          this.ctx.textAlign = 'center';
+          this.ctx.textBaseline = 'bottom';
+          this.ctx.font = "16px 'Lucida Grande'";
+          this.ctx.fillStyle = 'red';
+          this.ctx.fillText(p.name, 0, -72);
+          this.ctx.rotate(Math.PI / 180 * p.angle);
+          this.ctx.drawImage(zero, -60, -60, 120, 120);
+          this.ctx.restore();
+        }
       }
-    }
-  });
+    });
+  };
 };
 
 Maverick.prototype.drawBullets = function() {
-  Maverick.bullets.forEach((bullet) => {
-    if (
-      bullet.x < this.camRightBound  &&
-      bullet.x > this.camLeftBound   &&
-      bullet.y < this.camBottomBound &&
-      bullet.y > this.camTopBound
-    ) {
-      this.ctx.save();
-      this.ctx.translate(bullet.x - this.camLeftBound, bullet.y - this.camTopBound);
-      this.ctx.rotate(Math.PI / 180 * bullet.angle);
-      this.ctx.drawImage(bulletImg, -12, -12, 24, 24);
-      this.ctx.restore();
-    }
-  });
+  if (bullets.length >= 1) {
+    bullets.forEach( (b) => {
+      if (
+        b.x < this.camRightBound  &&
+        b.x > this.camLeftBound   &&
+        b.y < this.camBottomBound &&
+        b.y > this.camTopBound
+      ) {
+        this.ctx.save();
+        this.ctx.translate(b.x - this.camLeftBound, b.y - this.camTopBound);
+        this.ctx.rotate(Math.PI / 180 * b.angle);
+        this.ctx.drawImage(bulletImg, -12, -12, 24, 24);
+        this.ctx.restore();
+      }
+    });
+  };
+};
+
+Maverick.prototype.setGlobal = function() {
+  client = this.client
 };
 
 // Join the game when the start button is clicked!
@@ -224,7 +244,7 @@ $('#start').on('click', function () {
 socket.on('joinGame', function (updatedSettings) {
   var context = canvas.getContext('2d');
 
-  console.log(updatedSettings);
+  console.log('Updated Settings:', updatedSettings);
 
   mav = new Maverick(
     canvas.getContext('2d')
@@ -247,9 +267,9 @@ socket.on('joinGame', function (updatedSettings) {
 });
 
 socket.on('movePlane', function(playerData) {
-  mav.client.x = playerData.planeX;
-  mav.client.y = playerData.planeY;
-  mav.client.angle = playerData.angle;
+  client.x = playerData.x;
+  client.y = playerData.y;
+  client.angle = playerData.angle;
 });
 
 socket.on('playerHit', function(playerData) {
@@ -257,11 +277,11 @@ socket.on('playerHit', function(playerData) {
 });
 
 socket.on('moveBullets', function(bulletData) {
-  Maverick.bullets = bulletData;
+  bullets = bulletData;
 });
 
 socket.on('updateAllPlayers', function(otherPlayers) {
-  Maverick.players = otherPlayers;
+  players = otherPlayers;
 });
 
 socket.on('shotFired', function(playerData) {
@@ -271,20 +291,15 @@ socket.on('shotFired', function(playerData) {
 socket.on('playerDie', function(playerData) {
   console.log(playerData.name, 'was shot down!');
   if (playerData.id === mav.client.id) {
-    var context = canvas.getContext('2d');
+
+    console.log('The client has been reset with these settings:', client);
 
     console.log('playerData:', playerData);
     console.log('Client:', mav.client);
-
-    mav = new Maverick(
+    mav2 = new Maverick(
       canvas.getContext('2d')
       , new Camera(map, canvas.width, canvas.height)
-      , new Client(playerData.name
-      , playerData.id
-      , 1280
-      , 1280
-      , 0
-      , 1)
+      , client
       // , players
       // , bullets
     );
