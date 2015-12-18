@@ -13,7 +13,7 @@ var speed = 10;
 var mod = 0.5;
 var bulletId = 0;
 
-setInterval(logThatShit, 3000);
+// setInterval(logThatShit, 3000);
 
 // ********************************************************************
 // *************************** Move Logic *****************************
@@ -49,8 +49,6 @@ function logThatShit() {
 
 function movePlane() {
   players.forEach(function(player) {
-    console.log(player.name, 'is at', player.x, '(x).')
-    console.log(player.name, 'is at', player.y, '(y).')
     var newPlaneX = player.x + (speed * mod) * Math.sin(Math.PI / 180 * player.angle);
     var newPlaneY = player.y -(speed * mod) * Math.cos(Math.PI / 180 * player.angle);
 
