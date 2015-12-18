@@ -51,7 +51,10 @@ zero.src = '/images/zero.png';
 var mustang = new Image();
 mustang.src = '/images/mustang.png';
 
-var planes = [spitfire, zero, mustang];
+var lightning = new Image();
+lightning.src = '/images/lightning.png';
+
+var planes = [spitfire, zero, mustang, lightning];
 
 var bulletImg = new Image();
 bulletImg.src = '/images/bullet.png';
