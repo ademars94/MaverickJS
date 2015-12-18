@@ -178,8 +178,10 @@ Maverick.prototype.drawPlane = function() {
   this.ctx.textAlign = 'center';
   this.ctx.textBaseline = 'bottom';
   this.ctx.font = "18px 'Lucida Grande'";
+  this.ctx.fillStyle = 'blue';
+  this.ctx.fillText(client.name, 0, -85);
   this.ctx.fillStyle = 'grey';
-  this.ctx.fillText(client.name, 0, -72);
+  this.ctx.fillText('Lives: ' + client.health, 0, -65);
   this.ctx.rotate(Math.PI / 180 * this.client.angle);
   this.ctx.drawImage(planes[client.plane], -60, -60, 120, 120);
   this.ctx.restore();
@@ -199,9 +201,11 @@ Maverick.prototype.drawEnemies = function() {
           this.ctx.translate(p.x - this.camLeftBound, p.y - this.camTopBound);
           this.ctx.textAlign = 'center';
           this.ctx.textBaseline = 'bottom';
-          this.ctx.font = "16px 'Lucida Grande'";
+          this.ctx.font = "18px 'Lucida Grande'";
           this.ctx.fillStyle = 'red';
-          this.ctx.fillText(p.name, 0, -72);
+          this.ctx.fillText(p.name, 0, -85);
+          this.ctx.fillStyle = 'grey';
+          this.ctx.fillText('Lives: ' + p.health, 0, -65);
           this.ctx.rotate(Math.PI / 180 * p.angle);
           this.ctx.drawImage(planes[p.plane], -60, -60, 120, 120);
           this.ctx.restore();
@@ -272,6 +276,7 @@ socket.on('joinGame', function (updatedSettings) {
 socket.on('movePlane', function(playerData) {
   client.x = playerData.x;
   client.y = playerData.y;
+  client.health = playerData.health;
   client.angle = playerData.angle;
 });
 
