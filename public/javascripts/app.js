@@ -11,7 +11,7 @@ console.log(socket);
 
 var canvas = $('#canvas')[0];
 var ctx = canvas.getContext('2d');
-var player = {};
+var client;
 var planeX = 1280;
 var planeY = 1280;
 var angle = 0;
@@ -30,13 +30,13 @@ var mapTopBound = 0;
 
 function keypress_handler(event) {
   if (event.keyCode == 65 || event.keyCode == 37) {
-    socket.emit('leftPressed', player);
+    socket.emit('leftPressed', mav.client);
   }
   if (event.keyCode == 68 || event.keyCode == 39) {
-    socket.emit('rightPressed', player);
+    socket.emit('rightPressed', mav.client);
   }
   if (event.keyCode == 16) {
-    socket.emit('shiftPressed', player);
+    socket.emit('shiftPressed', mav.client);
   }
 }
 
@@ -69,68 +69,45 @@ function Camera(map, width, height) {
 	this.y = 0;
 	this.width = width;
 	this.height = height;
-}
-
-function Player(name, id) {
-  this.name = name;
-  this.id = id;
-  this.planeX = 0;
-  this.planeY = 0;
 };
 
 Camera.prototype.move = function(delta, camX, camY) {
-	this.x = planeX - canvas.width / 2;
-  this.y = planeY - canvas.height / 2;
-}
-
-function Maverick(context, camera, player) {
-  this.ctx    = context;
-  this.camera = camera;
-  this.player = player;
-}
-
-// game = new Maverick(
-//  canvas.getContext('2d'),
-//  new Camera(map, canvas.width, canvas.height),
-//  new Player("phil", "12345")
-// );
-//
-// game.run();
-
-Maverick.prototype.updateCam = function(delta) {
-  this.camLeftBound   = planeX - (canvas.width / 2);
-  this.camRightBound  = planeX + (canvas.width / 2);
-  this.camTopBound    = planeY - (canvas.height / 2);
-  this.camBottomBound = planeY + (canvas.height / 2);
-
-  // TODO: store plane coords in a Player object
-  // that is initialized along with the game (Maverick)
-  // object
-  var camX = planeX;
-  var camY = planeY;
-  this.camera.move(delta, camX, camY);
-}
+  // debugger;
+	this.x = mav.client.x - canvas.width / 2;
+  this.y = mav.client.y - canvas.height / 2;
+};
 
 // ********************************************************************
 // **************************** Game Stuff ****************************
 // ********************************************************************
 
+function Client(name, id, x, y, angle, health) {
+  this.name = name;
+  this.id = id;
+  this.x = x;
+  this.y = y;
+  this.angle = angle;
+  this.health = health;
+};
+
+function Maverick(context, camera, client, players, bullets) {
+  this.ctx    = context;
+  this.camera = camera;
+  this.client = client;
+  this.players = players;
+  this.bullets = bullets;
+}
+
+Maverick.prototype.updateCam = function(delta) {
+  this.camLeftBound   = mav.client.x - (canvas.width / 2);
+  this.camRightBound  = mav.client.x + (canvas.width / 2);
+  this.camTopBound    = mav.client.y - (canvas.height / 2);
+  this.camBottomBound = mav.client.y + (canvas.height / 2);
+  this.camera.move(mav.client.x, mav.client.y);
+}
+
 Maverick.prototype.run = function() {
   window.requestAnimationFrame(this.tick.bind(this));
-
-  setInterval( () => {
-    // console.log("Game:", game);
-
-    if (bullets.length > 0) {
-      console.log("Bullet:",    bullets[0]);
-      console.log("CamBounds:", {
-        camLeftBound:   this.camLeftBound
-      , camRightBound:  this.camRightBound
-      , camTopBound:    this.camTopBound
-      , camBottomBound: this.camBottomBound
-      });
-    }
-  }, 500);
 };
 
 // Maverick.prototype.requestAnimationFrame = window.requestAnimationFrame;
@@ -147,7 +124,9 @@ Maverick.prototype.tick = function(elapsed) {
 Maverick.prototype.render = function() {
   this.updateCam();
   this.drawGrid();
-  this.drawEnemies();
+  if (Maverick.players.length) {
+    this.drawEnemies();
+  }
   this.drawBullets();
   this.drawPlane();
 };
@@ -188,16 +167,14 @@ Maverick.prototype.drawGrid = function () {
 Maverick.prototype.drawPlane = function() {
   this.ctx.save();
   this.ctx.translate(canvas.width / 2, canvas.height / 2);
-  this.ctx.rotate(Math.PI / 180 * angle);
+  this.ctx.rotate(Math.PI / 180 * mav.client.angle);
   this.ctx.drawImage(spitfire, -60, -60, 120, 120);
   this.ctx.restore();
 };
 
-// Maverick.players = players;
-
 Maverick.prototype.drawEnemies = function() {
-  players.forEach((p) => {
-    if (p.id !== player.id) {
+  Maverick.players.forEach( (p) => {
+    if (p.id !== mav.client.id) {
       if (
          p.planeX < this.camRightBound
       && p.planeX > this.camLeftBound
@@ -215,7 +192,7 @@ Maverick.prototype.drawEnemies = function() {
 };
 
 Maverick.prototype.drawBullets = function() {
-  bullets.forEach((bullet) => {
+  Maverick.bullets.forEach((bullet) => {
     if (
       bullet.x < this.camRightBound  &&
       bullet.x > this.camLeftBound   &&
@@ -235,39 +212,44 @@ Maverick.prototype.drawBullets = function() {
 $('#start').on('click', function () {
   // Add key listeners only when the game is running to prevent errors!
   window.addEventListener("keydown", keypress_handler, false);
-  player.name = $('#name').val();
-  player.id = socket.id;
-  newPlayer = player;
-  socket.emit('respawn', newPlayer);
-  // console.log(player.name + " has entered the game!");
+  client = new Client($('#name').val(), socket.id);
+  console.log(client);
+  socket.emit('respawn', client);
 });
 
 // ********************************************************************
 // *************************** Socket Stuff ***************************
 // ********************************************************************
 
-socket.on('joinGame', function (playerSettings) {
+socket.on('joinGame', function (updatedSettings) {
   var context = canvas.getContext('2d');
 
-  game = new Maverick(
+  console.log(updatedSettings);
+
+  mav = new Maverick(
     canvas.getContext('2d')
-  , new Camera(map, canvas.width, canvas.height)
-  // , new Player(playerSettings.name, playerSettings.id)
+    , new Camera(map, canvas.width, canvas.height)
+    , new Client(updatedSettings.name
+    , updatedSettings.id
+    , updatedSettings.x
+    , updatedSettings.y
+    , updatedSettings.angle
+    , updatedSettings.health)
+    // , players
+    // , bullets
   );
-
-  game.run();
-
+  console.log(mav.client)
   $('#menu').hide();
 
-  player = playerSettings;
+  mav.run();
 
-  console.log(player.id + " has entered the game!");
+  console.log(client.id + " has entered the game!");
 });
 
 socket.on('movePlane', function(playerData) {
-  planeX = playerData.planeX;
-  planeY = playerData.planeY;
-  angle = playerData.angle;
+  mav.client.x = playerData.planeX;
+  mav.client.y = playerData.planeY;
+  mav.client.angle = playerData.angle;
 });
 
 socket.on('playerHit', function(playerData) {
@@ -275,11 +257,11 @@ socket.on('playerHit', function(playerData) {
 });
 
 socket.on('moveBullets', function(bulletData) {
-  bullets = bulletData;
+  Maverick.bullets = bulletData;
 });
 
 socket.on('updateAllPlayers', function(otherPlayers) {
-  players = otherPlayers;
+  Maverick.players = otherPlayers;
 });
 
 socket.on('shotFired', function(playerData) {
@@ -288,7 +270,29 @@ socket.on('shotFired', function(playerData) {
 
 socket.on('playerDie', function(playerData) {
   console.log(playerData.name, 'was shot down!');
-  if (playerData.id === player.id) {
-    $('#menu').show();
+  if (playerData.id === mav.client.id) {
+    var context = canvas.getContext('2d');
+
+    console.log('playerData:', playerData);
+    console.log('Client:', mav.client);
+
+    mav = new Maverick(
+      canvas.getContext('2d')
+      , new Camera(map, canvas.width, canvas.height)
+      , new Client(playerData.name
+      , playerData.id
+      , 1280
+      , 1280
+      , 0
+      , 1)
+      // , players
+      // , bullets
+    );
+    console.log('Client After:', mav.client)
+
+    mav.run();
+
+    console.log(client.id + " has entered the game!");
+    socket.emit('playAgain', mav.client);
   }
 });

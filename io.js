@@ -126,16 +126,16 @@ io.on('connection', function(socket) {
   var currentPlayer;
 
   // Creates new players with constructor
-  socket.on('respawn', function(newPlayer) {
-    if (!sockets[newPlayer.id]) {
-      sockets[newPlayer.id] = socket;
-      console.log(newPlayer);
+  socket.on('respawn', function(client) {
+    if (!sockets[client.id]) {
+      sockets[client.id] = socket;
+      console.log(client);
 
-      currentPlayer = new Player(newPlayer.name, socket.id, 1280, 1280, 0, 1);
+      currentPlayer = new Player(client.name, socket.id, 1280, 1280, 0, 1);
       players.push(currentPlayer);
 
-      var playerSettings = currentPlayer;
-      socket.emit('joinGame', playerSettings);
+      var updatedSettings = currentPlayer;
+      socket.emit('joinGame', updatedSettings);
     }
     console.log(players);
   });
@@ -161,6 +161,11 @@ io.on('connection', function(socket) {
 
   socket.on('rightPressed', function(player) {
     currentPlayer.angle += 7.5;
+  });
+
+  socket.on('playAgain', function(player) {
+    players.push(player);
+    socket.emit('joinGame');
   });
 
   socket.on('disconnect', function(player) {
