@@ -234,7 +234,6 @@ $('#start').on('click', function () {
   // Add key listeners only when the game is running to prevent errors!
   window.addEventListener("keydown", keypress_handler, false);
   client = new Client($('#name').val(), socket.id);
-  console.log(client);
   socket.emit('respawn', client);
 });
 
@@ -244,8 +243,6 @@ $('#start').on('click', function () {
 
 socket.on('joinGame', function (updatedSettings) {
   var context = canvas.getContext('2d');
-
-  console.log('Updated Settings:', updatedSettings);
 
   mav = new Maverick(
     canvas.getContext('2d')
@@ -259,22 +256,15 @@ socket.on('joinGame', function (updatedSettings) {
     // , players
     // , bullets
   );
-  console.log(mav.client)
   $('#menu').hide();
 
   mav.run();
-
-  console.log(client.id + " has entered the game!");
 });
 
 socket.on('movePlane', function(playerData) {
   client.x = playerData.x;
   client.y = playerData.y;
   client.angle = playerData.angle;
-});
-
-socket.on('playerHit', function(playerData) {
-  console.log(playerData.name, 'has been hit!');
 });
 
 socket.on('moveBullets', function(bulletData) {
@@ -286,7 +276,7 @@ socket.on('updateAllPlayers', function(otherPlayers) {
 });
 
 socket.on('shotFired', function(playerData) {
-  console.log(playerData.name, 'is firing!');
+  console.log(playerData.name, 'is shooting!');
 });
 
 socket.on('playerDie', function(playerData) {

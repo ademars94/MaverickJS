@@ -95,7 +95,6 @@ function checkCollisions() {
       && b.x < p.x + 32
       && b.y > p.y - 32
       && b.y < p.y + 32) {
-        io.emit('playerHit', p);
         p.health --;
         bulletData = bulletData.filter(function(bullet) {
           return bullet.id !== b.id;
