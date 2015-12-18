@@ -166,12 +166,12 @@ io.on('connection', function(socket) {
     currentPlayer.angle += 7.5;
   });
 
-  socket.on('playAgain', function(player) {
-    console.log('Playing again:', player);
-    players.push(player);
-    console.log('Updated players array:', players);
-    console.log('-------------------------------------------------------------------');
-  });
+  // socket.on('playAgain', function(player) {
+  //   console.log('Playing again:', player);
+  //   players.push(player);
+  //   console.log('Updated players array:', players);
+  //   console.log('-------------------------------------------------------------------');
+  // });
 
   socket.on('disconnect', function(player) {
     console.log('Socket with this id disconnected:', socket.id);

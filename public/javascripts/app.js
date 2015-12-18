@@ -1,4 +1,5 @@
 console.log('Maverick 2D!');
+$('#reload').hide();
 
 // ********************************************************************
 // *************************** Maverick 2D ****************************
@@ -291,23 +292,20 @@ socket.on('shotFired', function(playerData) {
 socket.on('playerDie', function(playerData) {
   console.log(playerData.name, 'was shot down!');
   if (playerData.id === mav.client.id) {
+    $('#inputs').hide();
+    $('#controls').hide();
+    $('#reload').show();
+    $('#menu').show();
 
-    console.log('The client has been reset with these settings:', client);
-
-    console.log('playerData:', playerData);
-    console.log('Client:', mav.client);
-    mav2 = new Maverick(
-      canvas.getContext('2d')
-      , new Camera(map, canvas.width, canvas.height)
-      , client
-      // , players
-      // , bullets
-    );
-    console.log('Client After:', mav.client)
-
-    mav.run();
-
-    console.log(client.id + " has entered the game!");
-    socket.emit('playAgain', mav.client);
+    $('#reload').on('click', function() {
+      location.reload();
+    });
+    // mav2 = new Maverick(
+    //   canvas.getContext('2d')
+    //   , new Camera(map, canvas.width, canvas.height)
+    //   , client
+    // );
+    // mav.run();
+    // socket.emit('playAgain', mav.client);
   }
 });
