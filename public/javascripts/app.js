@@ -1,3 +1,5 @@
+'use strict';
+
 console.log('Maverick 2D!');
 $('#reload').hide();
 
