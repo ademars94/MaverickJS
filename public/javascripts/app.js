@@ -89,7 +89,7 @@ Camera.prototype.move = function(x, y) {
 // **************************** Game Stuff ****************************
 // ********************************************************************
 
-function Client(name, plane, id, x, y, angle, health) {
+function Client(name, plane, id, x, y, angle, health, points) {
   this.name = name;
   this.plane = plane;
   this.id = id;
@@ -97,6 +97,7 @@ function Client(name, plane, id, x, y, angle, health) {
   this.y = y;
   this.angle = angle;
   this.health = health;
+  this.points = points;
 };
 
 function Maverick(context, camera, client, players, bullets) {
@@ -266,7 +267,8 @@ socket.on('joinGame', function (updatedSettings) {
     , updatedSettings.x
     , updatedSettings.y
     , updatedSettings.angle
-    , updatedSettings.health)
+    , updatedSettings.health
+    , updatedSettings.points)
     // , players
     // , bullets
   );
@@ -280,6 +282,7 @@ socket.on('movePlane', function(playerData) {
   client.y = playerData.y;
   client.health = playerData.health;
   client.angle = playerData.angle;
+  client.points = playerData.points;
 });
 
 socket.on('moveBullets', function(bulletData) {
