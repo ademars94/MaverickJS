@@ -1,5 +1,3 @@
-'use strict';
-
 console.log('Maverick 2D!');
 $('#reload').hide();
 
@@ -190,27 +188,28 @@ Maverick.prototype.drawPlane = function() {
 };
 
 Maverick.prototype.drawEnemies = function() {
+  var self = this;
   if (players.length > 1) {
-    players.forEach( (p) => {
+    players.forEach(function(p) {
       if (p.id !== this.client.id) {
         if (
-           p.x < this.camRightBound
-        && p.x > this.camLeftBound
-        && p.y < this.camBottomBound
-        && p.y > this.camTopBound
+           p.x < self.camRightBound
+        && p.x > self.camLeftBound
+        && p.y < self.camBottomBound
+        && p.y > self.camTopBound
         ) {
-          this.ctx.save();
-          this.ctx.translate(p.x - this.camLeftBound, p.y - this.camTopBound);
-          this.ctx.textAlign = 'center';
-          this.ctx.textBaseline = 'bottom';
-          this.ctx.font = "18px 'Lucida Grande'";
-          this.ctx.fillStyle = 'red';
-          this.ctx.fillText(p.name, 0, -85);
-          this.ctx.fillStyle = 'grey';
-          this.ctx.fillText('Lives: ' + p.health, 0, -65);
-          this.ctx.rotate(Math.PI / 180 * p.angle);
-          this.ctx.drawImage(planes[p.plane], -60, -60, 120, 120);
-          this.ctx.restore();
+          self.ctx.save();
+          self.ctx.translate(p.x - self.camLeftBound, p.y - self.camTopBound);
+          self.ctx.textAlign = 'center';
+          self.ctx.textBaseline = 'bottom';
+          self.ctx.font = "18px 'Lucida Grande'";
+          self.ctx.fillStyle = 'red';
+          self.ctx.fillText(p.name, 0, -85);
+          self.ctx.fillStyle = 'grey';
+          self.ctx.fillText('Lives: ' + p.health, 0, -65);
+          self.ctx.rotate(Math.PI / 180 * p.angle);
+          self.ctx.drawImage(planes[p.plane], -60, -60, 120, 120);
+          self.ctx.restore();
         }
       }
     });
@@ -218,19 +217,20 @@ Maverick.prototype.drawEnemies = function() {
 };
 
 Maverick.prototype.drawBullets = function() {
+  var self = this;
   if (bullets.length >= 1) {
-    bullets.forEach( (b) => {
+    bullets.forEach(function(b) {
       if (
-        b.x < this.camRightBound  &&
-        b.x > this.camLeftBound   &&
-        b.y < this.camBottomBound &&
-        b.y > this.camTopBound
+        b.x < self.camRightBound  &&
+        b.x > self.camLeftBound   &&
+        b.y < self.camBottomBound &&
+        b.y > self.camTopBound
       ) {
-        this.ctx.save();
-        this.ctx.translate(b.x - this.camLeftBound, b.y - this.camTopBound);
-        this.ctx.rotate(Math.PI / 180 * b.angle);
-        this.ctx.drawImage(bulletImg, -12, -12, 24, 24);
-        this.ctx.restore();
+        self.ctx.save();
+        self.ctx.translate(b.x - self.camLeftBound, b.y - self.camTopBound);
+        self.ctx.rotate(Math.PI / 180 * b.angle);
+        self.ctx.drawImage(bulletImg, -12, -12, 24, 24);
+        self.ctx.restore();
       }
     });
   };
