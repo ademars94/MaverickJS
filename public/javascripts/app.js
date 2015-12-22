@@ -17,6 +17,9 @@ var angle = 0;
 var players = [];
 var bullets = [];
 var plane;
+var leftPress;
+var rightPress;
+var shiftPress;
 
 var camLeftBound;
 var camRightBound;
@@ -28,17 +31,94 @@ var mapLeftBound = 2560;
 var mapBottomBound = 2560;
 var mapTopBound = 0;
 
-function keypress_handler(event) {
-  if (event.keyCode == 65 || event.keyCode == 37) {
-    socket.emit('leftPressed', mav.client);
+// Event Handlers
+
+function leftHandler() {
+  if (leftPress) {
+    socket.emit('leftPressed', client);
   }
-  if (event.keyCode == 68 || event.keyCode == 39) {
-    socket.emit('rightPressed', mav.client);
+};
+
+function rightHandler() {
+  if (rightPress) {
+    socket.emit('rightPressed', client);
   }
-  if (event.keyCode == 16) {
-    socket.emit('shiftPressed', mav.client);
+};
+
+function shiftHandler() {
+  if (shiftPress) {
+    socket.emit('shiftPressed', client);
+  }
+};
+
+function leftUpHandler() {
+  if (!leftPress) {
+    socket.emit('leftUp', client);
   }
 }
+
+function rightUpHandler() {
+  if (!rightPress) {
+    socket.emit('rightUp', client);
+  }
+}
+
+function shiftUpHandler() {
+  if (!shiftPress) {
+    socket.emit('shiftUp', client);
+  }
+};
+
+$(document).on('keydown', function(e) {
+  if (e.keyCode === 65 || e.keyCode === 37) {
+    leftPress = true;
+    console.log('Left Press:', leftPress);
+    leftHandler();
+  }
+  if (e.keyCode == 68 || e.keyCode == 39) {
+    rightPress = true;
+    console.log('Right Press:', rightPress);
+    rightHandler();
+  }
+  if (e.keyCode == 16) {
+    shiftPress = true;
+    shiftHandler();
+  };
+});
+
+$(document).on('keyup', function(e) {
+  if (e.keyCode === 65 || e.keyCode === 37) {
+    leftPress = false;
+    console.log('Left Press:', leftPress);
+    leftUpHandler();
+  }
+  if (e.keyCode == 68 || e.keyCode == 39) {
+    rightPress = false;
+    console.log('Right Press:', rightPress);
+    rightUpHandler();
+  }
+  if (e.keyCode == 16) {
+    shiftPress = false;
+    shiftUpHandler();
+  };
+});
+
+
+
+
+
+
+// function keypress_handler(event) {
+//   if (event.keyCode == 65 || event.keyCode == 37) {
+//     socket.emit('leftPressed', mav.client);
+//   }
+//   if (event.keyCode == 68 || event.keyCode == 39) {
+//     socket.emit('rightPressed', mav.client);
+//   }
+//   if (event.keyCode == 16) {
+//     socket.emit('shiftPressed', mav.client);
+//   }
+// }
 
 // Image Stuff
 
@@ -246,7 +326,7 @@ $('#start').on('click', function () {
   plane = $('#select').val();
   console.log('Plane:', plane);
   // Add key listeners only when the game is running to prevent errors!
-  window.addEventListener("keydown", keypress_handler, false);
+  // window.addEventListener("keydown", keypress_handler, false);
   client = new Client($('#name').val(), plane, socket.id);
   socket.emit('respawn', client);
 });
