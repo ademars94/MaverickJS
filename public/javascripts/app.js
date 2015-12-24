@@ -88,18 +88,6 @@ $(document).on('keyup', function(e) {
   };
 });
 
-// function keypress_handler(event) {
-//   if (event.keyCode == 65 || event.keyCode == 37) {
-//     socket.emit('leftPressed', mav.client);
-//   }
-//   if (event.keyCode == 68 || event.keyCode == 39) {
-//     socket.emit('rightPressed', mav.client);
-//   }
-//   if (event.keyCode == 16) {
-//     socket.emit('shiftPressed', mav.client);
-//   }
-// }
-
 // Image Stuff
 
 var spitfire = new Image();
