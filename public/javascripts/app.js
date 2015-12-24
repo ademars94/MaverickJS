@@ -33,37 +33,22 @@ var mapTopBound = 0;
 
 // Event Handlers
 
-function leftHandler() {
+function keyPressHandler(event) {
   if (leftPress) {
     socket.emit('leftPressed', client);
   }
-};
-
-function rightHandler() {
   if (rightPress) {
     socket.emit('rightPressed', client);
   }
-};
-
-function shiftHandler() {
   if (shiftPress) {
     socket.emit('shiftPressed', client);
   }
-};
-
-function leftUpHandler() {
   if (!leftPress) {
     socket.emit('leftUp', client);
   }
-}
-
-function rightUpHandler() {
   if (!rightPress) {
     socket.emit('rightUp', client);
   }
-}
-
-function shiftUpHandler() {
   if (!shiftPress) {
     socket.emit('shiftUp', client);
   }
@@ -73,16 +58,16 @@ $(document).on('keydown', function(e) {
   if (e.keyCode === 65 || e.keyCode === 37) {
     leftPress = true;
     console.log('Left Press:', leftPress);
-    leftHandler();
+    keyPressHandler();
   }
   if (e.keyCode == 68 || e.keyCode == 39) {
     rightPress = true;
     console.log('Right Press:', rightPress);
-    rightHandler();
+    keyPressHandler();
   }
   if (e.keyCode == 16) {
     shiftPress = true;
-    shiftHandler();
+    keyPressHandler();
   };
 });
 
@@ -90,23 +75,18 @@ $(document).on('keyup', function(e) {
   if (e.keyCode === 65 || e.keyCode === 37) {
     leftPress = false;
     console.log('Left Press:', leftPress);
-    leftUpHandler();
+    keyPressHandler();
   }
   if (e.keyCode == 68 || e.keyCode == 39) {
     rightPress = false;
     console.log('Right Press:', rightPress);
-    rightUpHandler();
+    keyPressHandler();
   }
   if (e.keyCode == 16) {
     shiftPress = false;
-    shiftUpHandler();
+    keyPressHandler();
   };
 });
-
-
-
-
-
 
 // function keypress_handler(event) {
 //   if (event.keyCode == 65 || event.keyCode == 37) {
@@ -138,7 +118,6 @@ var planes = [spitfire, zero, mustang, lightning];
 
 var bulletImg = new Image();
 bulletImg.src = '/images/bullet.png';
-
 
 // Map Stuff
 
