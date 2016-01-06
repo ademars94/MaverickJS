@@ -8,6 +8,7 @@
 var io = require('socket.io')();
 var players = [];
 var bulletData = [];
+var leaderboard = [];
 var sockets = {};
 var speed = 10;
 var mod = 1;
@@ -42,6 +43,30 @@ var Bullet = function(x, y, id, playerId, speed, angle) {
 function updateAllPlayers() {
   if (players.length > 0) {
     io.emit('updateAllPlayers', players);
+  };
+}
+
+function updateLeaderboard() {
+  if (players.length > 0) {
+    players.forEach(function(p) {
+    console.log('players:', p.id);
+      leaderboard.forEach(function(l) {
+        console.log('leaderboard:', l)
+        if (p.id !== l.id) {
+          leaderboard.push(p);
+          console.log('Leaderboard:', leaderboard);
+        }
+      });
+    });
+    // console.log('Leaderboard before sort:', leaderboard);
+    // console.log('Players before sort:', players);
+    leaderboard.sort( function(a, b) {return b.points - a.points} );
+    if (leaderboard.length > 5) {
+      leaderboard.splice(6, leaderboard.length);
+    }
+    // console.log('Leaderboard after sort:', leaderboard);
+    // console.log('Players after sort:', players);
+    io.emit('updateAllLeaderboards', leaderboard);
   };
 }
 
@@ -117,12 +142,11 @@ function checkCollisions() {
   });
 }
 
-
-
 setInterval(movePlane, 1000/30);
 setInterval(moveBullets, 1000/30);
 setInterval(checkCollisions, 1000/30);
 setInterval(updateAllPlayers, 1000/30);
+setInterval(updateLeaderboard, 1000);
 // setInterval(logThatShit, 5000);
 
 // ********************************************************************

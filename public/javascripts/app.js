@@ -16,6 +16,7 @@ var client;
 var angle = 0;
 var players = [];
 var bullets = [];
+var leaderboard = [];
 var plane;
 
 var camLeftBound;
@@ -138,6 +139,8 @@ Maverick.prototype.render = function() {
   this.drawEnemies();
   this.drawBullets();
   this.drawPlane();
+  this.drawLeaderboard();
+  this.drawLeaders();
 };
 
 // ********************************************************************
@@ -237,6 +240,27 @@ Maverick.prototype.drawBullets = function() {
   };
 };
 
+Maverick.prototype.drawLeaderboard = function() {
+  this.ctx.globalAlpha = 0.3;
+  this.fillStyle = 'black';
+  this.ctx.fillRect(20,20,200,200);
+  this.ctx.globalAlpha = 1;
+};
+
+Maverick.prototype.drawLeaders = function() {
+  // console.log('Leaderboard:', leaderboard);
+  var self = this;
+  var leaderY = 30;
+  leaderboard.forEach(function(p) {
+    leaderY += 25;
+    self.ctx.globalAlpha = 1;
+    self.ctx.fillStyle = 'white';
+    self.ctx.font = "18px 'Lucida Grande'";
+    self.ctx.fillText(p.name + ': ' + p.points + " pts", 35, leaderY);
+    self.ctx.fillStyle = 'black';
+  });
+};
+
 Maverick.prototype.setGlobal = function() {
   client = this.client
 };
@@ -291,6 +315,10 @@ socket.on('moveBullets', function(bulletData) {
 
 socket.on('updateAllPlayers', function(otherPlayers) {
   players = otherPlayers;
+});
+
+socket.on('updateAllLeaderboards', function(leaderboardData) {
+  leaderboard = leaderboardData;
 });
 
 socket.on('shotFired', function(playerData) {
