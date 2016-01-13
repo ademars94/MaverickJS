@@ -305,7 +305,11 @@ Maverick.prototype.drawLeaderboard = function() {
 Maverick.prototype.drawLeaders = function() {
   // console.log('Leaderboard:', leaderboard);
   var self = this;
-  var leaderY = 30;
+  var leaderY = 50;
+  self.ctx.fillStyle = 'white';
+  self.ctx.font = "18px 'Lucida Grande'";
+  self.ctx.fillText('Leaderboard:', 35, 50);
+  self.ctx.fillStyle = 'black';
   leaderboard.forEach(function(p) {
     leaderY += 25;
     self.ctx.globalAlpha = 1;
