@@ -164,8 +164,7 @@ io.on('connection', function(socket) {
     if (!sockets[client.id]) {
       sockets[client.id] = socket;
       console.log('Player joined:', client);
-
-      currentPlayer = new Player(client.name, client.plane, socket.id, 1280, 1280, 0, 3, 0);
+      currentPlayer = new Player(client.name, client.plane, socket.id, 1280, 1280, 0, 10, 0);
       players.push(currentPlayer);
 
       var updatedSettings = currentPlayer;
@@ -186,14 +185,14 @@ io.on('connection', function(socket) {
     );
     bulletData.push(bullet);
     io.emit('shotFired', currentPlayer);
-  })
+  });
 
   socket.on('leftPressed', function(player) {
-    currentPlayer.angle -= 10;
+    currentPlayer.angle -= 3;
   });
 
   socket.on('rightPressed', function(player) {
-    currentPlayer.angle += 10;
+    currentPlayer.angle += 3;
   });
 
   // socket.on('playAgain', function(player) {
