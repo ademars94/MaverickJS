@@ -59,6 +59,7 @@ function movePlane() {
     if (newPlaneY >= 0 && newPlaneY <= 2560) {
       player.y = newPlaneY;
     }
+    console.log(sockets[player.id]);
     sockets[player.id].emit('movePlane', player);
   });
 };
