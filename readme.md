@@ -26,4 +26,6 @@ Maverick 2D uses socket.io and Node.js to create a game server, which listens fo
 ![Maverick 2D](https://i.imgur.com/cLqmLRn.png)
 
 ###Known Issues
-No Safari support for arrow functions.
+- Runs locally, currently throwing errors on Heroku
+- Canvas continues to draw the grid off of the right and bottom sides.
+
