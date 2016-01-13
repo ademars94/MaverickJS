@@ -16,7 +16,7 @@ Players start off in the center of the map, flying forward at a constant speed. 
 
 
 ###Links
-- [Hosted on Heroku](http://evening-mesa-7659.herokuapp.com/)
+- [Hosted on Heroku](http://evening-mesa-7659.herokuapp.com/) (Currently under maintenance!)
 - [Trello](https://trello.com/b/uxBp97AD/maverick-2d)
 
 
