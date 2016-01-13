@@ -55,37 +55,41 @@ function keyPressHandler(event) {
 };
 
 $(document).on('keydown', function(e) {
-  if (e.keyCode === 65 || e.keyCode === 37) {
-    leftPress = true;
-    console.log('Left Press:', leftPress);
-    keyPressHandler();
+  if (mav) {
+    if (e.keyCode === 65 || e.keyCode === 37) {
+      leftPress = true;
+      console.log('Left Press:', leftPress);
+      keyPressHandler();
+    }
+    if (e.keyCode == 68 || e.keyCode == 39) {
+      rightPress = true;
+      console.log('Right Press:', rightPress);
+      keyPressHandler();
+    }
+    if (e.keyCode == 16) {
+      shiftPress = true;
+      keyPressHandler();
+    }
   }
-  if (e.keyCode == 68 || e.keyCode == 39) {
-    rightPress = true;
-    console.log('Right Press:', rightPress);
-    keyPressHandler();
-  }
-  if (e.keyCode == 16) {
-    shiftPress = true;
-    keyPressHandler();
-  };
 });
 
 $(document).on('keyup', function(e) {
-  if (e.keyCode === 65 || e.keyCode === 37) {
-    leftPress = false;
-    console.log('Left Press:', leftPress);
-    keyPressHandler();
+  if (mav) {
+    if (e.keyCode === 65 || e.keyCode === 37) {
+      leftPress = false;
+      console.log('Left Press:', leftPress);
+      keyPressHandler();
+    }
+    if (e.keyCode == 68 || e.keyCode == 39) {
+      rightPress = false;
+      console.log('Right Press:', rightPress);
+      keyPressHandler();
+    }
+    if (e.keyCode == 16) {
+      shiftPress = false;
+      keyPressHandler();
+    }
   }
-  if (e.keyCode == 68 || e.keyCode == 39) {
-    rightPress = false;
-    console.log('Right Press:', rightPress);
-    keyPressHandler();
-  }
-  if (e.keyCode == 16) {
-    shiftPress = false;
-    keyPressHandler();
-  };
 });
 
 // Image Stuff
