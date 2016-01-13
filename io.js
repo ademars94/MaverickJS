@@ -165,11 +165,11 @@ io.on('connection', function(socket) {
   })
 
   socket.on('leftPressed', function(player) {
-    currentPlayer.angle -= 10;
+    currentPlayer.angle -= 3;
   });
 
   socket.on('rightPressed', function(player) {
-    currentPlayer.angle += 10;
+    currentPlayer.angle += 3;
   });
 
   // socket.on('playAgain', function(player) {

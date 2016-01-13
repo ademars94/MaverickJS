@@ -59,16 +59,16 @@ $(document).on('keydown', function(e) {
     if (e.keyCode === 65 || e.keyCode === 37) {
       leftPress = true;
       console.log('Left Press:', leftPress);
-      keyPressHandler();
+      // keyPressHandler();
     }
     if (e.keyCode == 68 || e.keyCode == 39) {
       rightPress = true;
       console.log('Right Press:', rightPress);
-      keyPressHandler();
+      // keyPressHandler();
     }
     if (e.keyCode == 16) {
       shiftPress = true;
-      keyPressHandler();
+      // keyPressHandler();
     }
   }
 });
@@ -78,16 +78,16 @@ $(document).on('keyup', function(e) {
     if (e.keyCode === 65 || e.keyCode === 37) {
       leftPress = false;
       console.log('Left Press:', leftPress);
-      keyPressHandler();
+      // keyPressHandler();
     }
     if (e.keyCode == 68 || e.keyCode == 39) {
       rightPress = false;
       console.log('Right Press:', rightPress);
-      keyPressHandler();
+      // keyPressHandler();
     }
     if (e.keyCode == 16) {
       shiftPress = false;
-      keyPressHandler();
+      // keyPressHandler();
     }
   }
 });
@@ -181,6 +181,7 @@ Maverick.prototype.tick = function(elapsed) {
   // render next frame
   this.setGlobal();
   this.render();
+  keyPressHandler();
 }
 
 Maverick.prototype.render = function() {
