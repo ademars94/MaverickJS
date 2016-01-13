@@ -48,27 +48,14 @@ function updateAllPlayers() {
 
 function updateLeaderboard() {
   if (players.length > 0) {
-    players.forEach(function(p) {
-    console.log('players:', p.id);
-      leaderboard.forEach(function(l) {
-        console.log('leaderboard:', l)
-        if (p.id !== l.id) {
-          leaderboard.push(p);
-          console.log('Leaderboard:', leaderboard);
-        }
-      });
-    });
-    // console.log('Leaderboard before sort:', leaderboard);
-    // console.log('Players before sort:', players);
-    leaderboard.sort( function(a, b) {return b.points - a.points} );
-    if (leaderboard.length > 5) {
-      leaderboard.splice(6, leaderboard.length);
-    }
-    // console.log('Leaderboard after sort:', leaderboard);
-    // console.log('Players after sort:', players);
-    io.emit('updateAllLeaderboards', leaderboard);
-  };
-}
+    leaderboard = players.slice(0);
+  }
+  leaderboard.sort( function(a, b) {return b.points - a.points} );
+  if (leaderboard.length > 5) {
+    leaderboard.splice(6, leaderboard.length);
+  }
+  io.emit('updateAllLeaderboards', leaderboard);
+};
 
 function logThatShit() {
   console.log('These players are in the players array:', players);
@@ -93,7 +80,7 @@ function moveBullets() {
   bulletData.forEach(function(bullet) {
     var newBulletX = bullet.x + (bullet.speed * mod) * Math.sin(Math.PI / 180 * bullet.angle);
     var newBulletY = bullet.y -(bullet.speed * mod) * Math.cos(Math.PI / 180 * bullet.angle);
-    if (newBulletX >= 10 && newBulletX <= 2550) {
+    if (newBulletX >= 0 && newBulletX <= 2560) {
       bullet.x = newBulletX;
       // console.log(Math.floor(bullet.x), Math.floor(bullet.y));
     }
@@ -102,7 +89,7 @@ function moveBullets() {
         return bullet.id !== b.id;
       });
     }
-    if (newBulletY >= 10 && newBulletY <= 2550) {
+    if (newBulletY >= 0 && newBulletY <= 2560) {
       bullet.y = newBulletY;
     }
     else {
