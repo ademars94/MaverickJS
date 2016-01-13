@@ -265,7 +265,7 @@ Maverick.prototype.drawEnemies = function() {
           self.ctx.fillStyle = 'red';
           self.ctx.fillText(p.name, 0, -85);
           self.ctx.fillStyle = 'grey';
-          self.ctx.fillText('Lives: ' + p.health, 0, -65);
+          self.ctx.fillText('Health: ' + p.health, 0, -65);
           self.ctx.rotate(Math.PI / 180 * p.angle);
           self.ctx.drawImage(planes[p.plane], -60, -60, 120, 120);
           self.ctx.restore();
