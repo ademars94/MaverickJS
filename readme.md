@@ -28,4 +28,5 @@ Maverick 2D uses socket.io and Node.js to create a game server, which listens fo
 ###Known Issues
 - Username can contain an unlimited number of characters.
 - Canvas continues to draw the grid off of the right and bottom sides.
+- Respawn currently requires the user to reload the page.
 
