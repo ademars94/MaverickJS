@@ -10,7 +10,7 @@ var players = [];
 var bulletData = [];
 var sockets = {};
 var speed = 10;
-var mod = 0.5;
+var mod = 1;
 var bulletId = 0;
 
 // setInterval(logThatShit, 3000);
@@ -19,7 +19,7 @@ var bulletId = 0;
 // *************************** Move Logic *****************************
 // ********************************************************************
 
-var Player = function(name, plane, id, x, y, angle, health) {
+var Player = function(name, plane, id, x, y, angle, health, points) {
   this.name = name;
   this.plane = plane;
   this.id = id;
@@ -27,6 +27,7 @@ var Player = function(name, plane, id, x, y, angle, health) {
   this.y = y;
   this.angle = angle;
   this.health = health;
+  this.points = points;
 };
 
 var Bullet = function(x, y, id, playerId, speed, angle) {
@@ -106,16 +107,23 @@ function checkCollisions() {
           players = players.filter(function(p2) {
             return p2.id !== p.id;
           });
+          players.forEach(function(attacker) {
+            if (b.playerId === attacker.id) {
+              attacker.points += 1;
+            }
+          });
         }
       }
     });
   });
 }
 
-setInterval(movePlane, 1000/60);
-setInterval(moveBullets, 1000/60);
-setInterval(checkCollisions, 1000/60);
-setInterval(updateAllPlayers, 1000/60);
+
+
+setInterval(movePlane, 1000/30);
+setInterval(moveBullets, 1000/30);
+setInterval(checkCollisions, 1000/30);
+setInterval(updateAllPlayers, 1000/30);
 // setInterval(logThatShit, 5000);
 
 // ********************************************************************
@@ -134,7 +142,7 @@ io.on('connection', function(socket) {
       sockets[client.id] = socket;
       console.log('Player joined:', client);
 
-      currentPlayer = new Player(client.name, client.plane, socket.id, 1280, 1280, 0, 3);
+      currentPlayer = new Player(client.name, client.plane, socket.id, 1280, 1280, 0, 10, 0);
       players.push(currentPlayer);
 
       var updatedSettings = currentPlayer;
@@ -155,14 +163,14 @@ io.on('connection', function(socket) {
     );
     bulletData.push(bullet);
     io.emit('shotFired', currentPlayer);
-  })
+  });
 
   socket.on('leftPressed', function(player) {
-    currentPlayer.angle -= 10;
+    currentPlayer.angle -= 3;
   });
 
   socket.on('rightPressed', function(player) {
-    currentPlayer.angle += 10;
+    currentPlayer.angle += 3;
   });
 
   // socket.on('playAgain', function(player) {

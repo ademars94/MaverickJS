@@ -17,6 +17,9 @@ var angle = 0;
 var players = [];
 var bullets = [];
 var plane;
+var leftPress;
+var rightPress;
+var shiftPress;
 
 var camLeftBound;
 var camRightBound;
@@ -28,17 +31,69 @@ var mapLeftBound = 2560;
 var mapBottomBound = 2560;
 var mapTopBound = 0;
 
-function keypress_handler(event) {
-  if (event.keyCode == 65 || event.keyCode == 37) {
-    socket.emit('leftPressed', mav.client);
+// Event Handlers
+
+function shiftHandler() {
+  if (shiftPress) {
+    socket.emit('shiftPressed', client);
   }
-  if (event.keyCode == 68 || event.keyCode == 39) {
-    socket.emit('rightPressed', mav.client);
-  }
-  if (event.keyCode == 16) {
-    socket.emit('shiftPressed', mav.client);
+  if (!shiftPress) {
+    socket.emit('shiftUp', client);
   }
 }
+
+function keyPressHandler() {
+  if (leftPress) {
+    socket.emit('leftPressed', client);
+  }
+  if (rightPress) {
+    socket.emit('rightPressed', client);
+  }
+  if (!leftPress) {
+    socket.emit('leftUp', client);
+  }
+  if (!rightPress) {
+    socket.emit('rightUp', client);
+  }
+};
+
+$(document).on('keydown', function(e) {
+  if (mav) {
+    if (e.keyCode === 65 || e.keyCode === 37) {
+      leftPress = true;
+      console.log('Left Press:', leftPress);
+      // keyPressHandler();
+    }
+    if (e.keyCode == 68 || e.keyCode == 39) {
+      rightPress = true;
+      console.log('Right Press:', rightPress);
+      // keyPressHandler();
+    }
+    if (e.keyCode == 16) {
+      shiftPress = true;
+      shiftHandler();
+    }
+  }
+});
+
+$(document).on('keyup', function(e) {
+  if (mav) {
+    if (e.keyCode === 65 || e.keyCode === 37) {
+      leftPress = false;
+      console.log('Left Press:', leftPress);
+      // keyPressHandler();
+    }
+    if (e.keyCode == 68 || e.keyCode == 39) {
+      rightPress = false;
+      console.log('Right Press:', rightPress);
+      // keyPressHandler();
+    }
+    if (e.keyCode == 16) {
+      shiftPress = false;
+      // keyPressHandler();
+    }
+  }
+});
 
 // Image Stuff
 
@@ -58,7 +113,6 @@ var planes = [spitfire, zero, mustang, lightning];
 
 var bulletImg = new Image();
 bulletImg.src = '/images/bullet.png';
-
 
 // Map Stuff
 
@@ -89,7 +143,7 @@ Camera.prototype.move = function(x, y) {
 // **************************** Game Stuff ****************************
 // ********************************************************************
 
-function Client(name, plane, id, x, y, angle, health) {
+function Client(name, plane, id, x, y, angle, health, points) {
   this.name = name;
   this.plane = plane;
   this.id = id;
@@ -97,6 +151,7 @@ function Client(name, plane, id, x, y, angle, health) {
   this.y = y;
   this.angle = angle;
   this.health = health;
+  this.points = points;
 };
 
 function Maverick(context, camera, client, players, bullets) {
@@ -129,6 +184,7 @@ Maverick.prototype.tick = function(elapsed) {
   // render next frame
   this.setGlobal();
   this.render();
+  keyPressHandler();
 }
 
 Maverick.prototype.render = function() {
@@ -181,7 +237,7 @@ Maverick.prototype.drawPlane = function() {
   this.ctx.fillStyle = 'blue';
   this.ctx.fillText(client.name, 0, -85);
   this.ctx.fillStyle = 'grey';
-  this.ctx.fillText('Lives: ' + client.health, 0, -65);
+  this.ctx.fillText('Health: ' + client.health, 0, -65);
   this.ctx.rotate(Math.PI / 180 * this.client.angle);
   this.ctx.drawImage(planes[client.plane], -60, -60, 120, 120);
   this.ctx.restore();
@@ -245,7 +301,7 @@ $('#start').on('click', function () {
   plane = $('#select').val();
   console.log('Plane:', plane);
   // Add key listeners only when the game is running to prevent errors!
-  window.addEventListener("keydown", keypress_handler, false);
+  // window.addEventListener("keydown", keypress_handler, false);
   client = new Client($('#name').val(), plane, socket.id);
   socket.emit('respawn', client);
 });
@@ -266,7 +322,8 @@ socket.on('joinGame', function (updatedSettings) {
     , updatedSettings.x
     , updatedSettings.y
     , updatedSettings.angle
-    , updatedSettings.health)
+    , updatedSettings.health
+    , updatedSettings.points)
     // , players
     // , bullets
   );
@@ -280,6 +337,7 @@ socket.on('movePlane', function(playerData) {
   client.y = playerData.y;
   client.health = playerData.health;
   client.angle = playerData.angle;
+  client.points = playerData.points;
 });
 
 socket.on('moveBullets', function(bulletData) {
