@@ -141,7 +141,7 @@ io.on('connection', function(socket) {
       sockets[client.id] = socket;
       console.log('Player joined:', client);
 
-      currentPlayer = new Player(client.name, client.plane, socket.id, 1280, 1280, 0, 3, 0);
+      currentPlayer = new Player(client.name, client.plane, socket.id, 1280, 1280, 0, 10, 0);
       players.push(currentPlayer);
 
       var updatedSettings = currentPlayer;
@@ -160,9 +160,10 @@ io.on('connection', function(socket) {
       speed * 6,
       currentPlayer.angle
     );
+    console.log(bullet);
     bulletData.push(bullet);
     io.emit('shotFired', currentPlayer);
-  })
+  });
 
   socket.on('leftPressed', function(player) {
     currentPlayer.angle -= 3;

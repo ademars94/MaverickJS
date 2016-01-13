@@ -33,24 +33,27 @@ var mapTopBound = 0;
 
 // Event Handlers
 
-function keyPressHandler(event) {
+function shiftHandler() {
+  if (shiftPress) {
+    socket.emit('shiftPressed', client);
+  }
+  if (!shiftPress) {
+    socket.emit('shiftUp', client);
+  }
+}
+
+function keyPressHandler() {
   if (leftPress) {
     socket.emit('leftPressed', client);
   }
   if (rightPress) {
     socket.emit('rightPressed', client);
   }
-  if (shiftPress) {
-    socket.emit('shiftPressed', client);
-  }
   if (!leftPress) {
     socket.emit('leftUp', client);
   }
   if (!rightPress) {
     socket.emit('rightUp', client);
-  }
-  if (!shiftPress) {
-    socket.emit('shiftUp', client);
   }
 };
 
@@ -68,7 +71,7 @@ $(document).on('keydown', function(e) {
     }
     if (e.keyCode == 16) {
       shiftPress = true;
-      // keyPressHandler();
+      shiftHandler();
     }
   }
 });
@@ -234,7 +237,7 @@ Maverick.prototype.drawPlane = function() {
   this.ctx.fillStyle = 'blue';
   this.ctx.fillText(client.name, 0, -85);
   this.ctx.fillStyle = 'grey';
-  this.ctx.fillText('Lives: ' + client.health, 0, -65);
+  this.ctx.fillText('Health: ' + client.health, 0, -65);
   this.ctx.rotate(Math.PI / 180 * this.client.angle);
   this.ctx.drawImage(planes[client.plane], -60, -60, 120, 120);
   this.ctx.restore();
