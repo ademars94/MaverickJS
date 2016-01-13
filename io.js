@@ -143,7 +143,7 @@ io.on('connection', function(socket) {
       sockets[client.id] = socket;
       console.log('Respawn Function:', sockets[client.id].id);
       console.log('Player joined:', client);
-
+      console.log('Socket ID:', socket.id);
       currentPlayer = new Player(client.name, client.plane, socket.id, 1280, 1280, 0, 10, 0);
       players.push(currentPlayer);
 
