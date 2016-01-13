@@ -160,7 +160,6 @@ io.on('connection', function(socket) {
       speed * 6,
       currentPlayer.angle
     );
-    console.log(bullet);
     bulletData.push(bullet);
     io.emit('shotFired', currentPlayer);
   });
