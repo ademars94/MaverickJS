@@ -60,8 +60,6 @@ function movePlane() {
     if (newPlaneY >= 0 && newPlaneY <= 2560) {
       player.y = newPlaneY;
     }
-    console.log(player.id);
-    console.log(sockets[player.id]);
     sockets[player.id].emit('movePlane', player);
   });
 };
@@ -141,9 +139,7 @@ io.on('connection', function(socket) {
   socket.on('respawn', function(client) {
     if (!sockets[client.id]) {
       sockets[client.id] = socket;
-      console.log('Respawn Function:', sockets[client.id].id);
       console.log('Player joined:', client);
-      console.log('Socket ID:', socket.id);
       currentPlayer = new Player(client.name, client.plane, socket.id, 1280, 1280, 0, 10, 0);
       players.push(currentPlayer);
 
