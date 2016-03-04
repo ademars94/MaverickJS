@@ -194,11 +194,11 @@ io.on('connection', function(socket) {
   });
 
   socket.on('upPressed', function(player) {
-    if (currentPlayer.speed <= 18) currentPlayer.speed += 0.25;
+    if (currentPlayer.speed <= 18) currentPlayer.speed += 0.125;
   });
 
   socket.on('downPressed', function(player) {
-    if (currentPlayer.speed >= 10) currentPlayer.speed -= 0.25;
+    if (currentPlayer.speed >= 10) currentPlayer.speed -= 0.125;
   });
 
   // socket.on('playAgain', function(player) {

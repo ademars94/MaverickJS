@@ -52,23 +52,11 @@ function keyPressHandler() {
   if (rightPress) {
     socket.emit('rightPressed', client);
   }
-  if (!leftPress) {
-    socket.emit('leftUp', client);
-  }
-  if (!rightPress) {
-    socket.emit('rightUp', client);
-  }
   if (upPress) {
     socket.emit('upPressed', client);
   }
-  if (downPress) {
-    socket.emit('downPressed', client);
-  }
   if (!upPress) {
-    socket.emit('upUp', client);
-  }
-  if (!downPress) {
-    socket.emit('downUp', client);
+    socket.emit('downPressed', client);
   }
 };
 
@@ -82,9 +70,6 @@ $(document).on('keydown', function(e) {
     }
     if (e.keyCode === 38 || e.keyCode === 87) {
       upPress = true;
-    }
-    if (e.keyCode === 40 || e.keyCode === 83) {
-      downPress = true;
     }
     if (e.keyCode === 16) {
       shiftPress = true;
@@ -103,9 +88,6 @@ $(document).on('keyup', function(e) {
     }
     if (e.keyCode === 38 || e.keyCode === 87) {
       upPress = false;
-    }
-    if (e.keyCode === 40 || e.keyCode === 83) {
-      downPress = false;
     }
     if (e.keyCode === 16) {
       shiftPress = false;
