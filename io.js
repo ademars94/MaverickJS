@@ -187,25 +187,25 @@ io.on('connection', function(socket) {
 
   socket.on('leftPressed', function(player) {
     if (player.speed > 14) {
-      currentPlayer.angle -= 2;
+      currentPlayer.angle -= 3;
     }
     else if (player.speed > 10) {
-      currentPlayer.angle -= 2.5;
+      currentPlayer.angle -= 4;
     }
     else {
-      currentPlayer.angle -= 3;
+      currentPlayer.angle -= 5;
     }
   });
 
   socket.on('rightPressed', function(player) {
     if (player.speed > 14) {
-      currentPlayer.angle += 2;
+      currentPlayer.angle += 3;
     }
     else if (player.speed > 10) {
-      currentPlayer.angle += 2.5;
+      currentPlayer.angle += 4;
     }
     else {
-      currentPlayer.angle += 3;
+      currentPlayer.angle += 5;
     }
   });
 

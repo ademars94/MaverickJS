@@ -45,21 +45,6 @@ function shiftHandler() {
   }
 }
 
-function keyPressHandler() {
-  if (leftPress) {
-    socket.emit('leftPressed', client);
-  }
-  if (rightPress) {
-    socket.emit('rightPressed', client);
-  }
-  if (upPress) {
-    socket.emit('upPressed', client);
-  }
-  if (!upPress) {
-    socket.emit('downPressed', client);
-  }
-};
-
 $(document).on('keydown', function(e) {
   if (mav) {
     if (e.keyCode === 65 || e.keyCode === 37) {
@@ -175,8 +160,25 @@ Maverick.prototype.updateCam = function(delta) {
   this.camera.move(this.client.x, this.client.y);
 }
 
+Maverick.prototype.keyPressHandler = function() {
+  if (leftPress) {
+    socket.emit('leftPressed', client);
+  }
+  if (rightPress) {
+    socket.emit('rightPressed', client);
+  }
+  if (upPress) {
+    socket.emit('upPressed', client);
+  }
+  if (!upPress) {
+    socket.emit('downPressed', client);
+  }
+};
+
 Maverick.prototype.run = function() {
-  window.requestAnimationFrame(this.tick.bind(this));
+  this.tick();
+  window.setInterval(this.keyPressHandler, 30)
+  // window.requestAnimationFrame(this.tick.bind(this));
 };
 
 // Maverick.prototype.requestAnimationFrame = window.requestAnimationFrame;
@@ -189,7 +191,7 @@ Maverick.prototype.tick = function(elapsed) {
   // render next frame
   this.setGlobal();
   this.render();
-  keyPressHandler();
+  // keyPressHandler();
 }
 
 Maverick.prototype.render = function() {
@@ -347,7 +349,6 @@ $('#start').on('click', function () {
   plane = $('#select').val();
   console.log('Plane:', plane);
   // Add key listeners only when the game is running to prevent errors!
-  // window.addEventListener("keydown", keypress_handler, false);
   client = new Client($('#name').val(), plane, socket.id);
   socket.emit('respawn', client);
 });
