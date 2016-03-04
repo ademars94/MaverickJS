@@ -193,6 +193,10 @@ Maverick.prototype.tick = function(elapsed) {
 }
 
 Maverick.prototype.render = function() {
+
+  this.ctx.canvas.width  = window.innerWidth;
+  this.ctx.canvas.height = window.innerHeight;
+
   this.updateCam();
   // this.drawGrid();
   this.drawMap();
