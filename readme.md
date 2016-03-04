@@ -1,7 +1,9 @@
 #Maverick 2D
 **A live multiplayer aerial combat game in your browser**
+- [Click here to play!](http://maverick-2d.herokuapp.com/)
 
-![Maverick 2D](http://i.imgur.com/e5hO3QZ.png)
+![Maverick 2D](http://i.imgur.com/61kHKrf.png)
+
 
 ###Tech
 - HTML5 Canvas
@@ -14,6 +16,7 @@
 ###Gameplay
 Players start off in the center of the map, flying forward at a constant speed.  The map scrolls underneath the player as they fly along.  Using the arrow keys and shift, players are able to navigate around the map and hunt each other down!  There are four planes to choose from for now.
 
+![Maverick 2D](http://i.imgur.com/e5hO3QZ.png)
 
 ###Links
 - [Hosted on Heroku](http://maverick-2d.herokuapp.com/)
