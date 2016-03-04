@@ -1,8 +1,9 @@
 #Maverick 2D
 **A live multiplayer aerial combat game in your browser**
-- [Click here to play!](http://maverick-2d.herokuapp.com/)
 
 ![Maverick 2D](http://i.imgur.com/61kHKrf.png)
+
+#[Play](http://maverick-2d.herokuapp.com/)
 
 
 ###Tech
