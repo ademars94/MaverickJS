@@ -80,10 +80,10 @@ $(document).on('keydown', function(e) {
     if (e.keyCode === 68 || e.keyCode === 39) {
       rightPress = true;
     }
-    if (e.keyCode === 38) {
+    if (e.keyCode === 38 || e.keyCode === 87) {
       upPress = true;
     }
-    if (e.keyCode === 40) {
+    if (e.keyCode === 40 || e.keyCode === 83) {
       downPress = true;
     }
     if (e.keyCode === 16) {
@@ -101,10 +101,10 @@ $(document).on('keyup', function(e) {
     if (e.keyCode === 68 || e.keyCode === 39) {
       rightPress = false;
     }
-    if (e.keyCode === 38) {
+    if (e.keyCode === 38 || e.keyCode === 87) {
       upPress = false;
     }
-    if (e.keyCode === 40) {
+    if (e.keyCode === 40 || e.keyCode === 83) {
       downPress = false;
     }
     if (e.keyCode === 16) {
