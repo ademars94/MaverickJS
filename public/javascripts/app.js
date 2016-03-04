@@ -21,6 +21,8 @@ var plane;
 var leftPress;
 var rightPress;
 var shiftPress;
+var upPress;
+var downPress;
 
 var camLeftBound;
 var camRightBound;
@@ -56,19 +58,27 @@ function keyPressHandler() {
   if (!rightPress) {
     socket.emit('rightUp', client);
   }
+  if (upPress) {
+    socket.emit('upPressed', client);
+  }
+  if (downPress) {
+    socket.emit('downPressed', client);
+  }
+  if (!upPress) {
+    socket.emit('upUp', client);
+  }
+  if (!downPress) {
+    socket.emit('downUp', client);
+  }
 };
 
 $(document).on('keydown', function(e) {
   if (mav) {
     if (e.keyCode === 65 || e.keyCode === 37) {
       leftPress = true;
-      console.log('Left Press:', leftPress);
-      // keyPressHandler();
     }
     if (e.keyCode === 68 || e.keyCode === 39) {
       rightPress = true;
-      console.log('Right Press:', rightPress);
-      // keyPressHandler();
     }
     if (e.keyCode === 38) {
       upPress = true;
@@ -87,13 +97,9 @@ $(document).on('keyup', function(e) {
   if (mav) {
     if (e.keyCode === 65 || e.keyCode === 37) {
       leftPress = false;
-      console.log('Left Press:', leftPress);
-      // keyPressHandler();
     }
     if (e.keyCode === 68 || e.keyCode === 39) {
       rightPress = false;
-      console.log('Right Press:', rightPress);
-      // keyPressHandler();
     }
     if (e.keyCode === 38) {
       upPress = false;
@@ -156,13 +162,14 @@ Camera.prototype.move = function(x, y) {
 // **************************** Game Stuff ****************************
 // ********************************************************************
 
-function Client(name, plane, id, x, y, angle, health, points) {
+function Client(name, plane, id, x, y, speed, angle, health, points) {
   this.name = name;
   this.plane = plane;
   this.id = id;
   this.x = x;
   this.y = y;
   this.angle = angle;
+  this.speed = speed;
   this.health = health;
   this.points = points;
 };
@@ -361,6 +368,7 @@ socket.on('joinGame', function (updatedSettings) {
     , updatedSettings.id
     , updatedSettings.x
     , updatedSettings.y
+    , updatedSettings.speed
     , updatedSettings.angle
     , updatedSettings.health
     , updatedSettings.points)
@@ -375,6 +383,7 @@ socket.on('joinGame', function (updatedSettings) {
 socket.on('movePlane', function(playerData) {
   client.x = playerData.x;
   client.y = playerData.y;
+  client.speed = playerData.speed;
   client.health = playerData.health;
   client.angle = playerData.angle;
   client.points = playerData.points;

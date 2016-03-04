@@ -10,7 +10,7 @@ var players = [];
 var bulletData = [];
 var leaderboard = [];
 var sockets = {};
-var speed = 10;
+// var speed = 10;
 var mod = 1;
 var bulletId = 0;
 
@@ -20,12 +20,13 @@ var bulletId = 0;
 // *************************** Move Logic *****************************
 // ********************************************************************
 
-var Player = function(name, plane, id, x, y, angle, health, points) {
+var Player = function(name, plane, id, x, y, speed, angle, health, points) {
   this.name = name;
   this.plane = plane;
   this.id = id;
   this.x = x;
   this.y = y;
+  this.speed = speed;
   this.angle = angle;
   this.health = health;
   this.points = points;
@@ -63,8 +64,8 @@ function logThatShit() {
 
 function movePlane() {
   players.forEach(function(player) {
-    var newPlaneX = player.x + (speed * mod) * Math.sin(Math.PI / 180 * player.angle);
-    var newPlaneY = player.y -(speed * mod) * Math.cos(Math.PI / 180 * player.angle);
+    var newPlaneX = player.x + (player.speed * mod) * Math.sin(Math.PI / 180 * player.angle);
+    var newPlaneY = player.y - (player.speed * mod) * Math.cos(Math.PI / 180 * player.angle);
 
     if (newPlaneX >= 0 && newPlaneX <= 2560) {
       player.x = newPlaneX;
@@ -151,7 +152,17 @@ io.on('connection', function(socket) {
     if (!sockets[client.id]) {
       sockets[client.id] = socket;
       console.log('Player joined:', client);
-      currentPlayer = new Player(client.name, client.plane, socket.id, 1280, 1280, 0, 10, 0);
+      currentPlayer = new Player(
+        client.name,
+        client.plane,
+        socket.id,
+        2500,
+        2500,
+        10,// Speed
+        0,
+        10,
+        0
+      );
       players.push(currentPlayer);
 
       var updatedSettings = currentPlayer;
@@ -167,7 +178,7 @@ io.on('connection', function(socket) {
       currentPlayer.y,
       bulletId,
       player.id,
-      speed * 6,
+      60,
       currentPlayer.angle
     );
     bulletData.push(bullet);
@@ -180,6 +191,14 @@ io.on('connection', function(socket) {
 
   socket.on('rightPressed', function(player) {
     currentPlayer.angle += 3;
+  });
+
+  socket.on('upPressed', function(player) {
+    if (currentPlayer.speed <= 18) currentPlayer.speed += 0.25;
+  });
+
+  socket.on('downPressed', function(player) {
+    if (currentPlayer.speed >= 10) currentPlayer.speed -= 0.25;
   });
 
   // socket.on('playAgain', function(player) {
