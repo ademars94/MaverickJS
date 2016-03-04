@@ -28,8 +28,8 @@ var camTopBound;
 var camBottomBound;
 
 var mapRightBound = 0;
-var mapLeftBound = 2560;
-var mapBottomBound = 2560;
+var mapLeftBound = 5000;
+var mapBottomBound = 5000;
 var mapTopBound = 0;
 
 // Event Handlers
@@ -115,12 +115,15 @@ var planes = [spitfire, zero, mustang, lightning];
 var bulletImg = new Image();
 bulletImg.src = '/images/bullet.png';
 
+var tileMap = new Image();
+tileMap.src = '/images/map.png';
+
 // Map Stuff
 
 var map = {
-	cols: 16,
-	rows: 16,
-	tileSize: 160
+	cols: 10,
+	rows: 10,
+	tileSize: 500
 };
 
 // ********************************************************************
@@ -190,7 +193,8 @@ Maverick.prototype.tick = function(elapsed) {
 
 Maverick.prototype.render = function() {
   this.updateCam();
-  this.drawGrid();
+  // this.drawGrid();
+  this.drawMap();
   this.drawEnemies();
   this.drawBullets();
   this.drawPlane();
@@ -230,6 +234,15 @@ Maverick.prototype.drawGrid = function () {
     this.ctx.stroke();
   }
 };
+
+Maverick.prototype.drawMap = function () {
+  this.ctx.save();
+  this.ctx.drawImage(tileMap, 0, 0, 5000, 5000,
+    -mav.camLeftBound, -mav.camTopBound, 5000, 5000);
+  this.ctx.restore();
+}
+
+
 
 Maverick.prototype.drawPlane = function() {
   this.ctx.save();

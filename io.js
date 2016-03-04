@@ -66,10 +66,10 @@ function movePlane() {
     var newPlaneX = player.x + (speed * mod) * Math.sin(Math.PI / 180 * player.angle);
     var newPlaneY = player.y -(speed * mod) * Math.cos(Math.PI / 180 * player.angle);
 
-    if (newPlaneX >= 0 && newPlaneX <= 2560) {
+    if (newPlaneX >= 0 && newPlaneX <= 5000) {
       player.x = newPlaneX;
     }
-    if (newPlaneY >= 0 && newPlaneY <= 2560) {
+    if (newPlaneY >= 0 && newPlaneY <= 5000) {
       player.y = newPlaneY;
     }
     sockets[player.id].emit('movePlane', player);
@@ -80,7 +80,7 @@ function moveBullets() {
   bulletData.forEach(function(bullet) {
     var newBulletX = bullet.x + (bullet.speed * mod) * Math.sin(Math.PI / 180 * bullet.angle);
     var newBulletY = bullet.y -(bullet.speed * mod) * Math.cos(Math.PI / 180 * bullet.angle);
-    if (newBulletX >= 0 && newBulletX <= 2560) {
+    if (newBulletX >= 0 && newBulletX <= 5000) {
       bullet.x = newBulletX;
       // console.log(Math.floor(bullet.x), Math.floor(bullet.y));
     }
@@ -89,7 +89,7 @@ function moveBullets() {
         return bullet.id !== b.id;
       });
     }
-    if (newBulletY >= 0 && newBulletY <= 2560) {
+    if (newBulletY >= 0 && newBulletY <= 5000) {
       bullet.y = newBulletY;
     }
     else {
