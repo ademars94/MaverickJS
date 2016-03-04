@@ -3,7 +3,7 @@
 
 ![Maverick 2D](http://i.imgur.com/61kHKrf.png)
 
-#[Play](http://maverick-2d.herokuapp.com/)
+#[Play the Game](http://maverick-2d.herokuapp.com/)
 
 
 ###Tech
