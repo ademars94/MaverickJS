@@ -65,12 +65,18 @@ $(document).on('keydown', function(e) {
       console.log('Left Press:', leftPress);
       // keyPressHandler();
     }
-    if (e.keyCode == 68 || e.keyCode == 39) {
+    if (e.keyCode === 68 || e.keyCode === 39) {
       rightPress = true;
       console.log('Right Press:', rightPress);
       // keyPressHandler();
     }
-    if (e.keyCode == 16) {
+    if (e.keyCode === 38) {
+      upPress = true;
+    }
+    if (e.keyCode === 40) {
+      downPress = true;
+    }
+    if (e.keyCode === 16) {
       shiftPress = true;
       shiftHandler();
     }
@@ -84,12 +90,18 @@ $(document).on('keyup', function(e) {
       console.log('Left Press:', leftPress);
       // keyPressHandler();
     }
-    if (e.keyCode == 68 || e.keyCode == 39) {
+    if (e.keyCode === 68 || e.keyCode === 39) {
       rightPress = false;
       console.log('Right Press:', rightPress);
       // keyPressHandler();
     }
-    if (e.keyCode == 16) {
+    if (e.keyCode === 38) {
+      upPress = false;
+    }
+    if (e.keyCode === 40) {
+      downPress = false;
+    }
+    if (e.keyCode === 16) {
       shiftPress = false;
       // keyPressHandler();
     }
