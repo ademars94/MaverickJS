@@ -178,7 +178,7 @@ io.on('connection', function(socket) {
       currentPlayer.y,
       bulletId,
       player.id,
-      60,
+      50,
       currentPlayer.angle
     );
     bulletData.push(bullet);

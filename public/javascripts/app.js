@@ -101,7 +101,7 @@ var bulletImg = new Image();
 bulletImg.src = '/images/bullet.png';
 
 var tileMap = new Image();
-tileMap.src = '/images/map.png';
+tileMap.src = '/images/map-2.png';
 
 // Map Stuff
 
