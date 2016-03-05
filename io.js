@@ -158,7 +158,7 @@ io.on('connection', function(socket) {
         socket.id,
         2500,
         2500,
-        10,// Speed
+        12,// Speed
         0,
         10,
         0
@@ -186,10 +186,10 @@ io.on('connection', function(socket) {
   });
 
   socket.on('leftPressed', function(player) {
-    if (player.speed > 14) {
+    if (player.speed > 17) {
       currentPlayer.angle -= 3;
     }
-    else if (player.speed > 10) {
+    else if (player.speed > 13) {
       currentPlayer.angle -= 4;
     }
     else {
@@ -198,10 +198,10 @@ io.on('connection', function(socket) {
   });
 
   socket.on('rightPressed', function(player) {
-    if (player.speed > 14) {
+    if (player.speed > 17) {
       currentPlayer.angle += 3;
     }
-    else if (player.speed > 10) {
+    else if (player.speed > 13) {
       currentPlayer.angle += 4;
     }
     else {
@@ -210,11 +210,11 @@ io.on('connection', function(socket) {
   });
 
   socket.on('upPressed', function(player) {
-    if (currentPlayer.speed <= 18) currentPlayer.speed += 0.125;
+    if (currentPlayer.speed <= 20) currentPlayer.speed += 0.25;
   });
 
   socket.on('downPressed', function(player) {
-    if (currentPlayer.speed >= 10) currentPlayer.speed -= 0.125;
+    if (currentPlayer.speed >= 12) currentPlayer.speed -= 0.25;
   });
 
   // socket.on('playAgain', function(player) {
