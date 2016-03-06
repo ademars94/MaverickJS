@@ -232,6 +232,11 @@ io.on('connection', function(socket) {
 
   // Creates new bulletData with constructor on shift press
   socket.on('shiftPressed', function(player) {
+    if (player.ammo < 1) {
+      setTimeout(function() {
+        currentPlayer.ammo = 10;
+      }, 3000);
+    }
     if (player.health >= 1 && player.ammo >=1) {
       bulletId += 1;
       currentPlayer.ammo --;
@@ -244,11 +249,6 @@ io.on('connection', function(socket) {
         currentPlayer.angle
       );
       bulletData.push(bullet);
-      if (player.ammo <= 1) {
-        setTimeout(function() {
-          currentPlayer.ammo = 10;
-        }, 3000);
-      }
       console.log("Currently shooting", currentPlayer);
       io.emit('shotFired', currentPlayer);
     }
