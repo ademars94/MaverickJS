@@ -145,6 +145,16 @@ function checkCollisions() {
   });
 }
 
+// function reloader() {
+//   players.forEach(function(player) {
+//     if (player.ammo < 1) {
+//       setTimeout(function() {
+//         player.ammo = 10;
+//       }, 3000);
+//     }
+//   })
+// }
+
 function logger() {
   console.log("Players:", players)
 }
@@ -232,14 +242,9 @@ io.on('connection', function(socket) {
 
   // Creates new bulletData with constructor on space press
   socket.on('spacePressed', function(player) {
-    if (player.ammo < 1) {
-      setTimeout(function() {
-        currentPlayer.ammo = 10;
-      }, 3000);
-    }
     if (player.health >= 1 && player.ammo >=1) {
-      bulletId += 1;
       currentPlayer.ammo --;
+      bulletId += 1;
       var bullet = new Bullet(
         currentPlayer.x,
         currentPlayer.y,
@@ -251,6 +256,11 @@ io.on('connection', function(socket) {
       bulletData.push(bullet);
       console.log("Currently shooting:", currentPlayer);
       io.emit('shotFired', currentPlayer);
+    }
+    if (player.ammo === 1) {
+      setTimeout(function() {
+        currentPlayer.ammo = 10;
+      }, 3000);
     }
   });
 

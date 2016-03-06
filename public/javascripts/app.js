@@ -39,8 +39,9 @@ $(document).on('keydown', function(e) {
     if (e.keyCode === 38 || e.keyCode === 87) {
       upPress = true;
     }
-    if (e.keyCode === 32) {
+    if (!spacePress && e.keyCode === 32) {
       spacePress = true;
+      spaceHandler();
     }
   }
 });
@@ -58,10 +59,16 @@ $(document).on('keyup', function(e) {
     }
     if (e.keyCode === 32) {
       spacePress = false;
-      // keyPressHandler();
+      spaceHandler();
     }
   }
 });
+
+function spaceHandler() {
+  if (spacePress) {
+    socket.emit('spacePressed', mav.client);
+  }
+}
 
 $('#reload').on('click', function() {
   socket.emit('respawn', mav.client);
@@ -166,27 +173,27 @@ Maverick.prototype.keyPressHandler = function() {
   }
 };
 
-Maverick.prototype.spaceHandler = function() {
-  var self = this;
-  if (spacePress) {
-    socket.emit('spacePressed', self.client);
-  }
-  if (!spacePress) {
-    socket.emit('spaceUp', self.client);
-  }
-}
+// Maverick.prototype.spaceHandler = function() {
+//   var self = this;
+//   if (spacePress) {
+//     socket.emit('spacePressed', self.client);
+//   }
+//   if (!spacePress) {
+//     socket.emit('spaceUp', self.client);
+//   }
+// }
 
 Maverick.prototype.run = function() {
   this.tick();
-
+  // this.spaceHandler();
   var self = this;
   setInterval(function() {
     self.keyPressHandler.call(self)
   }, 30);
 
-  setInterval(function() {
-    self.spaceHandler.call(self)
-  }, 150);
+  // setInterval(function() {
+  //   self.spaceHandler.call(self)
+  // }, 150);
 };
 
 // Maverick.prototype.requestAnimationFrame = window.requestAnimationFrame;
@@ -300,6 +307,11 @@ Maverick.prototype.drawAmmo = function() {
   for (var i = mav.client.ammo; i > 0; i--) {
     self.ctx.drawImage(bulletImg, ammoX, ammoY, 48, 48);
     ammoX += 16;
+  }
+  if (mav.client.ammo < 1) {
+    self.ctx.fillStyle = 'grey';
+    self.ctx.font = "36px 'Lucida Grande'";
+    self.ctx.fillText('Reloading...', 32, canvas.height - 32);
   }
 }
 
