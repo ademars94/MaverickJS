@@ -232,12 +232,12 @@ io.on('connection', function(socket) {
       bulletId += 1;
       currentPlayer.ammo --;
       var bullet = new Bullet(
-        player.x,
-        player.y,
+        currentPlayer.x,
+        currentPlayer.y,
         bulletId,
         player.id,
         60,
-        player.angle
+        currentPlayer.angle
       );
       bulletData.push(bullet);
       if (player.ammo <= 1) {
