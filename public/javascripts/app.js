@@ -77,7 +77,10 @@ mustang.src = '/images/mustang.png';
 var lightning = new Image();
 lightning.src = '/images/lightning.png';
 
-var planes = [spitfire, zero, mustang, lightning];
+var messerschmitt = new Image();
+messerschmitt.src = '/images/messerschmitt.png';
+
+var planes = [spitfire, zero, mustang, lightning, messerschmitt];
 
 var bulletImg = new Image();
 bulletImg.src = '/images/bullet.png';
