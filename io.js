@@ -249,17 +249,17 @@ io.on('connection', function(socket) {
         currentPlayer.angle
       );
       bulletData.push(bullet);
-      console.log("Currently shooting", currentPlayer);
+      console.log("Currently shooting:", currentPlayer);
       io.emit('shotFired', currentPlayer);
     }
   });
 
   socket.on('upPressed', function(player) {
-    if (currentPlayer.speed <= 25) currentPlayer.speed += 0.25;
+    if (player.speed <= 25) currentPlayer.speed += 0.25;
   });
 
   socket.on('downPressed', function(player) {
-    if (currentPlayer.speed >= 12) currentPlayer.speed -= 0.25;
+    if (player.speed >= 12) currentPlayer.speed -= 0.25;
   });
 
   socket.on('disconnect', function(player) {
