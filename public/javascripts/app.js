@@ -29,7 +29,7 @@ var upPress;
 var downPress;
 
 $(document).on('keydown', function(e) {
-  if (mav) {
+  if (players.length > 0) {
     if (e.keyCode === 68 || e.keyCode === 39) {
       rightPress = true;
     }
@@ -47,7 +47,7 @@ $(document).on('keydown', function(e) {
 });
 
 $(document).on('keyup', function(e) {
-  if (mav) {
+  if (players.length > 0) {
     if (e.keyCode === 68 || e.keyCode === 39) {
       rightPress = false;
     }

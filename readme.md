@@ -10,7 +10,7 @@ Enter your name, select a plane, and head into battle! Control your plane with t
 
 <br>
 
-![Maverick 2D](http://i.imgur.com/NGekegk.png =720x)
+![Maverick 2D](https://i.imgur.com/xrReLmu.png =720x)
 
 <br>
 ![](http://i.imgur.com/VE1ilXA.png)
