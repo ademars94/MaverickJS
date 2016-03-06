@@ -236,15 +236,27 @@ Maverick.prototype.drawMap = function () {
 }
 
 Maverick.prototype.drawPlane = function() {
+  var color;
+
+  if (this.client.health > 6) {
+    color = '#2ecc71'
+  }
+  else if (this.client.health > 3) {
+    color = '#f1c40f'
+  }
+  else {
+    color = '#e74c3c'
+  }
+
   this.ctx.save();
   this.ctx.translate(canvas.width / 2, canvas.height / 2);
   this.ctx.textAlign = 'center';
   this.ctx.textBaseline = 'bottom';
   this.ctx.font = "18px 'Lucida Grande'";
   this.ctx.fillStyle = 'blue';
-  this.ctx.fillText(this.client.name, 0, -85);
-  this.ctx.fillStyle = 'grey';
-  this.ctx.fillText('Health: ' + this.client.health, 0, -65);
+  this.ctx.fillText(this.client.name, 0, -90);
+  this.ctx.fillStyle = color;
+  this.ctx.fillRect(-50, -85, this.client.health*10, 10);
   this.ctx.rotate(Math.PI / 180 * this.client.angle);
   this.ctx.drawImage(planes[this.client.plane], -60, -60, 120, 120);
   this.ctx.restore();
@@ -252,31 +264,42 @@ Maverick.prototype.drawPlane = function() {
 
 Maverick.prototype.drawEnemies = function() {
   var self = this;
-  if (players.length >= 1) {
-    players.forEach(function(p) {
-      if (p.id !== self.client.id) {
-        if (
-           p.x < self.camRightBound
-        && p.x > self.camLeftBound
-        && p.y < self.camBottomBound
-        && p.y > self.camTopBound
-        ) {
-          self.ctx.save();
-          self.ctx.translate(p.x - self.camLeftBound, p.y - self.camTopBound);
-          self.ctx.textAlign = 'center';
-          self.ctx.textBaseline = 'bottom';
-          self.ctx.font = "18px 'Lucida Grande'";
-          self.ctx.fillStyle = 'red';
-          self.ctx.fillText(p.name, 0, -85);
-          self.ctx.fillStyle = 'grey';
-          self.ctx.fillText('Health: ' + p.health, 0, -65);
-          self.ctx.rotate(Math.PI / 180 * p.angle);
-          self.ctx.drawImage(planes[p.plane], -60, -60, 120, 120);
-          self.ctx.restore();
+  players.forEach(function(p) {
+    if (p.id !== self.client.id) {
+      if (
+         p.x < self.camRightBound + 60
+      && p.x > self.camLeftBound - 60
+      && p.y < self.camBottomBound + 120
+      && p.y > self.camTopBound - 60
+      ) {
+
+        var color;
+
+        if (p.health > 6) {
+          color = '#2ecc71'
         }
+        else if (p.health > 3) {
+          color = '#f1c40f'
+        }
+        else {
+          color = '#e74c3c'
+        }
+
+        self.ctx.save();
+        self.ctx.translate(p.x - self.camLeftBound, p.y - self.camTopBound);
+        self.ctx.textAlign = 'center';
+        self.ctx.textBaseline = 'bottom';
+        self.ctx.font = "18px 'Lucida Grande'";
+        self.ctx.fillStyle = '#e74c3c';
+        self.ctx.fillText(p.name, 0, -90);
+        self.ctx.fillStyle = color;
+        self.ctx.fillRect(-50, -85, p.health*10, 10);
+        self.ctx.rotate(Math.PI / 180 * p.angle);
+        self.ctx.drawImage(planes[p.plane], -60, -60, 120, 120);
+        self.ctx.restore();
       }
-    });
-  };
+    }
+  });
 };
 
 Maverick.prototype.drawBullets = function() {
@@ -308,17 +331,17 @@ Maverick.prototype.drawAmmo = function() {
     self.ctx.drawImage(bulletImg, ammoX, ammoY, 48, 48);
     ammoX += 16;
   }
-  if (mav.client.ammo < 1) {
+  if (mav.client.ammo < 10) {
     self.ctx.fillStyle = 'grey';
     self.ctx.font = "36px 'Lucida Grande'";
-    self.ctx.fillText('Reloading...', 32, canvas.height - 32);
+    self.ctx.fillText('Reloading...', 32, canvas.height - 90);
   }
 }
 
 Maverick.prototype.drawLeaderboard = function() {
   this.ctx.globalAlpha = 0.3;
   this.fillStyle = 'black';
-  this.ctx.fillRect(20,20,200,200);
+  this.ctx.fillRect(20,20,300,200);
   this.ctx.globalAlpha = 1;
 };
 
@@ -327,14 +350,14 @@ Maverick.prototype.drawLeaders = function() {
   var leaderY = 50;
   self.ctx.fillStyle = 'white';
   self.ctx.font = "18px 'Lucida Grande'";
-  self.ctx.fillText('Leaderboard:', 35, 50);
+  self.ctx.fillText('Leaderboard:', 105, 50);
   self.ctx.fillStyle = 'black';
   leaderboard.forEach(function(p) {
     leaderY += 25;
     self.ctx.globalAlpha = 1;
     self.ctx.fillStyle = 'white';
     self.ctx.font = "18px 'Lucida Grande'";
-    self.ctx.fillText(p.name + ': ' + p.points + " pts", 35, leaderY);
+    self.ctx.fillText("✈ " + p.name + ': ' + p.points + " pts", 35, leaderY);
     self.ctx.fillStyle = 'black';
   });
 };

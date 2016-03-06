@@ -257,9 +257,14 @@ io.on('connection', function(socket) {
       console.log("Currently shooting:", currentPlayer);
       io.emit('shotFired', currentPlayer);
     }
-    if (player.ammo === 1) {
+    var reloading;
+    if (player.ammo <= 10) {
       setTimeout(function() {
-        currentPlayer.ammo = 10;
+        reloading = true;
+        currentPlayer.ammo++;
+        if (player.ammo === 10) {
+          reloading = false;
+        }
       }, 3000);
     }
   });
