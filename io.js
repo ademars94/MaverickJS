@@ -42,9 +42,7 @@ var Bullet = function(x, y, id, playerId, speed, angle) {
 };
 
 function updateAllPlayers() {
-  if (players.length > 0) {
-    io.emit('updateAllPlayers', players);
-  };
+  io.emit('updateAllPlayers', players);
 }
 
 function updateLeaderboard() {
@@ -58,14 +56,17 @@ function updateLeaderboard() {
   io.emit('updateAllLeaderboards', leaderboard);
 };
 
-function logThatShit() {
-  console.log('These players are in the players array:', players);
-}
-
 function movePlane() {
   players.forEach(function(player) {
     var newPlaneX = player.x + (player.speed * mod) * Math.sin(Math.PI / 180 * player.angle);
     var newPlaneY = player.y - (player.speed * mod) * Math.cos(Math.PI / 180 * player.angle);
+
+    // if (player.health < 1) {
+    //   io.emit('playerDie', player)
+    //   players = players.filter(function(p) {
+    //     return p.id !== player.id;
+    //   });
+    // }
 
     if (newPlaneX >= 0 && newPlaneX <= 5000) {
       player.x = newPlaneX;
@@ -83,7 +84,6 @@ function moveBullets() {
     var newBulletY = bullet.y -(bullet.speed * mod) * Math.cos(Math.PI / 180 * bullet.angle);
     if (newBulletX >= 0 && newBulletX <= 5000) {
       bullet.x = newBulletX;
-      // console.log(Math.floor(bullet.x), Math.floor(bullet.y));
     }
     else {
       bulletData = bulletData.filter(function(b) {
@@ -119,6 +119,7 @@ function checkCollisions() {
           players = players.filter(function(p2) {
             return p2.id !== p.id;
           });
+
           players.forEach(function(attacker) {
             if (b.playerId === attacker.id) {
               attacker.points += 1;
@@ -130,12 +131,16 @@ function checkCollisions() {
   });
 }
 
+function logger() {
+  console.log("Players:", players)
+}
+
 setInterval(movePlane, 1000/30);
 setInterval(moveBullets, 1000/30);
 setInterval(checkCollisions, 1000/30);
 setInterval(updateAllPlayers, 1000/30);
 setInterval(updateLeaderboard, 1000);
-// setInterval(logThatShit, 5000);
+// setInterval(logger, 1000);
 
 // ********************************************************************
 // *************************** Socket Stuff ***************************
@@ -148,7 +153,7 @@ io.on('connection', function(socket) {
   var currentPlayer;
 
   // Creates new players with constructor
-  socket.on('respawn', function(client) {
+  socket.on('spawn', function(client) {
     if (!sockets[client.id]) {
       sockets[client.id] = socket;
       console.log('Player joined:', client);
@@ -170,20 +175,20 @@ io.on('connection', function(socket) {
     }
   });
 
-  // Creates new bulletData with constructor on shift press
-  socket.on('shiftPressed', function(player) {
-    bulletId += 1;
-    var bullet = new Bullet(
-      currentPlayer.x,
-      currentPlayer.y,
-      bulletId,
-      player.id,
-      50,
-      currentPlayer.angle
-    );
-    bulletData.push(bullet);
-    io.emit('shotFired', currentPlayer);
-  });
+  socket.on('respawn', function(client) {
+    // Reinitialize the current player
+    currentPlayer.health = 10;
+    currentPlayer.points = 0;
+    currentPlayer.x      = 2500;
+    currentPlayer.y      = 2500;
+    currentPlayer.angle  = 0;
+    currentPlayer.speed  = 12;
+
+    players.push(currentPlayer);
+
+    var updatedSettings = currentPlayer;
+    socket.emit('rejoinGame', updatedSettings);
+  })
 
   socket.on('leftPressed', function(player) {
     if (player.speed > 17) {
@@ -209,6 +214,23 @@ io.on('connection', function(socket) {
     }
   });
 
+  // Creates new bulletData with constructor on shift press
+  socket.on('shiftPressed', function(player) {
+    if (player.health > 1) {
+      bulletId += 1;
+      var bullet = new Bullet(
+        currentPlayer.x,
+        currentPlayer.y,
+        bulletId,
+        player.id,
+        50,
+        currentPlayer.angle
+      );
+      bulletData.push(bullet);
+      io.emit('shotFired', currentPlayer);
+    }
+  });
+
   socket.on('upPressed', function(player) {
     if (currentPlayer.speed <= 20) currentPlayer.speed += 0.25;
   });
@@ -216,13 +238,6 @@ io.on('connection', function(socket) {
   socket.on('downPressed', function(player) {
     if (currentPlayer.speed >= 12) currentPlayer.speed -= 0.25;
   });
-
-  // socket.on('playAgain', function(player) {
-  //   console.log('Playing again:', player);
-  //   players.push(player);
-  //   console.log('Updated players array:', players);
-  //   console.log('-------------------------------------------------------------------');
-  // });
 
   socket.on('disconnect', function(player) {
     console.log('Socket with this id disconnected:', socket.id);
