@@ -24,7 +24,7 @@ var leaderboard = [];
 var plane;
 var leftPress;
 var rightPress;
-var shiftPress;
+var spacePress;
 var upPress;
 var downPress;
 
@@ -39,8 +39,8 @@ $(document).on('keydown', function(e) {
     if (e.keyCode === 38 || e.keyCode === 87) {
       upPress = true;
     }
-    if (e.keyCode === 16) {
-      shiftPress = true;
+    if (e.keyCode === 32) {
+      spacePress = true;
     }
   }
 });
@@ -56,8 +56,8 @@ $(document).on('keyup', function(e) {
     if (e.keyCode === 38 || e.keyCode === 87) {
       upPress = false;
     }
-    if (e.keyCode === 16) {
-      shiftPress = false;
+    if (e.keyCode === 32) {
+      spacePress = false;
       // keyPressHandler();
     }
   }
@@ -166,13 +166,13 @@ Maverick.prototype.keyPressHandler = function() {
   }
 };
 
-Maverick.prototype.shiftHandler = function() {
+Maverick.prototype.spaceHandler = function() {
   var self = this;
-  if (shiftPress) {
-    socket.emit('shiftPressed', self.client);
+  if (spacePress) {
+    socket.emit('spacePressed', self.client);
   }
-  if (!shiftPress) {
-    socket.emit('shiftUp', self.client);
+  if (!spacePress) {
+    socket.emit('spaceUp', self.client);
   }
 }
 
@@ -185,7 +185,7 @@ Maverick.prototype.run = function() {
   }, 30);
 
   setInterval(function() {
-    self.shiftHandler.call(self)
+    self.spaceHandler.call(self)
   }, 150);
 };
 
