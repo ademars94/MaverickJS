@@ -13,6 +13,7 @@ var sockets = {};
 // var speed = 10;
 var mod = 1;
 var bulletId = 0;
+var frames = 0;
 
 // setInterval(logThatShit, 3000);
 
@@ -57,6 +58,7 @@ function updateLeaderboard() {
 };
 
 function movePlane() {
+  frames++;
   players.forEach(function(player) {
     var newPlaneX = player.x + (player.speed * mod) * Math.sin(Math.PI / 180 * player.angle);
     var newPlaneY = player.y - (player.speed * mod) * Math.cos(Math.PI / 180 * player.angle);
@@ -102,15 +104,25 @@ function moveBullets() {
   io.emit('moveBullets', bulletData);
 }
 
+// function regenerate(p) {
+//   setTimeout(function() {
+//     if (p.health < 10) {
+//       setTimeout(function() {
+//         p.health++;
+//       }, 1000)
+//     }
+//   }, 2000)
+// }
+
 function checkCollisions() {
   bulletData.forEach(function(b) {
     players.forEach(function(p) {
       if (b.playerId !== p.id
-      && b.x > p.x - 32
-      && b.x < p.x + 32
-      && b.y > p.y - 32
-      && b.y < p.y + 32) {
-        p.health --;
+      && b.x > p.x - 48
+      && b.x < p.x + 48
+      && b.y > p.y - 48
+      && b.y < p.y + 48) {
+        p.health--;
         bulletData = bulletData.filter(function(bullet) {
           return bullet.id !== b.id;
         });
@@ -216,7 +228,7 @@ io.on('connection', function(socket) {
 
   // Creates new bulletData with constructor on shift press
   socket.on('shiftPressed', function(player) {
-    if (player.health > 1) {
+    if (player.health >= 1) {
       bulletId += 1;
       var bullet = new Bullet(
         currentPlayer.x,
@@ -232,7 +244,7 @@ io.on('connection', function(socket) {
   });
 
   socket.on('upPressed', function(player) {
-    if (currentPlayer.speed <= 20) currentPlayer.speed += 0.25;
+    if (currentPlayer.speed <= 25) currentPlayer.speed += 0.25;
   });
 
   socket.on('downPressed', function(player) {

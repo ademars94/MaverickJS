@@ -31,6 +31,12 @@ a {
 	text-align: center;
 }
 
+#palm {
+	z-index: 100;
+	margin-top: 500px;
+	margin-left: 500px;
+}
+
 #logo {
 	margin-top: 72px;
 	width: 560px;

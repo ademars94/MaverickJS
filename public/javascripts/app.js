@@ -379,6 +379,7 @@ socket.on('playerDie', function(playerData) {
   console.log(playerData.name, 'was shot down!');
   if (playerData.id === mav.client.id) {
     $('#inputs').hide();
+    $('#start').hide();
     $('#controls').hide();
     $('#select').hide();
     $('#reload').show();
