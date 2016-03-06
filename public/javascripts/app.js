@@ -1,3 +1,8 @@
+// Copyright (C) Alex DeMars - All Rights Reserved
+// Unauthorized copying of this file, via any medium is strictly prohibited
+// Proprietary and confidential
+// Written by Alex DeMars <alexdemars@gmail.com>, March, 2016
+
 console.log('Maverick 2D!');
 $('#reload').hide();
 
