@@ -101,9 +101,9 @@ var map = {
 // ********************************************************************
 
 function Camera(map, width, height) {
-	this.x = 0;
-	this.y = 0;
-	this.width = width;
+	this.x      = 0;
+	this.y      = 0;
+	this.width  = width;
 	this.height = height;
 };
 
@@ -116,22 +116,23 @@ Camera.prototype.move = function(x, y) {
 // **************************** Game Stuff ****************************
 // ********************************************************************
 
-function Client(name, plane, id, x, y, speed, angle, health, points) {
-  this.name = name;
-  this.plane = plane;
-  this.id = id;
-  this.x = x;
-  this.y = y;
-  this.angle = angle;
-  this.speed = speed;
+function Client(name, plane, id, x, y, speed, angle, health, points, ammo) {
+  this.name   = name;
+  this.plane  = plane;
+  this.id     = id;
+  this.x      = x;
+  this.y      = y;
+  this.angle  = angle;
+  this.speed  = speed;
   this.health = health;
   this.points = points;
+  this.ammo   = ammo;
 };
 
 function Maverick(context, camera, client, players, bullets) {
-  this.ctx    = context;
-  this.camera = camera;
-  this.client = client;
+  this.ctx     = context;
+  this.camera  = camera;
+  this.client  = client;
   this.players = players;
   this.bullets = bullets;
 }
@@ -180,7 +181,7 @@ Maverick.prototype.run = function() {
 
   setInterval(function() {
     self.shiftHandler.call(self)
-  }, 100);
+  }, 150);
 };
 
 // Maverick.prototype.requestAnimationFrame = window.requestAnimationFrame;
@@ -203,11 +204,12 @@ Maverick.prototype.render = function() {
   this.updateCam();
   // this.drawGrid();
   this.drawMap();
-  this.drawEnemies();
   this.drawBullets();
+  this.drawEnemies();
   this.drawPlane();
   this.drawLeaderboard();
   this.drawLeaders();
+  this.drawAmmo();
 };
 
 // ********************************************************************
@@ -285,6 +287,17 @@ Maverick.prototype.drawBullets = function() {
   };
 };
 
+Maverick.prototype.drawAmmo = function() {
+  // console.log("Ammo:", mav.client.ammo);
+  var self = this;
+  var ammoY = canvas.height - 64;
+  var ammoX = 16;
+  for (var i = mav.client.ammo; i > 0; i--) {
+    self.ctx.drawImage(bulletImg, ammoX, ammoY, 48, 48);
+    ammoX += 16;
+  }
+}
+
 Maverick.prototype.drawLeaderboard = function() {
   this.ctx.globalAlpha = 0.3;
   this.fillStyle = 'black';
@@ -333,7 +346,8 @@ socket.on('joinGame', function (updatedSettings) {
     , updatedSettings.speed
     , updatedSettings.angle
     , updatedSettings.health
-    , updatedSettings.points)
+    , updatedSettings.points
+    , updatedSettings.ammo)
 
   var camera = new Camera(map, canvas.width, canvas.height)
 
@@ -351,12 +365,13 @@ socket.on("rejoinGame", function(updatedSettings) {
 })
 
 socket.on('movePlane', function(playerData) {
-  mav.client.x = playerData.x;
-  mav.client.y = playerData.y;
-  mav.client.speed = playerData.speed;
+  mav.client.x      = playerData.x;
+  mav.client.y      = playerData.y;
+  mav.client.speed  = playerData.speed;
   mav.client.health = playerData.health;
-  mav.client.angle = playerData.angle;
+  mav.client.angle  = playerData.angle;
   mav.client.points = playerData.points;
+  mav.client.ammo   = playerData.ammo;
 });
 
 socket.on('moveBullets', function(bulletData) {

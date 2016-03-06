@@ -6,14 +6,12 @@
 // Global Variables
 
 var io = require('socket.io')();
-var players = [];
-var bulletData = [];
+var players     = [];
+var bulletData  = [];
 var leaderboard = [];
-var sockets = {};
-// var speed = 10;
-var mod = 1;
-var bulletId = 0;
-var frames = 0;
+var sockets     = {};
+var bulletId    = 0;
+var frames      = 0;
 
 // setInterval(logThatShit, 3000);
 
@@ -21,25 +19,26 @@ var frames = 0;
 // *************************** Move Logic *****************************
 // ********************************************************************
 
-var Player = function(name, plane, id, x, y, speed, angle, health, points) {
-  this.name = name;
-  this.plane = plane;
-  this.id = id;
-  this.x = x;
-  this.y = y;
-  this.speed = speed;
-  this.angle = angle;
+var Player = function(name, plane, id, x, y, speed, angle, health, points, ammo) {
+  this.name   = name;
+  this.plane  = plane;
+  this.id     = id;
+  this.x      = x;
+  this.y      = y;
+  this.speed  = speed;
+  this.angle  = angle;
   this.health = health;
   this.points = points;
+  this.ammo   = ammo;
 };
 
 var Bullet = function(x, y, id, playerId, speed, angle) {
-  this.x = x;
-  this.y = y;
-  this.id = id;
+  this.x        = x;
+  this.y        = y;
+  this.id       = id;
   this.playerId = playerId;
-  this.speed = speed;
-  this.angle = angle;
+  this.speed    = speed;
+  this.angle    = angle;
 };
 
 function updateAllPlayers() {
@@ -60,8 +59,8 @@ function updateLeaderboard() {
 function movePlane() {
   frames++;
   players.forEach(function(player) {
-    var newPlaneX = player.x + (player.speed * mod) * Math.sin(Math.PI / 180 * player.angle);
-    var newPlaneY = player.y - (player.speed * mod) * Math.cos(Math.PI / 180 * player.angle);
+    var newPlaneX = player.x + (player.speed) * Math.sin(Math.PI / 180 * player.angle);
+    var newPlaneY = player.y - (player.speed) * Math.cos(Math.PI / 180 * player.angle);
 
     // if (player.health < 1) {
     //   io.emit('playerDie', player)
@@ -82,8 +81,8 @@ function movePlane() {
 
 function moveBullets() {
   bulletData.forEach(function(bullet) {
-    var newBulletX = bullet.x + (bullet.speed * mod) * Math.sin(Math.PI / 180 * bullet.angle);
-    var newBulletY = bullet.y -(bullet.speed * mod) * Math.cos(Math.PI / 180 * bullet.angle);
+    var newBulletX = bullet.x + (bullet.speed) * Math.sin(Math.PI / 180 * bullet.angle);
+    var newBulletY = bullet.y -(bullet.speed) * Math.cos(Math.PI / 180 * bullet.angle);
     if (newBulletX >= 0 && newBulletX <= 5000) {
       bullet.x = newBulletX;
     }
@@ -131,7 +130,6 @@ function checkCollisions() {
           players = players.filter(function(p2) {
             return p2.id !== p.id;
           });
-
           players.forEach(function(attacker) {
             if (b.playerId === attacker.id) {
               attacker.points += 1;
@@ -173,12 +171,13 @@ io.on('connection', function(socket) {
         client.name,
         client.plane,
         socket.id,
-        2500,
-        2500,
-        12,// Speed
-        0,
-        10,
-        0
+        2500, // X
+        2500, // Y
+        12,   // Speed
+        0,    // Angle
+        10,   // Health
+        0,    // Points
+        10    // Ammo
       );
       players.push(currentPlayer);
 
@@ -195,6 +194,7 @@ io.on('connection', function(socket) {
     currentPlayer.y      = 2500;
     currentPlayer.angle  = 0;
     currentPlayer.speed  = 12;
+    currentPlayer.ammo   = 10;
 
     players.push(currentPlayer);
 
@@ -228,17 +228,24 @@ io.on('connection', function(socket) {
 
   // Creates new bulletData with constructor on shift press
   socket.on('shiftPressed', function(player) {
-    if (player.health >= 1) {
+    if (player.health >= 1 && player.ammo >=1) {
       bulletId += 1;
+      currentPlayer.ammo --;
       var bullet = new Bullet(
-        currentPlayer.x,
-        currentPlayer.y,
+        player.x,
+        player.y,
         bulletId,
         player.id,
-        50,
-        currentPlayer.angle
+        60,
+        player.angle
       );
       bulletData.push(bullet);
+      if (player.ammo <= 1) {
+        setTimeout(function() {
+          currentPlayer.ammo = 10;
+        }, 3000);
+      }
+      console.log("Currently shooting", currentPlayer);
       io.emit('shotFired', currentPlayer);
     }
   });
