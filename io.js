@@ -230,7 +230,7 @@ io.on('connection', function(socket) {
     }
   });
 
-  // Creates new bulletData with constructor on shift press
+  // Creates new bulletData with constructor on space press
   socket.on('spacePressed', function(player) {
     if (player.ammo < 1) {
       setTimeout(function() {
@@ -255,7 +255,7 @@ io.on('connection', function(socket) {
   });
 
   socket.on('upPressed', function(player) {
-    if (player.speed <= 25) currentPlayer.speed += 0.25;
+    if (player.speed <= 20) currentPlayer.speed += 0.25;
   });
 
   socket.on('downPressed', function(player) {
