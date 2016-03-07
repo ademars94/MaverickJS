@@ -397,6 +397,10 @@ function hurtPlayer() {
   socket.emit('hurtPlayer', mav.client);
 }
 
+function spawnComputerPlayer() {
+  socket.emit('spawnComputerPlayer', mav.client);
+}
+
 // ********************************************************************
 // *************************** Socket Stuff ***************************
 // ********************************************************************

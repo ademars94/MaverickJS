@@ -79,7 +79,9 @@ function movePlane() {
     if (newPlaneY >= 0 && newPlaneY <= 5000) {
       player.y = newPlaneY;
     }
-    sockets[player.id].emit('movePlane', player);
+    if (player.name !== 'Computer') {
+      sockets[player.id].emit('movePlane', player);
+    }
   });
 };
 
@@ -200,11 +202,92 @@ function reloader() {
   })
 }
 
+function spawnComputerPlayer() {
+  var computerId = 0;
+  computerId++;
+  computerPlayer = new Player(
+    'Computer',
+    Math.floor(Math.random()*(4-0+1)+0),
+    computerId,
+    2500, // X
+    2500, // Y
+    12,   // Speed
+    0,    // Angle
+    10,   // Health
+    0,    // Points
+    10    // Ammo
+  );
+  players.push(computerPlayer);
+  console.log('Player joined:', computerPlayer);
+}
+
+function controlComputerPlayers() {
+  var followAngle;
+  var followX;
+  var followY;
+
+  players.forEach(function(player) {
+    if (player.name !== 'Computer') {
+      followAngle = player.angle;
+      followX     = player.x;
+      followY     = player.y;
+    }
+
+    if (player.name === 'Computer') {
+      var yAxis = followY - player.y;
+      var xAxis = followX - player.x;
+      if (player.angle < Math.atan2(yAxis, xAxis) * 180 / Math.PI + 90 && followY < player.y) {
+        player.angle += 5;
+      }
+      if (player.angle > Math.atan2(yAxis, xAxis) * 180 / Math.PI + 90 && followY < player.y) {
+        player.angle -= 5;
+      }
+      if (player.angle < Math.atan2(yAxis, xAxis) * 180 / Math.PI -270 && followY > player.y) {
+        player.angle += 5;
+      }
+      if (player.angle > Math.atan2(yAxis, xAxis) * 180 / Math.PI -270 && followY > player.y) {
+        player.angle -= 5;
+      }
+
+      // if (player.angle < Math.atan2(yAxis, xAxis) * 180 / Math.PI + 90 && followX < player.x) {
+      //   player.angle += 5;
+      // }
+      // if (player.angle > Math.atan2(yAxis, xAxis) * 180 / Math.PI + 90 && followX > player.x) {
+      //   player.angle -= 5;
+      // }
+
+      // if (player.angle < Math.atan2(yAxis, xAxis) * 180 / Math.PI + 90 && followY > player.y) {
+      //   player.angle -= 5;
+      // }
+      // if (player.angle > Math.atan2(yAxis, xAxis) * 180 / Math.PI + 90 && followY > player.y) {
+      //   player.angle += 5;
+      // }
+
+      console.log("Player Y:", followY);
+      console.log("Player X:", followX);
+      console.log("Computer Y:", player.y);
+      console.log("Computer X:", player.x);
+
+
+
+      console.log("Math:", Math.atan2(yAxis, xAxis) * 180 / Math.PI + 90)
+      // console.log("Computer Angle:", player.angle);
+      // if (player.y < followY && player.x < followX) {
+      //   player.angle = Math.atan2(player.y-followY, player.x-followX)
+      // }
+      // if (player.x < followX) {
+      //   player.angle += 5;
+      // }
+    }
+  })
+}
+
 setInterval(movePlane, 1000/30);
 setInterval(moveBullets, 1000/30);
 setInterval(checkCollisions, 1000/30);
 setInterval(updateAllPlayers, 1000/30);
 setInterval(updateLeaderboard, 1000);
+setInterval(controlComputerPlayers, 1000/30);
 setInterval(spawnHealthPacks, 20000);
 // setInterval(logger, 1000);
 
@@ -261,25 +344,33 @@ io.on('connection', function(socket) {
   socket.on('leftPressed', function(player) {
     if (player.speed > 17) {
       currentPlayer.angle -= 3;
+      if (currentPlayer.angle <= -360) { currentPlayer.angle = 0; }
     }
     else if (player.speed > 13) {
       currentPlayer.angle -= 4;
+      if (currentPlayer.angle <= -360) { currentPlayer.angle = 0; }
     }
     else {
       currentPlayer.angle -= 5;
+      if (currentPlayer.angle <= -360) { currentPlayer.angle = 0; }
     }
+    // console.log("Current Angle:", currentPlayer.angle)
   });
 
   socket.on('rightPressed', function(player) {
     if (player.speed > 17) {
       currentPlayer.angle += 3;
+      if (currentPlayer.angle >=360) { currentPlayer.angle = 0; }
     }
     else if (player.speed > 13) {
       currentPlayer.angle += 4;
+      if (currentPlayer.angle >=360) { currentPlayer.angle = 0; }
     }
     else {
       currentPlayer.angle += 5;
+      if (currentPlayer.angle >=360) { currentPlayer.angle = 0; }
     }
+    // console.log("Current Angle:", currentPlayer.angle)
   });
 
   // Creates new bulletData with constructor on space press
@@ -327,6 +418,10 @@ io.on('connection', function(socket) {
 
   socket.on('hurtPlayer', function(player) {
     currentPlayer.health = 1;
+  })
+
+  socket.on('spawnComputerPlayer', function(player) {
+    spawnComputerPlayer();
   })
 
   socket.on('disconnect', function(player) {
