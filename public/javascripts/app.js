@@ -20,6 +20,7 @@ var ctx = canvas.getContext('2d');
 var angle = 0;
 var players = [];
 var bullets = [];
+var healthPacks = [];
 var leaderboard = [];
 var plane;
 var leftPress;
@@ -99,6 +100,9 @@ bulletImg.src = '/images/bullet.png';
 
 var tileMap = new Image();
 tileMap.src = '/images/map-2.png';
+
+var healthImg = new Image();
+healthImg.src = '/images/health.png'
 
 // Map Stuff
 
@@ -216,6 +220,7 @@ Maverick.prototype.render = function() {
   this.updateCam();
   // this.drawGrid();
   this.drawMap();
+  this.drawHealthPacks();
   this.drawBullets();
   this.drawEnemies();
   this.drawPlane();
@@ -322,6 +327,25 @@ Maverick.prototype.drawBullets = function() {
   };
 };
 
+Maverick.prototype.drawHealthPacks = function() {
+  var self = this;
+  if (healthPacks.length >= 1) {
+    healthPacks.forEach(function(pack) {
+      if (
+        pack.x < self.camRightBound  &&
+        pack.x > self.camLeftBound   &&
+        pack.y < self.camBottomBound &&
+        pack.y > self.camTopBound
+      ) {
+        self.ctx.save();
+        self.ctx.translate(pack.x - self.camLeftBound, pack.y - self.camTopBound);
+        self.ctx.drawImage(healthImg, -24, -24, 48, 48);
+        self.ctx.restore();
+      }
+    });
+  };
+};
+
 Maverick.prototype.drawAmmo = function() {
   // console.log("Ammo:", mav.client.ammo);
   var self = this;
@@ -368,6 +392,10 @@ $('#start').on('click', function () {
   var client = new Client($('#name').val(), plane, socket.id);
   socket.emit('spawn', client);
 });
+
+function hurtPlayer() {
+  socket.emit('hurtPlayer', mav.client);
+}
 
 // ********************************************************************
 // *************************** Socket Stuff ***************************
@@ -417,6 +445,14 @@ socket.on('movePlane', function(playerData) {
 socket.on('moveBullets', function(bulletData) {
   bullets = bulletData;
 });
+
+socket.on('spawnHealthPacks', function(healthPackData) {
+  healthPacks = healthPackData;
+});
+
+socket.on('updateHealthPacks', function(healthPackData) {
+  healthPacks = healthPackData;
+})
 
 socket.on('updateAllPlayers', function(otherPlayers) {
   players = otherPlayers;

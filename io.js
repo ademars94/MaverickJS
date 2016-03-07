@@ -10,12 +10,14 @@
 // Global Variables
 
 var io = require('socket.io')();
-var players     = [];
-var bulletData  = [];
-var leaderboard = [];
-var sockets     = {};
-var bulletId    = 0;
-var frames      = 0;
+var players      = [];
+var bulletData   = [];
+var healthPacks  = [];
+var leaderboard  = [];
+var sockets      = {};
+var bulletId     = 0;
+var healthPackId = 0
+var frames       = 0;
 
 // setInterval(logThatShit, 3000);
 
@@ -44,6 +46,12 @@ var Bullet = function(x, y, id, playerId, speed, angle) {
   this.speed    = speed;
   this.angle    = angle;
 };
+
+var HealthPack = function(x, y, id) {
+  this.x  = x;
+  this.y  = y;
+  this.id = id;
+}
 
 function updateAllPlayers() {
   io.emit('updateAllPlayers', players);
@@ -99,6 +107,19 @@ function moveBullets() {
   io.emit('moveBullets', bulletData);
 }
 
+function spawnHealthPacks() {
+  if (healthPacks.length <= 4) {
+    healthPackId += 1;
+    var healthPack = new HealthPack(
+      Math.floor(Math.random()*(4000-1000+1)+1000), // X
+      Math.floor(Math.random()*(4000-1000+1)+1000), // Y
+      healthPackId // ID
+    );
+    healthPacks.push(healthPack);
+  }
+  io.emit('spawnHealthPacks', healthPacks);
+}
+
 // function regenerate(p) {
 //   setTimeout(function() {
 //     if (p.health < 10) {
@@ -135,6 +156,26 @@ function checkCollisions() {
       }
     });
   });
+  healthPacks.forEach(function(pack) {
+    players.forEach(function(p) {
+      if (p.health < 10
+      && pack.x > p.x - 48
+      && pack.x < p.x + 48
+      && pack.y > p.y - 48
+      && pack.y < p.y + 48) {
+        healthPacks = healthPacks.filter(function(hp) {
+          return hp.id !== pack.id;
+        });
+      if (p.health === 9) {
+        p.health++;
+      }
+      else {
+        p.health += 2;
+      }
+        io.emit('updateHealthPacks', healthPacks);
+      }
+    });
+  });
 }
 
 // function reloader() {
@@ -164,6 +205,7 @@ setInterval(moveBullets, 1000/30);
 setInterval(checkCollisions, 1000/30);
 setInterval(updateAllPlayers, 1000/30);
 setInterval(updateLeaderboard, 1000);
+setInterval(spawnHealthPacks, 5000)
 // setInterval(logger, 1000);
 
 // ********************************************************************
@@ -282,6 +324,10 @@ io.on('connection', function(socket) {
   socket.on('downPressed', function(player) {
     if (player.speed >= 12) currentPlayer.speed -= 0.25;
   });
+
+  socket.on('hurtPlayer', function(player) {
+    currentPlayer.health = 1;
+  })
 
   socket.on('disconnect', function(player) {
     console.log('Socket with this id disconnected:', socket.id);
