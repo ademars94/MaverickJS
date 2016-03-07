@@ -325,16 +325,16 @@ Maverick.prototype.drawBullets = function() {
 Maverick.prototype.drawAmmo = function() {
   // console.log("Ammo:", mav.client.ammo);
   var self = this;
-  var ammoY = canvas.height - 64;
-  var ammoX = 16;
+  var ammoY = canvas.height - 96;
+  var ammoX = 24;
   for (var i = mav.client.ammo; i > 0; i--) {
-    self.ctx.drawImage(bulletImg, ammoX, ammoY, 48, 48);
-    ammoX += 16;
+    self.ctx.drawImage(bulletImg, ammoX, ammoY, 64, 64);
+    ammoX += 24;
   }
-  if (mav.client.ammo < 10) {
+  if (mav.client.ammo < 1) {
     self.ctx.fillStyle = 'grey';
     self.ctx.font = "36px 'Lucida Grande'";
-    self.ctx.fillText('Reloading...', 32, canvas.height - 90);
+    self.ctx.fillText('Reloading...', 48, canvas.height - 48);
   }
 }
 

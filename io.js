@@ -61,17 +61,9 @@ function updateLeaderboard() {
 };
 
 function movePlane() {
-  frames++;
   players.forEach(function(player) {
     var newPlaneX = player.x + (player.speed) * Math.sin(Math.PI / 180 * player.angle);
     var newPlaneY = player.y - (player.speed) * Math.cos(Math.PI / 180 * player.angle);
-
-    // if (player.health < 1) {
-    //   io.emit('playerDie', player)
-    //   players = players.filter(function(p) {
-    //     return p.id !== player.id;
-    //   });
-    // }
 
     if (newPlaneX >= 0 && newPlaneX <= 5000) {
       player.x = newPlaneX;
@@ -159,6 +151,14 @@ function logger() {
   console.log("Players:", players)
 }
 
+function reloader() {
+  players.forEach(function(player) {
+    if (player.ammo < 1) {
+      player.ammo = 10;
+    }
+  })
+}
+
 setInterval(movePlane, 1000/30);
 setInterval(moveBullets, 1000/30);
 setInterval(checkCollisions, 1000/30);
@@ -244,6 +244,9 @@ io.on('connection', function(socket) {
   socket.on('spacePressed', function(player) {
     if (player.health >= 1 && player.ammo >=1) {
       currentPlayer.ammo --;
+      if (currentPlayer.ammo < 1) {
+        setTimeout(reloader, 3000);
+      }
       bulletId += 1;
       var bullet = new Bullet(
         currentPlayer.x,
@@ -254,19 +257,22 @@ io.on('connection', function(socket) {
         currentPlayer.angle
       );
       bulletData.push(bullet);
-      console.log("Currently shooting:", currentPlayer);
+
       io.emit('shotFired', currentPlayer);
     }
-    var reloading;
-    if (player.ammo <= 10) {
-      setTimeout(function() {
-        reloading = true;
-        currentPlayer.ammo++;
-        if (player.ammo === 10) {
-          reloading = false;
-        }
-      }, 3000);
-    }
+
+    // var reloading;
+    // if (player.ammo <= 10) {
+    //   setTimeout(function() {
+    //     reloading = true;
+    //     if (player.ammo <= 10) {
+    //       currentPlayer.ammo++;
+    //     }
+    //     if (player.ammo === 10) {
+    //       reloading = false;
+    //     }
+    //   }, 3000);
+    // }
   });
 
   socket.on('upPressed', function(player) {
