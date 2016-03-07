@@ -448,10 +448,12 @@ socket.on('moveBullets', function(bulletData) {
 
 socket.on('spawnHealthPacks', function(healthPackData) {
   healthPacks = healthPackData;
+  console.log("Health packs currently in play:", healthPacks);
 });
 
 socket.on('updateHealthPacks', function(healthPackData) {
   healthPacks = healthPackData;
+  console.log("Health packs currently in play:", healthPacks);
 })
 
 socket.on('updateAllPlayers', function(otherPlayers) {

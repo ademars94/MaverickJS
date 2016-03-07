@@ -108,7 +108,7 @@ function moveBullets() {
 }
 
 function spawnHealthPacks() {
-  if (healthPacks.length <= 2) {
+  if (healthPacks.length < 2) {
     healthPackId += 1;
     var healthPack = new HealthPack(
       Math.floor(Math.random()*(4500-500+1)+500), // X
@@ -205,7 +205,7 @@ setInterval(moveBullets, 1000/30);
 setInterval(checkCollisions, 1000/30);
 setInterval(updateAllPlayers, 1000/30);
 setInterval(updateLeaderboard, 1000);
-setInterval(spawnHealthPacks, 10000)
+setInterval(spawnHealthPacks, 20000);
 // setInterval(logger, 1000);
 
 // ********************************************************************
