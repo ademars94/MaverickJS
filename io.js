@@ -10,14 +10,15 @@
 // Global Variables
 
 var io = require('socket.io')();
-var players      = [];
-var bulletData   = [];
-var healthPacks  = [];
-var leaderboard  = [];
-var sockets      = {};
-var bulletId     = 0;
-var healthPackId = 0
-var frames       = 0;
+var players        = [];
+var bulletData     = [];
+var healthPacks    = [];
+var homingMissiles = [];
+var leaderboard    = [];
+var sockets        = {};
+var bulletId       = 0;
+var healthPackId   = 0
+var frames         = 0;
 
 // setInterval(logThatShit, 3000);
 
@@ -47,15 +48,24 @@ var Bullet = function(x, y, id, playerId, speed, angle) {
   this.angle    = angle;
 };
 
+var HomingMissile = function(x, y, id, playerId, speed, angle) {
+  this.x        = x;
+  this.y        = y;
+  this.id       = id;
+  this.playerId = playerId;
+  this.speed    = speed;
+  this.angle    = angle;
+};
+
 var HealthPack = function(x, y, id) {
   this.x  = x;
   this.y  = y;
   this.id = id;
-}
+};
 
 function updateAllPlayers() {
   io.emit('updateAllPlayers', players);
-}
+};
 
 function updateLeaderboard() {
   if (players.length > 0) {
@@ -107,7 +117,7 @@ function moveBullets() {
     }
   });
   io.emit('moveBullets', bulletData);
-}
+};
 
 function spawnHealthPacks() {
   if (healthPacks.length < 2) {
@@ -120,7 +130,7 @@ function spawnHealthPacks() {
     healthPacks.push(healthPack);
   }
   io.emit('spawnHealthPacks', healthPacks);
-}
+};
 
 // function regenerate(p) {
 //   setTimeout(function() {
@@ -178,7 +188,7 @@ function checkCollisions() {
       }
     });
   });
-}
+};
 
 // function reloader() {
 //   players.forEach(function(player) {
@@ -371,19 +381,48 @@ io.on('connection', function(socket) {
 
       io.emit('shotFired', currentPlayer);
     }
+  });
 
-    // var reloading;
-    // if (player.ammo <= 10) {
-    //   setTimeout(function() {
-    //     reloading = true;
-    //     if (player.ammo <= 10) {
-    //       currentPlayer.ammo++;
-    //     }
-    //     if (player.ammo === 10) {
-    //       reloading = false;
-    //     }
-    //   }, 3000);
-    // }
+  socket.on('spacePressed', function(player) {
+    if (player.health >= 1 && player.ammo >=1) {
+      currentPlayer.ammo --;
+      if (currentPlayer.ammo < 1) {
+        setTimeout(reloader, 3000);
+      }
+      bulletId += 1;
+      var bullet = new Bullet(
+        currentPlayer.x,
+        currentPlayer.y,
+        bulletId,
+        player.id,
+        60,
+        currentPlayer.angle
+      );
+      bulletData.push(bullet);
+
+      io.emit('shotFired', currentPlayer);
+    }
+  });
+
+  socket.on('spacePressed', function(player) {
+    if (player.health >= 1 && player.ammo >=1) {
+      currentPlayer.ammo --;
+      if (currentPlayer.ammo < 1) {
+        setTimeout(reloader, 3000);
+      }
+      bulletId += 1;
+      var bullet = new Bullet(
+        currentPlayer.x,
+        currentPlayer.y,
+        bulletId,
+        player.id,
+        60,
+        currentPlayer.angle
+      );
+      bulletData.push(bullet);
+
+      io.emit('shotFired', currentPlayer);
+    }
   });
 
   socket.on('upPressed', function(player) {

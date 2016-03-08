@@ -107,6 +107,9 @@ tileMap.src = '/images/map-2.png';
 var healthImg = new Image();
 healthImg.src = '/images/health.png'
 
+var homingMissileImg = new Image();
+homingMissileImg     = '/images/homing-missile.png'
+
 // Map Stuff
 
 var map = {
