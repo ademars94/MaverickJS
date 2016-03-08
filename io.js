@@ -27,7 +27,7 @@ var frames          = 0;
 // *************************** Move Logic *****************************
 // ********************************************************************
 
-var Player = function(name, plane, id, x, y, speed, angle, health, points, ammo) {
+var Player = function(name, plane, id, x, y, speed, angle, health, points, ammo, homingMissiles) {
   this.name   = name;
   this.plane  = plane;
   this.id     = id;
@@ -38,6 +38,7 @@ var Player = function(name, plane, id, x, y, speed, angle, health, points, ammo)
   this.health = health;
   this.points = points;
   this.ammo   = ammo;
+  this.homingMissiles = homingMissiles;
 };
 
 var Bullet = function(x, y, id, playerId, speed, angle) {
@@ -168,12 +169,12 @@ function controlHomingMissiles() {
       if (delta < -180) delta += 360;
 
       if (delta > 0) {
-        hm.angle += 6;
+        hm.angle += 5;
       }
       if (delta < 0) {
-        hm.angle -= 6;
+        hm.angle -= 5;
       }
-      if (Math.abs(delta) < 6) {
+      if (Math.abs(delta) < 5) {
         hm.angle = targetAngle;
       }
     }
@@ -256,7 +257,7 @@ function checkCollisions() {
       && hm.x < p.x + 48
       && hm.y > p.y - 48
       && hm.y < p.y + 48) {
-        p.health-=5;
+        p.health-=4;
         homingMissiles = homingMissiles.filter(function(m) {
           return hm.id !== m.id;
         });
@@ -311,7 +312,7 @@ function spawnComputerPlayer() {
     0,    // Angle
     10,   // Health
     0,    // Points
-    10    // Ammo
+    10
   );
   players.push(computerPlayer);
   console.log('Player joined:', computerPlayer);
@@ -392,7 +393,8 @@ io.on('connection', function(socket) {
         0,    // Angle
         10,   // Health
         0,    // Points
-        10    // Ammo
+        10,   // Ammo
+        2     // Homing Missiles
       );
       players.push(currentPlayer);
 
@@ -410,6 +412,7 @@ io.on('connection', function(socket) {
     currentPlayer.angle  = 0;
     currentPlayer.speed  = 12;
     currentPlayer.ammo   = 10;
+    currentPlayer.homingMissiles = 2;
 
     players.push(currentPlayer);
 
@@ -471,30 +474,10 @@ io.on('connection', function(socket) {
     }
   });
 
-  socket.on('spacePressed', function(player) {
-    if (player.health >= 1 && player.ammo >=1) {
-      currentPlayer.ammo --;
-      if (currentPlayer.ammo < 1) {
-        setTimeout(reloader, 3000);
-      }
-      bulletId += 1;
-      var bullet = new Bullet(
-        currentPlayer.x,
-        currentPlayer.y,
-        bulletId,
-        player.id,
-        60,
-        currentPlayer.angle
-      );
-      bulletData.push(bullet);
-
-      io.emit('shotFired', currentPlayer);
-    }
-  });
-
   socket.on('fPressed', function(player) {
-    if (player.health >= 1) {
+    if (player.health >= 1 && player.homingMissiles > 0) {
       homingMissileId += 1;
+      currentPlayer.homingMissiles--;
       var homingMissile = new HomingMissile(
         currentPlayer.x,    // X
         currentPlayer.y,    // Y

@@ -154,7 +154,7 @@ Camera.prototype.move = function(x, y) {
 // **************************** Game Stuff ****************************
 // ********************************************************************
 
-function Client(name, plane, id, x, y, speed, angle, health, points, ammo) {
+function Client(name, plane, id, x, y, speed, angle, health, points, ammo, homingMissiles) {
   this.name   = name;
   this.plane  = plane;
   this.id     = id;
@@ -165,6 +165,7 @@ function Client(name, plane, id, x, y, speed, angle, health, points, ammo) {
   this.health = health;
   this.points = points;
   this.ammo   = ammo;
+  this.homingMissiles = homingMissiles;
 };
 
 function Maverick(context, camera, client, players, bullets) {
@@ -398,6 +399,10 @@ Maverick.prototype.drawAmmo = function() {
     self.ctx.drawImage(bulletImg, ammoX, ammoY, 64, 64);
     ammoX += 24;
   }
+  for (var i = mav.client.homingMissiles; i > 0; i--) {
+    self.ctx.drawImage(homingMissileImg, ammoX + 48, ammoY, 32, 64);
+    ammoX += 48;
+  }
   if (mav.client.ammo < 1) {
     self.ctx.fillStyle = 'grey';
     self.ctx.font = "36px 'Lucida Grande'";
@@ -462,7 +467,8 @@ socket.on('joinGame', function (updatedSettings) {
     , updatedSettings.angle
     , updatedSettings.health
     , updatedSettings.points
-    , updatedSettings.ammo)
+    , updatedSettings.ammo
+    , updatedSettings.homingMissiles)
 
   var camera = new Camera(map, canvas.width, canvas.height)
 
@@ -487,6 +493,7 @@ socket.on('movePlane', function(playerData) {
   mav.client.angle  = playerData.angle;
   mav.client.points = playerData.points;
   mav.client.ammo   = playerData.ammo;
+  mav.client.homingMissiles = playerData.homingMissiles;
 });
 
 socket.on('moveBullets', function(bulletData) {
