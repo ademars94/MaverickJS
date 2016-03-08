@@ -10,15 +10,16 @@
 // Global Variables
 
 var io = require('socket.io')();
-var players        = [];
-var bulletData     = [];
-var healthPacks    = [];
-var homingMissiles = [];
-var leaderboard    = [];
-var sockets        = {};
-var bulletId       = 0;
-var healthPackId   = 0
-var frames         = 0;
+var players         = [];
+var bulletData      = [];
+var healthPacks     = [];
+var homingMissiles  = [];
+var leaderboard     = [];
+var sockets         = {};
+var bulletId        = 0;
+var healthPackId    = 0;
+var homingMissileId = 0;
+var frames          = 0;
 
 // setInterval(logThatShit, 3000);
 
@@ -48,7 +49,7 @@ var Bullet = function(x, y, id, playerId, speed, angle) {
   this.angle    = angle;
 };
 
-var HomingMissile = function(x, y, id, playerId, speed, angle) {
+var HomingMissile = function(x, y, id, playerId, trackingId, speed, angle) {
   this.x        = x;
   this.y        = y;
   this.id       = id;
@@ -117,6 +118,66 @@ function moveBullets() {
     }
   });
   io.emit('moveBullets', bulletData);
+};
+
+function moveHomingMissiles() {
+  homingMissiles.forEach(function(hm) {
+    var newMissileX = hm.x + (hm.speed) * Math.sin(Math.PI / 180 * hm.angle);
+    var newMissileY = hm.y -(hm.speed) * Math.cos(Math.PI / 180 * hm.angle);
+
+    if (newMissileX >= 0 && newMissileX <= 5000) {
+      hm.x = newMissileX;
+    }
+    else {
+      homingMissiles = homingMissiles.filter(function(m) {
+        return hm.id !== m.id;
+      });
+    }
+    if (newMissileY >= 0 && newMissileY <= 5000) {
+      hm.y = newMissileY;
+    }
+    else {
+      homingMissiles = homingMissiles.filter(function(m) {
+        return hm.id !== m.id;
+      });
+    }
+  });
+  io.emit('moveHomingMissiles', homingMissiles);
+};
+
+function controlHomingMissiles() {
+  var followX;
+  var followY;
+
+  homingMissiles.forEach(function(hm) {
+    players.forEach(function(player) {
+      if (player.id !== hm.playerId) {
+         followX = player.x;
+         followY = player.y;
+      }
+    });
+
+    var dy = followY - hm.y;
+    var dx = followX - hm.x;
+    var targetAngle = Math.atan2(dy, dx) * 180 / Math.PI + 90;
+
+    if (hm.angle !== targetAngle) {
+      var delta = targetAngle - hm.angle;
+
+      if (delta > 180) delta -= 360;
+      if (delta < -180) delta += 360;
+
+      if (delta > 0) {
+        hm.angle += 6;
+      }
+      if (delta < 0) {
+        hm.angle -= 6;
+      }
+      if (Math.abs(delta) < 6) {
+        hm.angle = targetAngle;
+      }
+    }
+  });
 };
 
 function spawnHealthPacks() {
@@ -188,6 +249,31 @@ function checkCollisions() {
       }
     });
   });
+  homingMissiles.forEach(function(hm) {
+    players.forEach(function(p) {
+      if (hm.playerId !== p.id
+      && hm.x > p.x - 48
+      && hm.x < p.x + 48
+      && hm.y > p.y - 48
+      && hm.y < p.y + 48) {
+        p.health-=5;
+        homingMissiles = homingMissiles.filter(function(m) {
+          return hm.id !== m.id;
+        });
+        if (p.health < 1) {
+          io.emit('playerDie', p)
+          players = players.filter(function(p2) {
+            return p2.id !== p.id;
+          });
+          players.forEach(function(attacker) {
+            if (hm.playerId === attacker.id) {
+              attacker.points += 1;
+            }
+          });
+        }
+      }
+    })
+  })
 };
 
 // function reloader() {
@@ -202,7 +288,7 @@ function checkCollisions() {
 
 function logger() {
   console.log("Players:", players)
-}
+};
 
 function reloader() {
   players.forEach(function(player) {
@@ -210,7 +296,7 @@ function reloader() {
       player.ammo = 10;
     }
   })
-}
+};
 
 function spawnComputerPlayer() {
   var computerId = 0;
@@ -229,7 +315,7 @@ function spawnComputerPlayer() {
   );
   players.push(computerPlayer);
   console.log('Player joined:', computerPlayer);
-}
+};
 
 function controlComputerPlayers() {
   var followAngle;
@@ -268,10 +354,12 @@ function controlComputerPlayers() {
       }
     }
   })
-}
+};
 
 setInterval(movePlane, 1000/30);
 setInterval(moveBullets, 1000/30);
+setInterval(moveHomingMissiles, 1000/30);
+setInterval(controlHomingMissiles, 1000/30);
 setInterval(checkCollisions, 1000/30);
 setInterval(updateAllPlayers, 1000/30);
 setInterval(updateLeaderboard, 1000);
@@ -361,7 +449,7 @@ io.on('connection', function(socket) {
     // console.log("Current Angle:", currentPlayer.angle)
   });
 
-  // Creates new bulletData with constructor on space press
+  // Creates new homingMissiles with constructor on space press
   socket.on('spacePressed', function(player) {
     if (player.health >= 1 && player.ammo >=1) {
       currentPlayer.ammo --;
@@ -404,24 +492,19 @@ io.on('connection', function(socket) {
     }
   });
 
-  socket.on('spacePressed', function(player) {
-    if (player.health >= 1 && player.ammo >=1) {
-      currentPlayer.ammo --;
-      if (currentPlayer.ammo < 1) {
-        setTimeout(reloader, 3000);
-      }
-      bulletId += 1;
-      var bullet = new Bullet(
-        currentPlayer.x,
-        currentPlayer.y,
-        bulletId,
-        player.id,
-        60,
-        currentPlayer.angle
+  socket.on('fPressed', function(player) {
+    if (player.health >= 1) {
+      homingMissileId += 1;
+      var homingMissile = new HomingMissile(
+        currentPlayer.x,    // X
+        currentPlayer.y,    // Y
+        homingMissileId,    // ID
+        player.id,          // Shooter ID
+        player.id,          // Tracked Player's ID
+        30,                 // Speed
+        currentPlayer.angle // Angle
       );
-      bulletData.push(bullet);
-
-      io.emit('shotFired', currentPlayer);
+      homingMissiles.push(homingMissile);
     }
   });
 

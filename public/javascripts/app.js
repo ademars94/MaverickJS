@@ -22,10 +22,12 @@ var players = [];
 var bullets = [];
 var healthPacks = [];
 var leaderboard = [];
+var homingMissiles = [];
 var plane;
 var leftPress;
 var rightPress;
 var spacePress;
+var fPress;
 var upPress;
 var downPress;
 
@@ -47,6 +49,10 @@ $(document).on('keydown', function(e) {
     if (e.keyCode === 80) {
       spawnComputerPlayer();
     }
+    if (!fPress && e.keyCode === 70) {
+      fPress = true;
+      fHandler();
+    }
   }
 });
 
@@ -65,12 +71,22 @@ $(document).on('keyup', function(e) {
       spacePress = false;
       spaceHandler();
     }
+    if (e.keyCode === 70) {
+      fPress = false;
+      fHandler();
+    }
   }
 });
 
 function spaceHandler() {
   if (spacePress) {
     socket.emit('spacePressed', mav.client);
+  }
+}
+
+function fHandler() {
+  if (fPress) {
+    socket.emit('fPressed', mav.client);
   }
 }
 
@@ -108,7 +124,7 @@ var healthImg = new Image();
 healthImg.src = '/images/health.png'
 
 var homingMissileImg = new Image();
-homingMissileImg     = '/images/homing-missile.png'
+homingMissileImg.src     = '/images/homing-missile.png'
 
 // Map Stuff
 
@@ -228,6 +244,7 @@ Maverick.prototype.render = function() {
   this.drawMap();
   this.drawHealthPacks();
   this.drawBullets();
+  this.drawHomingMissiles();
   this.drawEnemies();
   this.drawPlane();
   this.drawLeaderboard();
@@ -327,6 +344,26 @@ Maverick.prototype.drawBullets = function() {
         self.ctx.translate(b.x - self.camLeftBound, b.y - self.camTopBound);
         self.ctx.rotate(Math.PI / 180 * b.angle);
         self.ctx.drawImage(bulletImg, -12, -12, 24, 24);
+        self.ctx.restore();
+      }
+    });
+  };
+};
+
+Maverick.prototype.drawHomingMissiles = function() {
+  var self = this;
+  if (homingMissiles.length >= 1) {
+    homingMissiles.forEach(function(hm) {
+      if (
+        hm.x < self.camRightBound  &&
+        hm.x > self.camLeftBound   &&
+        hm.y < self.camBottomBound &&
+        hm.y > self.camTopBound
+      ) {
+        self.ctx.save();
+        self.ctx.translate(hm.x - self.camLeftBound, hm.y - self.camTopBound);
+        self.ctx.rotate(Math.PI / 180 * hm.angle);
+        self.ctx.drawImage(homingMissileImg, -16, -32, 32, 64);
         self.ctx.restore();
       }
     });
@@ -454,6 +491,10 @@ socket.on('movePlane', function(playerData) {
 
 socket.on('moveBullets', function(bulletData) {
   bullets = bulletData;
+});
+
+socket.on('moveHomingMissiles', function(homingMissileData) {
+  homingMissiles = homingMissileData;
 });
 
 socket.on('spawnHealthPacks', function(healthPackData) {
