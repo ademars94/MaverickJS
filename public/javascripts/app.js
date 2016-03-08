@@ -44,6 +44,9 @@ $(document).on('keydown', function(e) {
       spacePress = true;
       spaceHandler();
     }
+    if (e.keyCode === 80) {
+      spawnComputerPlayer();
+    }
   }
 });
 

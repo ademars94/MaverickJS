@@ -234,50 +234,28 @@ function controlComputerPlayers() {
     }
 
     if (player.name === 'Computer') {
-      var yAxis = followY - player.y;
-      var xAxis = followX - player.x;
-      if (player.angle < Math.atan2(yAxis, xAxis) * 180 / Math.PI + 90 && followY < player.y) {
-        player.angle += 5;
+
+      var dy = followY - player.y;
+      var dx = followX - player.x;
+
+      var targetAngle = Math.atan2(dy, dx) * 180 / Math.PI + 90;
+
+      if (player.angle !== targetAngle) {
+        var delta = targetAngle - player.angle;
+
+        if (delta > 180) delta -= 360;
+        if (delta < -180) delta += 360;
+
+        if (delta > 0) {
+          player.angle += 5;
+        }
+        if (delta < 0) {
+          player.angle -= 5;
+        }
+        if (Math.abs(delta) < 5) {
+          player.angle = targetAngle;
+        }
       }
-      if (player.angle > Math.atan2(yAxis, xAxis) * 180 / Math.PI + 90 && followY < player.y) {
-        player.angle -= 5;
-      }
-      if (player.angle < Math.atan2(yAxis, xAxis) * 180 / Math.PI -270 && followY > player.y) {
-        player.angle += 5;
-      }
-      if (player.angle > Math.atan2(yAxis, xAxis) * 180 / Math.PI -270 && followY > player.y) {
-        player.angle -= 5;
-      }
-
-      // if (player.angle < Math.atan2(yAxis, xAxis) * 180 / Math.PI + 90 && followX < player.x) {
-      //   player.angle += 5;
-      // }
-      // if (player.angle > Math.atan2(yAxis, xAxis) * 180 / Math.PI + 90 && followX > player.x) {
-      //   player.angle -= 5;
-      // }
-
-      // if (player.angle < Math.atan2(yAxis, xAxis) * 180 / Math.PI + 90 && followY > player.y) {
-      //   player.angle -= 5;
-      // }
-      // if (player.angle > Math.atan2(yAxis, xAxis) * 180 / Math.PI + 90 && followY > player.y) {
-      //   player.angle += 5;
-      // }
-
-      console.log("Player Y:", followY);
-      console.log("Player X:", followX);
-      console.log("Computer Y:", player.y);
-      console.log("Computer X:", player.x);
-
-
-
-      console.log("Math:", Math.atan2(yAxis, xAxis) * 180 / Math.PI + 90)
-      // console.log("Computer Angle:", player.angle);
-      // if (player.y < followY && player.x < followX) {
-      //   player.angle = Math.atan2(player.y-followY, player.x-followX)
-      // }
-      // if (player.x < followX) {
-      //   player.angle += 5;
-      // }
     }
   })
 }
