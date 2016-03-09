@@ -6,7 +6,7 @@
 #[Play Maverick 2D](http://maverick-2d.herokuapp.com/)
 
 ##Gameplay
-Enter your name, select a plane, and head into battle! Control your plane with the arrow keys or A, W, and D. Left and right to turn, and up to accelerate. The virtual map scrolls underneath you as you fly along. When an enemy's plane comes into view, it's your job to shoot them down.  Press shift to fire bullets!  There are four planes to choose from for now.
+Enter your name, select a plane, and head into battle! Control your plane with the arrow keys or A, W, and D. Left and right to turn, and up to accelerate. The virtual map scrolls underneath you as you fly along. When an enemy's plane comes into view, it's your job to shoot them down.  Press shift to fire bullets, and F to fire homing missiles, which track down the closest enemy.  There are four planes to choose from for now.
 
 <br>
 
