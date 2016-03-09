@@ -18,6 +18,8 @@ console.log(socket);
 var canvas = $('#canvas')[0];
 var ctx = canvas.getContext('2d');
 var angle = 0;
+var lastFrame = Date.now();
+var frameTime = 0;
 var players = [];
 var bullets = [];
 var healthPacks = [];
@@ -177,6 +179,11 @@ Maverick.prototype.keyPressHandler = function() {
   }
 };
 
+Maverick.prototype.ping = function() {
+  this.startPingTime = Date.now();
+  socket.emit('ping');
+}
+
 // Maverick.prototype.spaceHandler = function() {
 //   var self = this;
 //   if (spacePress) {
@@ -195,9 +202,9 @@ Maverick.prototype.run = function() {
     self.keyPressHandler.call(self)
   }, 30);
 
-  // setInterval(function() {
-  //   self.spaceHandler.call(self)
-  // }, 150);
+  setInterval(function() {
+    self.ping.call(self)
+  }, 150);
 };
 
 // Maverick.prototype.requestAnimationFrame = window.requestAnimationFrame;
@@ -205,14 +212,18 @@ Maverick.prototype.run = function() {
 Maverick.prototype.tick = function(elapsed) {
   window.requestAnimationFrame(this.tick.bind(this));
 
-  // clear previous frame
-  this.ctx.clearRect(0, 0, 1280, 960);
-  // render next frame
   this.render();
-  // keyPressHandler();
 }
 
 Maverick.prototype.render = function() {
+  var filterStrength = 10;
+  var thisFrame = Date.now();
+  var delta = thisFrame - lastFrame;
+  frameTime += (delta - frameTime) / filterStrength;
+
+  this.fps = (1000 / frameTime).toFixed();
+  lastFrame = thisFrame;
+  // console.log("FPS:", fps);
 
   this.ctx.canvas.width  = window.innerWidth;
   this.ctx.canvas.height = window.innerHeight;
@@ -227,11 +238,24 @@ Maverick.prototype.render = function() {
   this.drawLeaderboard();
   this.drawLeaders();
   this.drawAmmo();
+  this.drawDiagnostics();
 };
 
 // ********************************************************************
 // *************************** Canvas Stuff ***************************
 // ********************************************************************
+
+Maverick.prototype.drawDiagnostics = function() {
+  this.ctx.fillStyle = 'black';
+  this.ctx.globalAlpha = 0.3;
+  this.ctx.fillRect(20, 240, 200,68);
+  this.ctx.globalAlpha = 1;
+
+  this.ctx.fillStyle = 'white';
+  this.ctx.font = "18px 'Lucida Grande'";
+  this.ctx.fillText('FPS: ' + this.fps, 32, 268);
+  this.ctx.fillText('Ping: ' + this.latency + " milliseconds", 32, 294);
+}
 
 Maverick.prototype.drawMap = function () {
   this.ctx.save();
@@ -426,6 +450,13 @@ socket.on('joinGame', function (updatedSettings) {
   );
   $('#menu').hide();
   mav.run();
+});
+
+socket.on('pong', function () {
+  mav.latency = Date.now() - mav.startPingTime;
+  // console.log("Latency:", mav.latency, "ms");
+  // debug('Latency: ' + latency + 'ms');
+  // chat.addSystemLine('Ping: ' + latency + 'ms');
 });
 
 socket.on("rejoinGame", function(updatedSettings) {
