@@ -272,7 +272,7 @@ Maverick.prototype.render = function() {
 Maverick.prototype.drawDiagnostics = function() {
   this.ctx.fillStyle = 'black';
   this.ctx.globalAlpha = 0.3;
-  this.ctx.fillRect(20, 240, 200,68);
+  this.ctx.fillRect(20, 240, 300, 68);
   this.ctx.globalAlpha = 1;
 
   this.ctx.fillStyle = 'white';
