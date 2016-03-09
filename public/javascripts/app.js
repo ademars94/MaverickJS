@@ -473,6 +473,10 @@ function spawnComputerPlayer() {
   socket.emit('spawnComputerPlayer', mav.client);
 }
 
+function reloadHomingMissiles() {
+  socket.emit('reloadHomingMissiles', mav.client);
+}
+
 // ********************************************************************
 // *************************** Socket Stuff ***************************
 // ********************************************************************

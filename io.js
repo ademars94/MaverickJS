@@ -98,87 +98,93 @@ function movePlane() {
 };
 
 function moveBullets() {
-  bulletData.forEach(function(bullet) {
-    var newBulletX = bullet.x + (bullet.speed) * Math.sin(Math.PI / 180 * bullet.angle);
-    var newBulletY = bullet.y -(bullet.speed) * Math.cos(Math.PI / 180 * bullet.angle);
-    if (newBulletX >= 0 && newBulletX <= 5000) {
-      bullet.x = newBulletX;
-    }
-    else {
-      bulletData = bulletData.filter(function(b) {
-        return bullet.id !== b.id;
-      });
-    }
-    if (newBulletY >= 0 && newBulletY <= 5000) {
-      bullet.y = newBulletY;
-    }
-    else {
-      bulletData = bulletData.filter(function(b) {
-        return bullet.id !== b.id;
-      });
-    }
-  });
-  io.emit('moveBullets', bulletData);
+  if (bulletData.length > 0) {
+    bulletData.forEach(function(bullet) {
+      var newBulletX = bullet.x + (bullet.speed) * Math.sin(Math.PI / 180 * bullet.angle);
+      var newBulletY = bullet.y -(bullet.speed) * Math.cos(Math.PI / 180 * bullet.angle);
+      if (newBulletX >= 0 && newBulletX <= 5000) {
+        bullet.x = newBulletX;
+      }
+      else {
+        bulletData = bulletData.filter(function(b) {
+          return bullet.id !== b.id;
+        });
+      }
+      if (newBulletY >= 0 && newBulletY <= 5000) {
+        bullet.y = newBulletY;
+      }
+      else {
+        bulletData = bulletData.filter(function(b) {
+          return bullet.id !== b.id;
+        });
+      }
+    });
+    io.emit('moveBullets', bulletData);
+  }
 };
 
 function moveHomingMissiles() {
-  homingMissiles.forEach(function(hm) {
-    var newMissileX = hm.x + (hm.speed) * Math.sin(Math.PI / 180 * hm.angle);
-    var newMissileY = hm.y -(hm.speed) * Math.cos(Math.PI / 180 * hm.angle);
+  if (homingMissiles.length > 0) {
+    homingMissiles.forEach(function(hm) {
+      var newMissileX = hm.x + (hm.speed) * Math.sin(Math.PI / 180 * hm.angle);
+      var newMissileY = hm.y -(hm.speed) * Math.cos(Math.PI / 180 * hm.angle);
 
-    if (newMissileX >= 0 && newMissileX <= 5000) {
-      hm.x = newMissileX;
-    }
-    else {
-      homingMissiles = homingMissiles.filter(function(m) {
-        return hm.id !== m.id;
-      });
-    }
-    if (newMissileY >= 0 && newMissileY <= 5000) {
-      hm.y = newMissileY;
-    }
-    else {
-      homingMissiles = homingMissiles.filter(function(m) {
-        return hm.id !== m.id;
-      });
-    }
-  });
-  io.emit('moveHomingMissiles', homingMissiles);
+      if (newMissileX >= 0 && newMissileX <= 5000) {
+        hm.x = newMissileX;
+      }
+      else {
+        homingMissiles = homingMissiles.filter(function(m) {
+          return hm.id !== m.id;
+        });
+      }
+      if (newMissileY >= 0 && newMissileY <= 5000) {
+        hm.y = newMissileY;
+      }
+      else {
+        homingMissiles = homingMissiles.filter(function(m) {
+          return hm.id !== m.id;
+        });
+      }
+    });
+    io.emit('moveHomingMissiles', homingMissiles);
+  }
 };
 
 function controlHomingMissiles() {
-  var followX;
-  var followY;
+  if (homingMissiles.length > 0) {
+    var followX;
+    var followY;
 
-  homingMissiles.forEach(function(hm) {
-    players.forEach(function(player) {
-      if (player.id !== hm.playerId) {
-         followX = player.x;
-         followY = player.y;
+    homingMissiles.forEach(function(hm) {
+      players.forEach(function(player) {
+        if (player.id !== hm.playerId) {
+           followX = player.x;
+           followY = player.y;
+        }
+      });
+
+      var dy = followY - hm.y;
+      var dx = followX - hm.x;
+      var targetAngle = Math.atan2(dy, dx) * 180 / Math.PI + 90;
+
+      if (hm.angle !== targetAngle) {
+        var delta = targetAngle - hm.angle;
+
+        if (delta > 180) delta -= 360;
+        if (delta < -180) delta += 360;
+
+        if (delta > 0) {
+          hm.angle += 5;
+        }
+        if (delta < 0) {
+          hm.angle -= 5;
+        }
+        if (Math.abs(delta) < 5) {
+          hm.angle = targetAngle;
+        }
       }
     });
-
-    var dy = followY - hm.y;
-    var dx = followX - hm.x;
-    var targetAngle = Math.atan2(dy, dx) * 180 / Math.PI + 90;
-
-    if (hm.angle !== targetAngle) {
-      var delta = targetAngle - hm.angle;
-
-      if (delta > 180) delta -= 360;
-      if (delta < -180) delta += 360;
-
-      if (delta > 0) {
-        hm.angle += 5;
-      }
-      if (delta < 0) {
-        hm.angle -= 5;
-      }
-      if (Math.abs(delta) < 5) {
-        hm.angle = targetAngle;
-      }
-    }
-  });
+  }
 };
 
 function spawnHealthPacks() {
@@ -509,6 +515,10 @@ io.on('connection', function(socket) {
 
   socket.on('spawnComputerPlayer', function(player) {
     spawnComputerPlayer();
+  })
+
+  socket.on('reloadHomingMissiles', function(player) {
+    currentPlayer.homingMissiles = 10;
   })
 
   socket.on('disconnect', function(player) {
