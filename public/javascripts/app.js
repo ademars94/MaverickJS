@@ -27,20 +27,23 @@ var healthPacks = [];
 var leaderboard = [];
 var homingMissiles = [];
 var availHomingMissiles = [];
+var missiles = [];
+var availMissiles = [];
 var plane;
 var leftPress;
 var rightPress;
 var spacePress;
-var fPress;
+var onePress;
+var twoPress;
 var upPress;
 var downPress;
 
 $(document).on('keydown', function(e) {
   if (players.length > 0) {
-    if (e.keyCode === 68 || e.keyCode === 39) {
+    if (e.keyCode === 39 || e.keyCode === 68) {
       rightPress = true;
     }
-    if (e.keyCode === 65 || e.keyCode === 37) {
+    if (e.keyCode === 37 || e.keyCode === 65) {
       leftPress = true;
     }
     if (e.keyCode === 38 || e.keyCode === 87) {
@@ -53,19 +56,32 @@ $(document).on('keydown', function(e) {
     if (e.keyCode === 80) {
       spawnComputerPlayer();
     }
-    if (!fPress && e.keyCode === 70) {
-      fPress = true;
-      fHandler();
+    if (!onePress && e.keyCode === 49 || e.keyCode === 75) {
+      onePress = true;
+      oneHandler();
+    }
+    if (!twoPress && e.keyCode === 50 || e.keyCode === 76) {
+      twoPress = true;
+      twoHandler();
+    }
+    if (e.keyCode === 16 || e.keyCode === 74) {
+      socket.emit('reload', mav.client);
+      if (mav.client.ammo < 10) {
+        mav.reloading = true;
+        setTimeout(function() {
+          mav.reloading = false;
+        }, 3000)
+      }
     }
   }
 });
 
 $(document).on('keyup', function(e) {
   if (players.length > 0) {
-    if (e.keyCode === 68 || e.keyCode === 39) {
+    if (e.keyCode === 39 || e.keyCode === 68) {
       rightPress = false;
     }
-    if (e.keyCode === 65 || e.keyCode === 37) {
+    if (e.keyCode === 37 || e.keyCode === 65) {
       leftPress = false;
     }
     if (e.keyCode === 38 || e.keyCode === 87) {
@@ -75,9 +91,13 @@ $(document).on('keyup', function(e) {
       spacePress = false;
       spaceHandler();
     }
-    if (e.keyCode === 70) {
-      fPress = false;
-      fHandler();
+    if (e.keyCode === 49 || e.keyCode === 75) {
+      onePress = false;
+      oneHandler();
+    }
+    if (e.keyCode === 50 || e.keyCode === 76) {
+      twoPress = false;
+      twoHandler();
     }
   }
 });
@@ -88,9 +108,15 @@ function spaceHandler() {
   }
 }
 
-function fHandler() {
-  if (fPress) {
-    socket.emit('fPressed', mav.client);
+function oneHandler() {
+  if (onePress) {
+    socket.emit('onePressed', mav.client);
+  }
+}
+
+function twoHandler() {
+  if (twoPress) {
+    socket.emit('twoPressed', mav.client);
   }
 }
 
@@ -116,7 +142,10 @@ lightning.src = '/images/lightning.png';
 var messerschmitt = new Image();
 messerschmitt.src = '/images/messerschmitt.png';
 
-var planes = [spitfire, zero, mustang, lightning, messerschmitt];
+var tigercat = new Image();
+tigercat.src = '/images/tigercat.png';
+
+var planes = [spitfire, zero, mustang, lightning, messerschmitt, tigercat];
 
 var bulletImg = new Image();
 bulletImg.src = '/images/bullet.png';
@@ -128,7 +157,10 @@ var healthImg = new Image();
 healthImg.src = '/images/health.png'
 
 var homingMissileImg = new Image();
-homingMissileImg.src     = '/images/homing-missile.png'
+homingMissileImg.src = '/images/homing-missile.png'
+
+var missileImg = new Image();
+missileImg.src = '/images/missile.png'
 
 // Map Stuff
 
@@ -158,7 +190,7 @@ Camera.prototype.move = function(x, y) {
 // **************************** Game Stuff ****************************
 // ********************************************************************
 
-function Client(name, plane, id, x, y, speed, angle, health, points, ammo, homingMissiles) {
+function Client(name, plane, id, x, y, speed, angle, health, points, ammo, homingMissiles, missiles) {
   this.name   = name;
   this.plane  = plane;
   this.id     = id;
@@ -170,6 +202,7 @@ function Client(name, plane, id, x, y, speed, angle, health, points, ammo, homin
   this.points = points;
   this.ammo   = ammo;
   this.homingMissiles = homingMissiles;
+  this.missiles = missiles;
 };
 
 function Maverick(context, camera, client, players, bullets) {
@@ -241,6 +274,8 @@ Maverick.prototype.tick = function(elapsed) {
 }
 
 Maverick.prototype.render = function() {
+  rotate += 3;
+
   var filterStrength = 10;
   var thisFrame = Date.now();
   var delta = thisFrame - lastFrame;
@@ -259,7 +294,9 @@ Maverick.prototype.render = function() {
   this.drawHealthPacks();
   this.drawBullets();
   this.drawHomingMissiles();
+  this.drawMissiles();
   this.drawAvailHomingMissiles();
+  this.drawAvailMissiles();
   this.drawEnemies();
   this.drawPlane();
   this.drawLeaderboard();
@@ -294,10 +331,10 @@ Maverick.prototype.drawMap = function () {
 Maverick.prototype.drawPlane = function() {
   var color;
 
-  if (this.client.health > 6) {
+  if (this.client.health > 14) {
     color = '#2ecc71'
   }
-  else if (this.client.health > 3) {
+  else if (this.client.health > 7) {
     color = '#f1c40f'
   }
   else {
@@ -312,7 +349,7 @@ Maverick.prototype.drawPlane = function() {
   this.ctx.fillStyle = 'blue';
   this.ctx.fillText(this.client.name, 0, -90);
   this.ctx.fillStyle = color;
-  this.ctx.fillRect(-50, -85, this.client.health*10, 10);
+  this.ctx.fillRect(-50, -85, this.client.health*5, 10);
   this.ctx.rotate(Math.PI / 180 * this.client.angle);
   this.ctx.drawImage(planes[this.client.plane], -60, -60, 120, 120);
   this.ctx.restore();
@@ -331,10 +368,10 @@ Maverick.prototype.drawEnemies = function() {
 
         var color;
 
-        if (p.health > 6) {
+        if (p.health > 14) {
           color = '#2ecc71'
         }
-        else if (p.health > 3) {
+        else if (p.health > 7) {
           color = '#f1c40f'
         }
         else {
@@ -349,7 +386,7 @@ Maverick.prototype.drawEnemies = function() {
         self.ctx.fillStyle = '#e74c3c';
         self.ctx.fillText(p.name, 0, -90);
         self.ctx.fillStyle = color;
-        self.ctx.fillRect(-50, -85, p.health*10, 10);
+        self.ctx.fillRect(-50, -85, p.health*5, 10);
         self.ctx.rotate(Math.PI / 180 * p.angle);
         self.ctx.drawImage(planes[p.plane], -60, -60, 120, 120);
         self.ctx.restore();
@@ -398,6 +435,26 @@ Maverick.prototype.drawHomingMissiles = function() {
   };
 };
 
+Maverick.prototype.drawMissiles = function() {
+  var self = this;
+  if (missiles.length >= 1) {
+    missiles.forEach(function(m) {
+      if (
+        m.x < self.camRightBound  &&
+        m.x > self.camLeftBound   &&
+        m.y < self.camBottomBound &&
+        m.y > self.camTopBound
+      ) {
+        self.ctx.save();
+        self.ctx.translate(m.x - self.camLeftBound, m.y - self.camTopBound);
+        self.ctx.rotate(Math.PI / 180 * m.angle);
+        self.ctx.drawImage(missileImg, -16, -32, 32, 64);
+        self.ctx.restore();
+      }
+    });
+  };
+};
+
 Maverick.prototype.drawHealthPacks = function() {
   var self = this;
   if (healthPacks.length >= 1) {
@@ -420,7 +477,6 @@ Maverick.prototype.drawHealthPacks = function() {
 Maverick.prototype.drawAvailHomingMissiles = function() {
   var self = this;
   if (availHomingMissiles.length >= 1) {
-    rotate += 3;
     availHomingMissiles.forEach(function(ahm) {
       if (
         ahm.x < self.camRightBound  &&
@@ -438,6 +494,26 @@ Maverick.prototype.drawAvailHomingMissiles = function() {
   };
 };
 
+Maverick.prototype.drawAvailMissiles = function() {
+  var self = this;
+  if (availMissiles.length >= 1) {
+    availMissiles.forEach(function(m) {
+      if (
+        m.x < self.camRightBound  &&
+        m.x > self.camLeftBound   &&
+        m.y < self.camBottomBound &&
+        m.y > self.camTopBound
+      ) {
+        self.ctx.save();
+        self.ctx.translate(m.x - self.camLeftBound, m.y - self.camTopBound);
+        self.ctx.rotate(Math.PI / 180 * rotate);
+        self.ctx.drawImage(missileImg, -16, -32, 32, 64);
+        self.ctx.restore();
+      }
+    });
+  };
+};
+
 Maverick.prototype.drawAmmo = function() {
   // console.log("Ammo:", mav.client.ammo);
   var self = this;
@@ -447,14 +523,18 @@ Maverick.prototype.drawAmmo = function() {
     self.ctx.drawImage(bulletImg, ammoX, ammoY, 64, 64);
     ammoX += 24;
   }
+  for (var i = mav.client.missiles; i > 0; i--) {
+    self.ctx.drawImage(missileImg, ammoX + 48, ammoY, 32, 64);
+    ammoX += 48;
+  }
   for (var i = mav.client.homingMissiles; i > 0; i--) {
     self.ctx.drawImage(homingMissileImg, ammoX + 48, ammoY, 32, 64);
     ammoX += 48;
   }
-  if (mav.client.ammo < 1) {
+  if (mav.client.ammo < 1 || mav.reloading) {
     self.ctx.fillStyle = 'grey';
     self.ctx.font = "36px 'Lucida Grande'";
-    self.ctx.fillText('Reloading...', 48, canvas.height - 48);
+    self.ctx.fillText('Reloading...', ammoX + 48, canvas.height - 48);
   }
 }
 
@@ -520,7 +600,8 @@ socket.on('joinGame', function (updatedSettings) {
     , updatedSettings.health
     , updatedSettings.points
     , updatedSettings.ammo
-    , updatedSettings.homingMissiles)
+    , updatedSettings.homingMissiles
+    , updatedSettings.missiles)
 
   var camera = new Camera(map, canvas.width, canvas.height)
 
@@ -553,6 +634,7 @@ socket.on('movePlane', function(playerData) {
   mav.client.points = playerData.points;
   mav.client.ammo   = playerData.ammo;
   mav.client.homingMissiles = playerData.homingMissiles;
+  mav.client.missiles = playerData.missiles;
 });
 
 socket.on('moveBullets', function(bulletData) {
@@ -561,6 +643,10 @@ socket.on('moveBullets', function(bulletData) {
 
 socket.on('moveHomingMissiles', function(homingMissileData) {
   homingMissiles = homingMissileData;
+});
+
+socket.on('moveMissiles', function(missileData) {
+  missiles = missileData;
 });
 
 socket.on('spawnHealthPacks', function(healthPackData) {
@@ -572,6 +658,11 @@ socket.on('availHomingMissiles', function(availHomingMissileData) {
   availHomingMissiles = availHomingMissileData;
   console.log("Homing Missiles currently available:", availHomingMissiles);
 });
+
+socket.on('availMissiles', function(availMissileData) {
+  availMissiles = availMissileData;
+  console.log("Missiles currently available:", availMissiles);
+})
 
 socket.on('updateHealthPacks', function(healthPackData) {
   healthPacks = healthPackData;
