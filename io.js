@@ -119,7 +119,7 @@ function moveBullets() {
         });
       }
     });
-    io.emit('moveBullets', bulletData);
+    // io.emit('moveBullets', bulletData);
   }
 };
 
@@ -146,7 +146,7 @@ function moveHomingMissiles() {
         });
       }
     });
-    io.emit('moveHomingMissiles', homingMissiles);
+    // io.emit('moveHomingMissiles', homingMissiles);
   }
 };
 
@@ -281,6 +281,8 @@ function checkCollisions() {
       }
     })
   })
+  io.emit('moveBullets', bulletData);
+  io.emit('moveHomingMissiles', homingMissiles);
 };
 
 // function reloader() {
@@ -494,7 +496,7 @@ io.on('connection', function(socket) {
         homingMissileId,    // ID
         player.id,          // Shooter ID
         player.id,          // Tracked Player's ID
-        30,                 // Speed
+        25,                 // Speed
         currentPlayer.angle // Angle
       );
       homingMissiles.push(homingMissile);
