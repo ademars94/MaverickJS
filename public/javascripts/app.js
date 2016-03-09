@@ -18,6 +18,7 @@ console.log(socket);
 var canvas = $('#canvas')[0];
 var ctx = canvas.getContext('2d');
 var angle = 0;
+var rotate = 0;
 var lastFrame = Date.now();
 var frameTime = 0;
 var players = [];
@@ -25,6 +26,7 @@ var bullets = [];
 var healthPacks = [];
 var leaderboard = [];
 var homingMissiles = [];
+var availHomingMissiles = [];
 var plane;
 var leftPress;
 var rightPress;
@@ -257,6 +259,7 @@ Maverick.prototype.render = function() {
   this.drawHealthPacks();
   this.drawBullets();
   this.drawHomingMissiles();
+  this.drawAvailHomingMissiles();
   this.drawEnemies();
   this.drawPlane();
   this.drawLeaderboard();
@@ -272,7 +275,7 @@ Maverick.prototype.render = function() {
 Maverick.prototype.drawDiagnostics = function() {
   this.ctx.fillStyle = 'black';
   this.ctx.globalAlpha = 0.3;
-  this.ctx.fillRect(20, 240, 200,68);
+  this.ctx.fillRect(20, 240, 300, 68);
   this.ctx.globalAlpha = 1;
 
   this.ctx.fillStyle = 'white';
@@ -414,6 +417,27 @@ Maverick.prototype.drawHealthPacks = function() {
   };
 };
 
+Maverick.prototype.drawAvailHomingMissiles = function() {
+  var self = this;
+  if (availHomingMissiles.length >= 1) {
+    rotate += 3;
+    availHomingMissiles.forEach(function(ahm) {
+      if (
+        ahm.x < self.camRightBound  &&
+        ahm.x > self.camLeftBound   &&
+        ahm.y < self.camBottomBound &&
+        ahm.y > self.camTopBound
+      ) {
+        self.ctx.save();
+        self.ctx.translate(ahm.x - self.camLeftBound, ahm.y - self.camTopBound);
+        self.ctx.rotate(Math.PI / 180 * rotate);
+        self.ctx.drawImage(homingMissileImg, -16, -32, 32, 64);
+        self.ctx.restore();
+      }
+    });
+  };
+};
+
 Maverick.prototype.drawAmmo = function() {
   // console.log("Ammo:", mav.client.ammo);
   var self = this;
@@ -542,6 +566,11 @@ socket.on('moveHomingMissiles', function(homingMissileData) {
 socket.on('spawnHealthPacks', function(healthPackData) {
   healthPacks = healthPackData;
   console.log("Health packs currently in play:", healthPacks);
+});
+
+socket.on('availHomingMissiles', function(availHomingMissileData) {
+  availHomingMissiles = availHomingMissileData;
+  console.log("Homing Missiles currently available:", availHomingMissiles);
 });
 
 socket.on('updateHealthPacks', function(healthPackData) {
