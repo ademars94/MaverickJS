@@ -154,12 +154,23 @@ function controlHomingMissiles() {
   if (homingMissiles.length > 0) {
     var followX;
     var followY;
+    var a, b, c;
+    var dist = 10000;
 
     homingMissiles.forEach(function(hm) {
       players.forEach(function(player) {
         if (player.id !== hm.playerId) {
-           followX = player.x;
-           followY = player.y;
+
+          a = player.x - hm.x;
+          b = player.y - hm.y;
+          c = Math.abs(Math.sqrt(a * a, b * b));
+
+          if (c < dist) {
+            followX = player.x;
+            followY = player.y;
+          }
+
+          dist = c;
         }
       });
 
@@ -174,12 +185,12 @@ function controlHomingMissiles() {
         if (delta < -180) delta += 360;
 
         if (delta > 0) {
-          hm.angle += 5;
+          hm.angle += 4;
         }
         if (delta < 0) {
-          hm.angle -= 5;
+          hm.angle -= 4;
         }
-        if (Math.abs(delta) < 5) {
+        if (Math.abs(delta) < 4) {
           hm.angle = targetAngle;
         }
       }
