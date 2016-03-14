@@ -173,7 +173,6 @@ function moveMissiles() {
         });
       }
     });
-    console.log(missiles);
   }
 };
 
@@ -290,16 +289,6 @@ function spawnHealthPacks() {
   }
   io.emit('spawnHealthPacks', healthPacks);
 };
-
-// function regenerate(p) {
-//   setTimeout(function() {
-//     if (p.health < 10) {
-//       setTimeout(function() {
-//         p.health++;
-//       }, 1000)
-//     }
-//   }, 2000)
-// }
 
 function checkCollisions() {
   bulletData.forEach(function(b) {
@@ -454,10 +443,6 @@ function checkCollisions() {
 //   })
 // }
 
-function logger() {
-  console.log("Players:", players)
-};
-
 function reloader() {
   players.forEach(function(player) {
     if (player.ammo < 1) {
@@ -482,7 +467,6 @@ function spawnComputerPlayer() {
     10
   );
   players.push(computerPlayer);
-  console.log('Player joined:', computerPlayer);
 };
 
 function controlComputerPlayers() {
@@ -552,7 +536,6 @@ io.on('connection', function(socket) {
   socket.on('spawn', function(client) {
     if (!sockets[client.id]) {
       sockets[client.id] = socket;
-      console.log('Player joined:', client);
       currentPlayer = new Player(
         client.name,
         client.plane,
@@ -697,7 +680,6 @@ io.on('connection', function(socket) {
     if (reloading === 1) {
       reloading = 2;
       setTimeout(function() {
-        console.log(player.name, "is reloading.");
         currentPlayer.ammo = 10;
         reloading = 1;
       }, 3000);
