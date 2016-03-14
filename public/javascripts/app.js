@@ -616,9 +616,6 @@ socket.on('joinGame', function (updatedSettings) {
 
 socket.on('pong', function () {
   mav.latency = Date.now() - mav.startPingTime;
-  // console.log("Latency:", mav.latency, "ms");
-  // debug('Latency: ' + latency + 'ms');
-  // chat.addSystemLine('Ping: ' + latency + 'ms');
 });
 
 socket.on("rejoinGame", function(updatedSettings) {
@@ -651,22 +648,18 @@ socket.on('moveMissiles', function(missileData) {
 
 socket.on('spawnHealthPacks', function(healthPackData) {
   healthPacks = healthPackData;
-  console.log("Health packs currently in play:", healthPacks);
 });
 
 socket.on('availHomingMissiles', function(availHomingMissileData) {
   availHomingMissiles = availHomingMissileData;
-  console.log("Homing Missiles currently available:", availHomingMissiles);
 });
 
 socket.on('availMissiles', function(availMissileData) {
   availMissiles = availMissileData;
-  console.log("Missiles currently available:", availMissiles);
 })
 
 socket.on('updateHealthPacks', function(healthPackData) {
   healthPacks = healthPackData;
-  console.log("Health packs currently in play:", healthPacks);
 })
 
 socket.on('updateAllPlayers', function(otherPlayers) {
