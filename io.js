@@ -336,9 +336,65 @@ function checkPlayerBulletCollision() {
           });
         }
       }
-    })
-  })
-}
+    });
+  });
+};
+
+function checkPlayerMissileCollision() {
+  missiles.forEach(function(m) {
+    players.forEach(function(p) {
+      if (m.playerId !== p.id
+      && m.x > p.x - 48
+      && m.x < p.x + 48
+      && m.y > p.y - 48
+      && m.y < p.y + 48) {
+        p.health-=6;
+        missiles = missiles.filter(function(m2) {
+          return m.id !== m2.id;
+        });
+        if (p.health < 1) {
+          io.emit('playerDie', p)
+          players = players.filter(function(p2) {
+            return p2.id !== p.id;
+          });
+          players.forEach(function(attacker) {
+            if (m.playerId === attacker.id) {
+              attacker.points += 1;
+            }
+          });
+        }
+      }
+    });
+  });
+};
+
+function checkPlayerHomingMissileCollision() {
+  players.forEach(function(p) {
+    homingMissiles.forEach(function(hm) {
+      if (hm.playerId !== p.id
+      && hm.x > p.x - 48
+      && hm.x < p.x + 48
+      && hm.y > p.y - 48
+      && hm.y < p.y + 48) {
+        p.health-=6;
+        homingMissiles = homingMissiles.filter(function(m) {
+          return hm.id !== m.id;
+        });
+        if (p.health < 1) {
+          io.emit('playerDie', p)
+          players = players.filter(function(p2) {
+            return p2.id !== p.id;
+          });
+          players.forEach(function(attacker) {
+            if (hm.playerId === attacker.id) {
+              attacker.points += 1;
+            }
+          });
+        }
+      }
+    });
+  });
+};
 
 function checkPlayerItemCollision() {
   players.forEach(function(p) {
@@ -408,56 +464,14 @@ function checkCollisions() {
     checkPlayerItemCollision();
   }
 
-  homingMissiles.forEach(function(hm) {
-    players.forEach(function(p) {
-      if (hm.playerId !== p.id
-      && hm.x > p.x - 48
-      && hm.x < p.x + 48
-      && hm.y > p.y - 48
-      && hm.y < p.y + 48) {
-        p.health-=6;
-        homingMissiles = homingMissiles.filter(function(m) {
-          return hm.id !== m.id;
-        });
-        if (p.health < 1) {
-          io.emit('playerDie', p)
-          players = players.filter(function(p2) {
-            return p2.id !== p.id;
-          });
-          players.forEach(function(attacker) {
-            if (hm.playerId === attacker.id) {
-              attacker.points += 1;
-            }
-          });
-        }
-      }
-    })
-  })
-  missiles.forEach(function(m) {
-    players.forEach(function(p) {
-      if (m.playerId !== p.id
-      && m.x > p.x - 48
-      && m.x < p.x + 48
-      && m.y > p.y - 48
-      && m.y < p.y + 48) {
-        p.health-=6;
-        missiles = missiles.filter(function(m2) {
-          return m.id !== m2.id;
-        });
-        if (p.health < 1) {
-          io.emit('playerDie', p)
-          players = players.filter(function(p2) {
-            return p2.id !== p.id;
-          });
-          players.forEach(function(attacker) {
-            if (m.playerId === attacker.id) {
-              attacker.points += 1;
-            }
-          });
-        }
-      }
-    })
-  })
+  if (homingMissiles.length > 0) {
+    checkPlayerHomingMissileCollision();
+  }
+
+  if (missiles.length > 0) {
+    checkPlayerMissileCollision();
+  }
+
   io.emit('moveBullets', bulletData);
   io.emit('moveHomingMissiles', homingMissiles);
   io.emit('moveMissiles', missiles);
@@ -548,9 +562,6 @@ setInterval(updateAllPlayers, 1000/30);
 setInterval(updateLeaderboard, 1000);
 setInterval(controlComputerPlayers, 1000/30);
 setInterval(spawnItems, 2000);
-// setInterval(spawnHealthPacks, 2000);
-// setInterval(spawnHomingMissiles, 2000);
-// setInterval(spawnMissiles, 2000);
 // setInterval(logger, 1000);
 
 // ********************************************************************
