@@ -23,12 +23,10 @@ var lastFrame = Date.now();
 var frameTime = 0;
 var players = [];
 var bullets = [];
-var healthPacks = [];
+var availableItems = [];
 var leaderboard = [];
 var homingMissiles = [];
-var availHomingMissiles = [];
 var missiles = [];
-var availMissiles = [];
 var plane;
 var leftPress;
 var rightPress;
@@ -291,12 +289,10 @@ Maverick.prototype.render = function() {
   this.updateCam();
   // this.drawGrid();
   this.drawMap();
-  this.drawHealthPacks();
+  this.drawAvailableItems();
   this.drawBullets();
   this.drawHomingMissiles();
   this.drawMissiles();
-  this.drawAvailHomingMissiles();
-  this.drawAvailMissiles();
   this.drawEnemies();
   this.drawPlane();
   this.drawLeaderboard();
@@ -474,41 +470,36 @@ Maverick.prototype.drawHealthPacks = function() {
   };
 };
 
-Maverick.prototype.drawAvailHomingMissiles = function() {
+Maverick.prototype.drawAvailableItems = function() {
   var self = this;
-  if (availHomingMissiles.length >= 1) {
-    availHomingMissiles.forEach(function(ahm) {
+  if (availableItems.length >= 1) {
+    availableItems.forEach(function(i) {
       if (
-        ahm.x < self.camRightBound  &&
-        ahm.x > self.camLeftBound   &&
-        ahm.y < self.camBottomBound &&
-        ahm.y > self.camTopBound
+        i.x < self.camRightBound  &&
+        i.x > self.camLeftBound   &&
+        i.y < self.camBottomBound &&
+        i.y > self.camTopBound
       ) {
-        self.ctx.save();
-        self.ctx.translate(ahm.x - self.camLeftBound, ahm.y - self.camTopBound);
-        self.ctx.rotate(Math.PI / 180 * rotate);
-        self.ctx.drawImage(homingMissileImg, -16, -32, 32, 64);
-        self.ctx.restore();
-      }
-    });
-  };
-};
-
-Maverick.prototype.drawAvailMissiles = function() {
-  var self = this;
-  if (availMissiles.length >= 1) {
-    availMissiles.forEach(function(m) {
-      if (
-        m.x < self.camRightBound  &&
-        m.x > self.camLeftBound   &&
-        m.y < self.camBottomBound &&
-        m.y > self.camTopBound
-      ) {
-        self.ctx.save();
-        self.ctx.translate(m.x - self.camLeftBound, m.y - self.camTopBound);
-        self.ctx.rotate(Math.PI / 180 * rotate);
-        self.ctx.drawImage(missileImg, -16, -32, 32, 64);
-        self.ctx.restore();
+        if (i.type === 0) {
+          self.ctx.save();
+          self.ctx.translate(i.x - self.camLeftBound, i.y - self.camTopBound);
+          self.ctx.drawImage(healthImg, -24, -24, 48, 48);
+          self.ctx.restore();
+        }
+        if (i.type === 1) {
+          self.ctx.save();
+          self.ctx.translate(i.x - self.camLeftBound, i.y - self.camTopBound);
+          self.ctx.rotate(Math.PI / 180 * rotate);
+          self.ctx.drawImage(missileImg, -16, -32, 32, 64);
+          self.ctx.restore();
+        }
+        if (i.type === 2) {
+          self.ctx.save();
+          self.ctx.translate(i.x - self.camLeftBound, i.y - self.camTopBound);
+          self.ctx.rotate(Math.PI / 180 * rotate);
+          self.ctx.drawImage(homingMissileImg, -16, -32, 32, 64);
+          self.ctx.restore();
+        }
       }
     });
   };
@@ -649,25 +640,9 @@ socket.on('moveMissiles', function(missileData) {
   missiles = missileData;
 });
 
-socket.on('spawnHealthPacks', function(healthPackData) {
-  healthPacks = healthPackData;
-  console.log("Health packs currently in play:", healthPacks);
+socket.on('updateItems', function(availableItemData) {
+  availableItems = availableItemData;
 });
-
-socket.on('availHomingMissiles', function(availHomingMissileData) {
-  availHomingMissiles = availHomingMissileData;
-  console.log("Homing Missiles currently available:", availHomingMissiles);
-});
-
-socket.on('availMissiles', function(availMissileData) {
-  availMissiles = availMissileData;
-  console.log("Missiles currently available:", availMissiles);
-})
-
-socket.on('updateHealthPacks', function(healthPackData) {
-  healthPacks = healthPackData;
-  console.log("Health packs currently in play:", healthPacks);
-})
 
 socket.on('updateAllPlayers', function(otherPlayers) {
   players = otherPlayers;

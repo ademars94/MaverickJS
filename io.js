@@ -12,19 +12,17 @@
 var io = require('socket.io')();
 var players              = [];
 var bulletData           = [];
-var healthPacks          = [];
+var availableItems       = [];
 var homingMissiles       = [];
-var availHomingMissiles  = [];
 var missiles             = [];
-var availMissiles        = [];
 var leaderboard          = [];
 var sockets              = {};
 var bulletId             = 0;
-var healthPackId         = 0;
 var homingMissileId      = 0;
 var missileId            = 0;
-var availMissileId       = 0;
-var availHomingMissileId = 0;
+var healthPackId         = 0;
+var availMissileId       = 100;
+var availHomingMissileId = 200;
 var frames               = 0;
 
 // setInterval(logThatShit, 3000);
@@ -75,23 +73,86 @@ var Missile = function(x, y, id, playerId, speed, angle) {
   this.angle    = angle;
 };
 
-var AvailHomingMissile = function(x, y, id) {
+var AvailHomingMissile = function(type, x, y, id) {
+  this.type = type;
   this.x  = x;
   this.y  = y;
   this.id = id;
 }
 
-var AvailMissile = function(x, y, id) {
+var AvailMissile = function(type, x, y, id) {
+  this.type = type;
   this.x  = x;
   this.y  = y;
   this.id = id;
 }
 
-var HealthPack = function(x, y, id) {
+var HealthPack = function(type, x, y, id) {
+  this.type = type;
   this.x  = x;
   this.y  = y;
   this.id = id;
 };
+
+function spotRandomizer() {
+  return Math.floor(Math.random()*(4500-500+1)+500);
+}
+
+function spawnItems() {
+  var healthPacks = 0;
+  var missiles = 0;
+  var homingMissiles = 0;
+
+  availableItems.forEach(function(i) {
+    if (i.type === 0) healthPacks++;
+    if (i.type === 1) missiles++;
+    if (i.type === 2) homingMissiles++;
+  })
+
+  if (healthPacks < 2) {
+    spawnHealthPacks();
+  }
+  if (missiles < 2) {
+    spawnMissiles();
+  }
+  if (homingMissiles < 2) {
+    spawnHomingMissiles();
+  }
+  io.emit('updateItems', availableItems);
+}
+
+function spawnHealthPacks() {
+  healthPackId += 1;
+  var healthPack = new HealthPack(
+    0, // Type
+    spotRandomizer(), // X
+    spotRandomizer(), // Y
+    healthPackId // ID
+  );
+  availableItems.push(healthPack);
+};
+
+function spawnMissiles() {
+  availMissileId += 1;
+  var availMissile = new AvailMissile(
+    1, // Type
+    spotRandomizer(), // X
+    spotRandomizer(), // Y
+    availMissileId // ID
+  );
+  availableItems.push(availMissile);
+};
+
+function spawnHomingMissiles() {
+  availHomingMissileId += 1;
+  var availHomingMissile = new AvailHomingMissile(
+    2, // Type
+    spotRandomizer(), // X
+    spotRandomizer(), // Y
+    availHomingMissileId // ID
+  );
+  availableItems.push(availHomingMissile);
+}
 
 function updateAllPlayers() {
   io.emit('updateAllPlayers', players);
@@ -176,32 +237,6 @@ function moveMissiles() {
   }
 };
 
-function spawnHomingMissiles() {
-  if (availHomingMissiles.length < 2) {
-    availHomingMissileId += 1;
-    var availHomingMissile = new AvailHomingMissile(
-      Math.floor(Math.random()*(4500-500+1)+500), // X
-      Math.floor(Math.random()*(4500-500+1)+500), // Y
-      availHomingMissileId // ID
-    );
-    availHomingMissiles.push(availHomingMissile);
-  }
-  io.emit('availHomingMissiles', availHomingMissiles);
-};
-
-function spawnMissiles() {
-  if (availMissiles.length < 2) {
-    availMissileId += 1;
-    var availMissile = new AvailMissile(
-      Math.floor(Math.random()*(4500-500+1)+500), // X
-      Math.floor(Math.random()*(4500-500+1)+500), // Y
-      availMissileId // ID
-    );
-    availMissiles.push(availMissile);
-  }
-  io.emit('availMissiles', availMissiles);
-};
-
 function moveHomingMissiles() {
   if (homingMissiles.length > 0) {
     homingMissiles.forEach(function(hm) {
@@ -277,22 +312,9 @@ function controlHomingMissiles() {
   }
 };
 
-function spawnHealthPacks() {
-  if (healthPacks.length < 2) {
-    healthPackId += 1;
-    var healthPack = new HealthPack(
-      Math.floor(Math.random()*(4500-500+1)+500), // X
-      Math.floor(Math.random()*(4500-500+1)+500), // Y
-      healthPackId // ID
-    );
-    healthPacks.push(healthPack);
-  }
-  io.emit('spawnHealthPacks', healthPacks);
-};
-
-function checkCollisions() {
-  bulletData.forEach(function(b) {
-    players.forEach(function(p) {
+function checkPlayerBulletCollision() {
+  players.forEach(function(p) {
+    bulletData.forEach(function(b) {
       if (b.playerId !== p.id
       && b.x > p.x - 48
       && b.x < p.x + 48
@@ -314,7 +336,48 @@ function checkCollisions() {
           });
         }
       }
+    })
+  })
+}
+
+function checkPlayerItemCollision() {
+  players.forEach(function(p) {
+    availableItems.forEach(function(i) {
+      if (i.x > p.x - 48
+      &&  i.x < p.x + 48
+      &&  i.y > p.y - 48
+      &&  i.y < p.y + 48) {
+        if (i.type === 0 && p.health < 20) {
+          if (p.health > 10) {
+            p.health = p.health = 20;
+          }
+          else {
+            p.health += 10;
+          }
+          availableItems = availableItems.filter(function(i2) {
+            return i2.id !== i.id;
+          });
+        }
+        if (i.type === 1) {
+          p.missiles += 1;
+          availableItems = availableItems.filter(function(i2) {
+            return i2.id !== i.id;
+          });
+        }
+        if (i.type === 2) {
+          p.homingMissiles += 1;
+          availableItems = availableItems.filter(function(i2) {
+            return i2.id !== i.id;
+          });
+        }
+        io.emit('updateItems', availableItems);
+      }
     });
+  });
+}
+
+function checkHomingMissileBulletCollision() {
+  bulletData.forEach(function(b) {
     homingMissiles.forEach(function(hm) {
       if (b.playerId !== hm.playerId
       &&  b.x > hm.x - 36
@@ -330,54 +393,21 @@ function checkCollisions() {
       }
     })
   });
-  healthPacks.forEach(function(pack) {
-    players.forEach(function(p) {
-      if (p.health < 20
-      && pack.x > p.x - 48
-      && pack.x < p.x + 48
-      && pack.y > p.y - 48
-      && pack.y < p.y + 48) {
-        healthPacks = healthPacks.filter(function(hp) {
-          return hp.id !== pack.id;
-        });
-      if (p.health > 10) {
-        p.health += 20 - p.health;
-      }
-      else {
-        p.health += 10;
-      }
-        io.emit('updateHealthPacks', healthPacks);
-      }
-    });
-  });
-  availMissiles.forEach(function(m) {
-    players.forEach(function(p) {
-      if (m.x > p.x - 48
-      &&  m.x < p.x + 48
-      &&  m.y > p.y - 48
-      &&  m.y < p.y + 48) {
-        availMissiles = availMissiles.filter(function(m2) {
-          return m2.id !== m.id;
-        });
-      p.missiles++;
-        io.emit('availMissiles', availMissiles);
-      }
-    });
-  });
-  availHomingMissiles.forEach(function(ahm) {
-    players.forEach(function(p) {
-      if (ahm.x > p.x - 48
-      &&  ahm.x < p.x + 48
-      &&  ahm.y > p.y - 48
-      &&  ahm.y < p.y + 48) {
-        availHomingMissiles = availHomingMissiles.filter(function(ahm2) {
-          return ahm2.id !== ahm.id;
-        });
-      p.homingMissiles++;
-        io.emit('availHomingMissiles', availHomingMissiles);
-      }
-    });
-  });
+}
+
+function checkCollisions() {
+  if (bulletData.length > 0) {
+    checkPlayerBulletCollision();
+  }
+
+  if (bulletData.length > 0 && homingMissiles.length > 0) {
+    checkHomingMissileBulletCollision();
+  }
+
+  if (availableItems.length > 0) {
+    checkPlayerItemCollision();
+  }
+
   homingMissiles.forEach(function(hm) {
     players.forEach(function(p) {
       if (hm.playerId !== p.id
@@ -517,9 +547,10 @@ setInterval(checkCollisions, 1000/30);
 setInterval(updateAllPlayers, 1000/30);
 setInterval(updateLeaderboard, 1000);
 setInterval(controlComputerPlayers, 1000/30);
-setInterval(spawnHealthPacks, 20000);
-setInterval(spawnHomingMissiles, 20000);
-setInterval(spawnMissiles, 20000);
+setInterval(spawnItems, 2000);
+// setInterval(spawnHealthPacks, 2000);
+// setInterval(spawnHomingMissiles, 2000);
+// setInterval(spawnMissiles, 2000);
 // setInterval(logger, 1000);
 
 // ********************************************************************
