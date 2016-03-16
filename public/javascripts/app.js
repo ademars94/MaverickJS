@@ -100,6 +100,18 @@ $(document).on('keyup', function(e) {
   }
 });
 
+var touchX;
+
+var canv = document.getElementById("canvas");
+canv.addEventListener('touchstart', tap, false);
+function tap(event) {
+  touchX = event.clientX;
+  if (touchX > 350) {
+    socket.emit('spacePressed', mav.client);
+    event.preventDefault();
+  }
+}
+
 function spaceHandler() {
   if (spacePress) {
     socket.emit('spacePressed', mav.client);
