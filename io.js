@@ -576,6 +576,7 @@ io.on('connection', function(socket) {
 
   // Creates new players with constructor
   socket.on('spawn', function(client) {
+    console.log("Spawning: ", client)
     if (!sockets[client.id]) {
       sockets[client.id] = socket;
       currentPlayer = new Player(
