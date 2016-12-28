@@ -331,8 +331,8 @@ Maverick.prototype.drawDiagnostics = function() {
 
 Maverick.prototype.drawMap = function () {
   this.ctx.save();
-  this.ctx.drawImage(tileMap, 0, 0, 5000, 5000,
-    -mav.camLeftBound, -mav.camTopBound, 5000, 5000);
+  this.ctx.drawImage(tileMap, 0, 0, 4096, 4096,
+    -mav.camLeftBound - 2048, -mav.camTopBound - 2048, 4096, 4096);
   this.ctx.restore();
 }
 

@@ -11,21 +11,8 @@
 
 var io = require('socket.io')();
 var players              = [];
-var bulletData           = [];
-var availableItems       = [];
-var homingMissiles       = [];
-var missiles             = [];
-var leaderboard          = [];
 var sockets              = {};
-var bulletId             = 0;
-var homingMissileId      = 0;
-var missileId            = 0;
-var healthPackId         = 0;
-var availMissileId       = 100;
-var availHomingMissileId = 200;
 var frames               = 0;
-
-// setInterval(logThatShit, 3000);
 
 // ********************************************************************
 // *************************** Move Logic *****************************
@@ -50,31 +37,21 @@ function updateAllPlayers() {
   io.emit('updateAllPlayers', players);
 };
 
-function updateLeaderboard() {
-  if (players.length > 0) {
-    leaderboard = players.slice(0);
-  }
-  leaderboard.sort( function(a, b) {return b.points - a.points} );
-  if (leaderboard.length > 5) {
-    leaderboard.splice(6, leaderboard.length);
-  }
-  io.emit('updateAllLeaderboards', leaderboard);
-};
-
 function movePlane() {
   players.forEach(function(player) {
     var newPlaneX = player.x + (player.speed) * Math.sin(Math.PI / 180 * player.angle);
     var newPlaneY = player.y - (player.speed) * Math.cos(Math.PI / 180 * player.angle);
 
-    if (newPlaneX >= 0 && newPlaneX <= 5000) {
+    if (newPlaneX >= -2048 && newPlaneX <= 2048) {
       player.x = newPlaneX;
     }
-    if (newPlaneY >= 0 && newPlaneY <= 5000) {
+    if (newPlaneY >= -2048 && newPlaneY <= 2048) {
       player.y = newPlaneY;
     }
-    if (player.name !== 'Computer') {
-      sockets[player.id].emit('movePlane', player);
-    }
+
+    console.log("x: " + player.x + ", y: " + player.y)
+
+    sockets[player.id].emit('movePlane', player);
   });
 };
 
@@ -99,8 +76,8 @@ io.on('connection', function(socket) {
         client.name,
         client.plane,
         socket.id,
-        2500, // X
-        2500, // Y
+        0, // X
+        0, // Y
         12,   // Speed
         0,    // Angle
         20,   // Health
@@ -114,10 +91,6 @@ io.on('connection', function(socket) {
       var updatedSettings = currentPlayer;
       socket.emit('joinGame', updatedSettings);
     }
-  });
-
-  socket.on('ping', function () {
-    socket.emit('pong');
   });
 
   socket.on('respawn', function(client) {
