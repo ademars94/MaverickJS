@@ -306,7 +306,7 @@ Maverick.prototype.render = function() {
   this.drawHomingMissiles();
   this.drawMissiles();
   this.drawEnemies();
-  this.drawPlane();
+  // this.drawPlane();
   this.drawLeaderboard();
   this.drawLeaders();
   this.drawAmmo();
@@ -361,6 +361,8 @@ Maverick.prototype.drawPlane = function() {
   this.ctx.rotate(Math.PI / 180 * this.client.angle);
   this.ctx.drawImage(planes[this.client.plane], -60, -60, 120, 120);
   this.ctx.restore();
+
+  socket.emit('planeMove', {id: this.client.id, x: this.client.x, y: this.client.y, angle: this.client.angle, speed: this.client.speed})
 };
 
 Maverick.prototype.drawEnemies = function() {
@@ -568,7 +570,7 @@ Maverick.prototype.drawLeaders = function() {
 // Join the game when the start button is clicked!
 $('#start').on('click', function () {
   plane = $('#select').val();
-  var client = new Client($('#name').val(), plane, socket.id);
+  var client = new Client($('#name').val(), plane, socket.id, 0, 0, 7, 0);
   socket.emit('spawn', client);
 });
 
@@ -588,7 +590,7 @@ function reloadHomingMissiles() {
 // *************************** Socket Stuff ***************************
 // ********************************************************************
 
-socket.on('joinGame', function (updatedSettings) {
+socket.on('playerJoined', function (updatedSettings) {
   var context = canvas.getContext('2d');
 
   console.log("Updated Settings:", updatedSettings)
@@ -599,12 +601,7 @@ socket.on('joinGame', function (updatedSettings) {
     , updatedSettings.x
     , updatedSettings.y
     , updatedSettings.speed
-    , updatedSettings.angle
-    , updatedSettings.health
-    , updatedSettings.points
-    , updatedSettings.ammo
-    , updatedSettings.homingMissiles
-    , updatedSettings.missiles)
+    , updatedSettings.angle)
 
   var camera = new Camera(map, canvas.width, canvas.height)
 
