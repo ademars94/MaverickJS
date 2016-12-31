@@ -33,9 +33,9 @@ function tick() {
 }
 
 function updateGameState() {
-  if (players.length > 0) {
-    console.log(players)
-  }
+  // if (players.length > 0) {
+  //   console.log(players)
+  // }
   io.emit('updateGameState', players)
 }
 
@@ -52,6 +52,34 @@ function movePlayers() {
     }
     if (dy >= -2048 && dy <= 2048) {
       player.y = dy
+    }
+  })
+}
+
+function checkMove(client) {
+  players.forEach(function(player) {
+    if (player.id == client.id) {
+      var dx = client.x - player.x
+      var dy = client.y - player.y
+      var da = client.angle - player.angle
+
+      if (dx > 100 || dx < -100) {
+        console.log("Delta X is", dx, ". Correcting...")
+        client.x = player.x
+        sockets[client.id].emit('correction', player)
+      }
+
+      if (dy > 100 || dy < -100) {
+        console.log("Delta Y is", dy, ". Correcting...")
+        client.y = player.y
+        sockets[client.id].emit('correction', player)
+      }
+
+      if (da > 100 || da < -100) {
+        console.log("Delta Angle is", da, ". Correcting...")
+        client.angle = player.angle
+        sockets[client.id].emit('correction', player)
+      }
     }
   })
 }
@@ -87,6 +115,14 @@ io.on('connection', function(socket) {
       playerJoined(player)
     }
   });
+
+  socket.on('planeMove', function(client) {
+    players.forEach(function(player) {
+      if (player.id == client.id) {
+        checkMove(client)
+      }
+    })
+  })
 
   socket.on('changeAngle', function(client) {
     players.forEach(function(player) {
