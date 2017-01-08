@@ -15,13 +15,13 @@ var sockets              = {};
 var frames               = 0;
 
 var Player = function(name, plane, id, x, y, speed, angle, health, points, ammo, homingMissiles, missiles) {
-  this.name           = name;
-  this.plane          = plane;
-  this.id             = id;
-  this.x              = x;
-  this.y              = y;
-  this.speed          = speed;
-  this.angle          = angle;
+  this.name  = name;
+  this.plane = plane;
+  this.id    = id;
+  this.x     = x;
+  this.y     = y;
+  this.speed = speed;
+  this.angle = angle;
 };
 
 // ********************************************************************
