@@ -3,12 +3,12 @@ var path = require("path")
 var favicon = require("serve-favicon")
 var logger = require("morgan")
 var dgram = require("dgram")
-var port = process.env.PORT || 3000
+var port = process.env.PORT || 1337
 
 var routes = require("./routes/index")
 
 var app = express()
-var socket = dgram.createSocket("udp4")
+var socket = dgram.createSocket({type: "udp4", reuseAddr: true})
 
 var players = [];
 var clients = {};
@@ -102,11 +102,13 @@ function killPlayer(client) {
   console.log("Player Died!")
   console.log(players)
   console.log(clients)
+
+  socket.close()
 }
 
-function playerJoin(client, info) {
+function playerJoin(client, address) {
 
-  client.address = info.address
+  client.address = address
   clients[client.id] = client
 
   var player = new Player(
@@ -118,6 +120,8 @@ function playerJoin(client, info) {
   );
 
   players.push(player);
+
+  updateWorld()
 
   console.log("Player Joined!")
   console.log(players)
@@ -135,8 +139,9 @@ function movePlayers() {
     if (dy >= -2048 && dy <= 2048) {
       player.y = dy
     }
-    // console.log(player)
   })
+  // console.log(players)
+  // console.log(clients)
 }
 
 var lastFrame = Date.now()
@@ -179,6 +184,22 @@ function checkPlayerPosition(player, client) {
   console.log("***** " + "END" + " *****")
   console.log("-------------------------")
 
+    // The client is not waiting for a response.
+    // This is an independent action and will
+    // not hold up the client's message.
+
+  // var response = new Buffer( "Got it on " + new Date() );
+  // socket.send(
+  //   response,
+  //   0, // Buffer offset
+  //   response.length,
+  //   requestInfo.port,
+  //   requestInfo.address,
+  //   function( error, byteLength ) {
+  //     console.log( "... Sent response to " + requestInfo.address + ":" + requestInfo.port );
+  //   }
+  // );
+
 }
 
 socket.on('error', (err) => {
@@ -187,6 +208,7 @@ socket.on('error', (err) => {
 });
 
 socket.on('message', (msg, info) => {
+  console.log("Got a message.")
   var client = JSON.parse(msg)
 
   var timestamp = new Date().getTime()
@@ -195,7 +217,7 @@ socket.on('message', (msg, info) => {
   // prettyLogMessage(info.address, info.port, client, timestamp, delta)
 
   if (!clients[client.id] && client.type !== "die") {
-    playerJoin(client, info)
+    playerJoin(client, info.address)
   }
 
   if (client.type === "die") {
@@ -209,7 +231,8 @@ socket.on('message', (msg, info) => {
 
 socket.on('listening', () => {
   var address = socket.address();
-  console.log("Listening on " + address.address + ":" + address.port + "...");
+  var foo = address.family
+  console.log(foo + " socket listening on " + address.address + ":" + address.port + "...");
 });
 
 socket.bind(port);
