@@ -84,15 +84,6 @@ function count() {
   // console.log("Counter:", counter)
 }
 
-function handlePlayerInput(client) {
-  players.forEach(function(player) {
-    if (player.id === client.id) {
-      player.angle = client.angle
-      checkPlayerPosition(player, client)
-    }
-  })
-}
-
 function killPlayer(client) {
   clients[client.id] = null
   players = players.filter(function(player) {
@@ -153,53 +144,77 @@ function checkFPS() {
 
   fps = (1000 / frameTime)
   lastFrame = thisFrame
-  console.log("FPS:", fps)
+  if (fps < 20) {
+    console.log("FPS:", fps)
+  }
+}
+
+function handlePlayerInput(client) {
+  players.forEach(function(player) {
+    if (player.id === client.id) {
+      player.angle = client.angle
+      checkPlayerPosition(player, client)
+    }
+  })
+}
+
+function correctPlayerPosition(player, client) {
+  var serverClient = clients[client.id]
+
+  var response = new Buffer(JSON.stringify({ x: player.x, y: player.y, angle: player.angle }))
+  socket.send(
+    response,
+    0, // Buffer offset
+    response.length,
+    serverClient.id,
+    serverClient.address,
+    function( error, byteLength ) {
+      console.log( "Sent response to " + client.address + ":" + client.id + ".")
+    }
+  )
 }
 
 function checkPlayerPosition(player, client) {
   var dx = client.x - player.x
   var dy = client.y - player.y
   var da = client.angle - player.angle
-  var margin = 10
-
-  console.log("-------------------------")
-  console.log("**** " + "BEGIN" + " ****")
+  var correcting = false
+  var margin = 50
 
   if (dx > margin || dx < -margin) {
-    console.log("Delta X is     :", dx)
+    correctPlayerPosition(player, client)
+    correcting = true
+
   }
 
   if (dy > margin || dy < -margin) {
-    console.log("Delta Y is     :", dy)
+    correctPlayerPosition(player, client)
+    correcting = true
+
   }
 
   if (da > margin || da < -margin) {
+    correctPlayerPosition(player, client)
+    correcting = true
+
+  }
+
+  if (correcting) {
+    console.log("**** " + "BEGIN" + " ****")
+    console.log("Delta X is     :", dx)
+    console.log("Delta Y is     :", dy)
     console.log("Delta Angle is :", da)
+    console.log("***** " + "END" + " *****")
   }
 
   // console.log("Delta X     :", dx)
   // console.log("Delta Y     :", dy)
   // console.log("------------------")
   // console.log("Delta Angle :", da)
-  console.log("***** " + "END" + " *****")
-  console.log("-------------------------")
 
     // The client is not waiting for a response.
     // This is an independent action and will
     // not hold up the client's message.
-
-  // var response = new Buffer( "Got it on " + new Date() );
-  // socket.send(
-  //   response,
-  //   0, // Buffer offset
-  //   response.length,
-  //   requestInfo.port,
-  //   requestInfo.address,
-  //   function( error, byteLength ) {
-  //     console.log( "... Sent response to " + requestInfo.address + ":" + requestInfo.port );
-  //   }
-  // );
-
 }
 
 socket.on('error', (err) => {
@@ -208,7 +223,6 @@ socket.on('error', (err) => {
 });
 
 socket.on('message', (msg, info) => {
-  console.log("Got a message.")
   var client = JSON.parse(msg)
 
   var timestamp = new Date().getTime()
