@@ -72,6 +72,7 @@ function updateWorld() {
     movePlayers()
     checkFPS()
     count()
+    sendUpdates()
     lastTime = thisTime
   }
 
@@ -94,7 +95,7 @@ function killPlayer(client) {
   console.log(players)
   console.log(clients)
 
-  socket.close()
+  // socket.close()
 }
 
 function playerJoin(client, address) {
@@ -119,6 +120,40 @@ function playerJoin(client, address) {
   console.log(clients)
 }
 
+function sendUpdates() {
+  players.forEach(function(player) {
+    var client = clients[player.id]
+    var response = new Buffer(JSON.stringify(players))
+
+    socket.send(
+      response,
+      0, // Buffer offset
+      response.length,
+      client.id,
+      client.address,
+      function(error, byteLength) {
+        console.log( "Sent response to " + client.address + ":" + client.id + ".")
+      }
+    )
+  })
+}
+
+function correctPlayerPosition(player, correction) {
+  var client = clients[player.id]
+
+  var response = new Buffer(JSON.stringify({ type: "correction", x: player.x, y: player.y, angle: player.angle }))
+  socket.send(
+    response,
+    0, // Buffer offset
+    response.length,
+    client.id,
+    client.address,
+    function(error, byteLength) {
+      console.log( "Sent response to " + client.address + ":" + client.id + ".")
+    }
+  )
+}
+
 function movePlayers() {
   players.forEach(function(player) {
     var dx = player.x - (player.speed * 3) * Math.sin(Math.PI / 180 * player.angle)
@@ -135,6 +170,15 @@ function movePlayers() {
   // console.log(clients)
 }
 
+function handlePlayerInput(client) {
+  players.forEach(function(player) {
+    if (player.id === client.id) {
+      player.angle = client.angle
+      checkPlayerPosition(player, client)
+    }
+  })
+}
+
 var lastFrame = Date.now()
 var frameTime = 0
 function checkFPS() {
@@ -149,54 +193,23 @@ function checkFPS() {
   }
 }
 
-function handlePlayerInput(client) {
-  players.forEach(function(player) {
-    if (player.id === client.id) {
-      player.angle = client.angle
-      checkPlayerPosition(player, client)
-    }
-  })
-}
-
-function correctPlayerPosition(player, client) {
-  var serverClient = clients[client.id]
-
-  var response = new Buffer(JSON.stringify({ x: player.x, y: player.y, angle: player.angle }))
-  socket.send(
-    response,
-    0, // Buffer offset
-    response.length,
-    serverClient.id,
-    serverClient.address,
-    function( error, byteLength ) {
-      console.log( "Sent response to " + client.address + ":" + client.id + ".")
-    }
-  )
-}
-
 function checkPlayerPosition(player, client) {
   var dx = client.x - player.x
   var dy = client.y - player.y
   var da = client.angle - player.angle
   var correcting = false
-  var margin = 50
+  var margin = 25
 
   if (dx > margin || dx < -margin) {
-    correctPlayerPosition(player, client)
     correcting = true
-
   }
 
   if (dy > margin || dy < -margin) {
-    correctPlayerPosition(player, client)
     correcting = true
-
   }
 
   if (da > margin || da < -margin) {
-    correctPlayerPosition(player, client)
     correcting = true
-
   }
 
   if (correcting) {
@@ -205,16 +218,9 @@ function checkPlayerPosition(player, client) {
     console.log("Delta Y is     :", dy)
     console.log("Delta Angle is :", da)
     console.log("***** " + "END" + " *****")
+    correctPlayerPosition(player)
+    correcting = false
   }
-
-  // console.log("Delta X     :", dx)
-  // console.log("Delta Y     :", dy)
-  // console.log("------------------")
-  // console.log("Delta Angle :", da)
-
-    // The client is not waiting for a response.
-    // This is an independent action and will
-    // not hold up the client's message.
 }
 
 socket.on('error', (err) => {
