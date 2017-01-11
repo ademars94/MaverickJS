@@ -10,8 +10,10 @@ var routes = require("./routes/index")
 var app = express()
 var socket = dgram.createSocket({type: "udp4", reuseAddr: true})
 
-var players = [];
-var clients = {};
+var players = []
+var clients = {}
+
+var inputQueue = []
 
 var Player = function(id, x, y, speed, angle) {
   this.id    = id
@@ -20,7 +22,7 @@ var Player = function(id, x, y, speed, angle) {
   this.speed = speed
   this.angle = angle
   this.turnDelta = 0
-};
+}
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"))
@@ -41,22 +43,6 @@ app.use(function(req, res, next) {
 })
 
 // Socket Stuff
-
-function prettyLogMessage(address, port, client, timestamp, delta) {
-  console.log("======================================================")
-  console.log("----------------- " + address + ":" + port + " -----------------")
-  console.log("======================================================")
-
-  console.log("Client Id: " + client.id)
-  console.log("Message Type: " + client.type)
-  console.log("Client Timestamp: " + client.timestamp)
-  console.log("Client Turn Delta X: " + client.turnDeltaX)
-
-  console.log("\nServer Timestamp: " + timestamp)
-  console.log("Delta: " + delta)
-
-  console.log("***** " + "END" + " *****")
-}
 
 // ********************************************************************
 // *************************** Move Logic *****************************
@@ -225,16 +211,14 @@ function checkPlayerPosition(player, client) {
 
 socket.on('error', (err) => {
   console.log("ERROR:\n" + err.stack);
-  socket.close();
-});
+  socket.close()
+})
 
 socket.on('message', (msg, info) => {
   var client = JSON.parse(msg)
 
   var timestamp = new Date().getTime()
   var delta = client.timestamp - timestamp
-
-  // prettyLogMessage(info.address, info.port, client, timestamp, delta)
 
   if (!clients[client.id] && client.type !== "die") {
     playerJoin(client, info.address)
@@ -247,13 +231,13 @@ socket.on('message', (msg, info) => {
   if (client.type === "input") {
     handlePlayerInput(client)
   }
-});
+})
 
 socket.on('listening', () => {
-  var address = socket.address();
+  var address = socket.address()
   var foo = address.family
-  console.log(foo + " socket listening on " + address.address + ":" + address.port + "...");
-});
+  console.log(foo + " socket listening on " + address.address + ":" + address.port + "...")
+})
 
 socket.bind(port);
 setImmediate(updateWorld)
