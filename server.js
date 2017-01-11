@@ -55,6 +55,7 @@ function updateWorld() {
   var delta = thisTime - lastTime
 
   if (delta >= 1000/20 && players.length > 0) {
+    executeInputQueue()
     movePlayers()
     checkFPS()
     count()
@@ -152,17 +153,23 @@ function movePlayers() {
       player.y = dy
     }
   })
-  // console.log(players)
-  // console.log(clients)
+  console.log(players)
 }
 
-function handlePlayerInput(client) {
-  players.forEach(function(player) {
-    if (player.id === client.id) {
-      player.angle = client.angle
-      checkPlayerPosition(player, client)
-    }
+function handlePlayerInput(clientInput) {
+  inputQueue.push(clientInput)
+}
+
+function executeInputQueue() {
+  if (inputQueue.length == 0) { return }
+
+  inputQueue.forEach(function(clientInput) {
+    var index = players.map(function(x) {return x.id }).indexOf(clientInput.id);
+    var player = players[index];
+    player.angle = clientInput.angle
   })
+  inputQueue = []
+  console.log("Input queue has been executed.")
 }
 
 var lastFrame = Date.now()
